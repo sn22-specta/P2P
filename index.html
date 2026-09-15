@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENUSDT — P2P USDT Sénégal</title>
+<meta name="theme-color" content="#07140f">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#07100c;--surface:#101d17;--surface2:#14251d;--surface3:#192d24;
+  --border:#233b30;--text:#f2f7f4;--muted:#8ea69b;
+  --green:#19c77a;--green2:#0e8f56;--green-soft:rgba(25,199,122,.12);
+  --blue:#4d8dff;--red:#ff5b63;--yellow:#f6c85f;
+  --radius:18px;--shadow:0 20px 50px rgba(0,0,0,.28);
+  --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"SF Mono","SFMono-Regular",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:radial-gradient(circle at 20% 0%,rgba(25,199,122,.09),transparent 30%),radial-gradient(circle at 100% 20%,rgba(77,141,255,.06),transparent 25%),var(--bg);color:var(--text);font-family:var(--font)}
+button,input,select,textarea{font:inherit}
+button{border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+.app{min-height:100vh}
+.disclaimer{background:linear-gradient(90deg,rgba(25,199,122,.10),rgba(77,141,255,.08));border-bottom:1px solid var(--border);color:var(--text);font-size:12.5px;padding:10px 20px;text-align:center}
+.disclaimer strong{color:var(--green)}
+.topbar{position:sticky;top:0;z-index:100;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,16,12,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,var(--green),var(--green2));color:#fff;font-weight:900;box-shadow:0 10px 30px rgba(25,199,122,.22)}
+.brand-text strong{display:block;font-size:17px;letter-spacing:.5px}
+.brand-text span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.btn{min-height:42px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);transition:.2s ease}
+.btn:hover{transform:translateY(-1px);background:var(--surface3)}
+.btn-primary{background:var(--green);color:#04150d;border-color:var(--green);font-weight:800}
+.btn-primary:hover{background:#25d986}
+.btn-danger{background:rgba(255,91,99,.1);color:#ff858b;border-color:rgba(255,91,99,.25)}
+.btn-blue{background:rgba(77,141,255,.12);color:#8cb5ff;border-color:rgba(77,141,255,.25)}
+.btn-warn{background:rgba(246,200,95,.12);color:#f6c85f;border-color:rgba(246,200,95,.3)}
+.btn-success{background:rgba(25,199,122,.12);color:#48e49b;border-color:rgba(25,199,122,.25)}
+.btn-small{min-height:36px;padding:0 12px;font-size:13px}
+.main-nav{max-width:1250px;margin:0 auto;padding:18px 20px 0}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:11px 17px;border-radius:11px;background:transparent;border:1px solid transparent;color:var(--muted)}
+.tab.active{background:var(--green-soft);border-color:rgba(25,199,122,.2);color:#54e8a1}
+main{max-width:1250px;margin:0 auto;padding:22px 20px 80px}
+.page{display:none;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:18px;margin-bottom:22px}
+.hero-card{position:relative;overflow:hidden;padding:30px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,rgba(25,199,122,.10),rgba(16,29,23,.92));box-shadow:var(--shadow)}
+.hero-card::after{content:"";position:absolute;width:220px;height:220px;right:-100px;top:-100px;border-radius:50%;background:rgba(25,199,122,.07)}
+.hero-card h1{position:relative;z-index:1;max-width:650px;font-size:clamp(28px,5vw,46px);line-height:1.05;letter-spacing:-1.5px}
+.hero-card h1 span{color:var(--green)}
+.hero-card p{position:relative;z-index:1;max-width:620px;margin-top:14px;color:var(--muted);line-height:1.7}
+.hero-buttons{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.info-card{padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.info-card h3{font-size:14px;color:var(--muted);font-weight:600}
+.commission-big{margin-top:10px;font-size:42px;font-weight:900;color:var(--green)}
+.info-card p{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.6}
+.wave-num{display:block;margin-top:8px;font-family:var(--mono);color:var(--green);font-weight:700;word-break:break-all}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:8px 0 6px}
+.step{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);position:relative}
+.step-num{position:absolute;top:-12px;left:18px;width:28px;height:28px;border-radius:50%;background:var(--green);color:#04150d;display:grid;place-items:center;font-weight:900;font-size:13px}
+.step h4{margin:10px 0 6px;font-size:14px}
+.step p{color:var(--muted);font-size:12px;line-height:1.6}
+.section-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:25px 0 15px}
+.section-header h2{font-size:21px}
+.section-header p{color:var(--muted);font-size:13px}
+.filters{display:grid;grid-template-columns:1.3fr .7fr .7fr auto;gap:10px;margin-bottom:15px}
+.input,.select,textarea.input{width:100%;min-height:46px;padding:0 14px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;transition:.2s}
+textarea.input{padding:13px;min-height:100px;resize:vertical}
+.input:focus,.select:focus{border-color:rgba(25,199,122,.6);box-shadow:0 0 0 3px rgba(25,199,122,.08)}
+.offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.offer-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);transition:.2s ease}
+.offer-card:hover{transform:translateY(-2px);border-color:#345545}
+.offer-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.offer-type{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase}
+.offer-type.sell{color:#ffae78;background:rgba(255,155,82,.1)}
+.offer-type.buy{color:#51e69e;background:rgba(25,199,122,.1)}
+.offer-price{margin:17px 0;font-size:29px;font-weight:900}
+.offer-price small{color:var(--muted);font-size:13px;font-weight:500}
+.offer-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.meta-box{padding:11px;border-radius:10px;background:var(--surface2)}
+.meta-box span{display:block;color:var(--muted);font-size:11px}
+.meta-box strong{display:block;margin-top:5px;font-size:13px}
+.offer-user{display:flex;justify-content:space-between;align-items:center;margin-top:15px;padding-top:14px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+.offer-actions{display:flex;gap:8px;margin-top:13px}
+.offer-actions .btn{flex:1}
+.empty{padding:45px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted)}
+.empty-icon{font-size:35px;margin-bottom:10px}
+.trades{display:grid;gap:12px}
+.trade-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.trade-head{display:flex;justify-content:space-between;gap:12px}
+.trade-id{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.trade-amount{margin-top:8px;font-size:23px;font-weight:900}
+.status{display:inline-flex;padding:6px 9px;border-radius:8px;font-size:11px;font-weight:800}
+.status.awaiting_fee{color:#d4a7ff;background:rgba(170,95,255,.12)}
+.status.open{color:#8cb5ff;background:rgba(77,141,255,.1)}
+.status.fiat_sent{color:#ffc978;background:rgba(246,200,95,.1)}
+.status.usdt_sent{color:#66e9a7;background:rgba(25,199,122,.1)}
+.status.completed{color:#5ee4a1;background:rgba(25,199,122,.12)}
+.status.cancelled{color:#ff858b;background:rgba(255,91,99,.1)}
+.trade-info{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.trade-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.profile-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:16px}
+.panel{padding:22px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.profile-avatar{width:75px;height:75px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,var(--green),var(--green2));color:#04150d;font-size:25px;font-weight:900}
+.profile-name{margin-top:15px;font-size:23px;font-weight:900}
+.profile-email{margin-top:4px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
+.stat{padding:13px;background:var(--surface2);border-radius:11px}
+.stat span{color:var(--muted);font-size:10px}
+.stat strong{display:block;margin-top:4px;font-size:17px}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.calculator{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.calc-card{padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.calc-result{margin-top:20px}
+.calc-line{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--border);color:var(--muted)}
+.calc-line strong{color:var(--text)}
+.calc-total{padding-top:15px;display:flex;justify-content:space-between;font-size:20px;font-weight:900}
+.modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
+.modal.open{display:flex}
+.modal-box{width:min(560px,100%);max-height:90vh;overflow-y:auto;padding:23px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-head h2{font-size:20px}
+.close{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:var(--surface2);color:var(--muted)}
+.auth-switch{display:flex;gap:6px;padding:4px;margin-bottom:18px;border-radius:11px;background:var(--surface2)}
+.auth-switch button{flex:1;padding:10px;border-radius:8px;background:transparent;color:var(--muted)}
+.auth-switch button.active{background:var(--surface3);color:var(--text)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.detail-box{padding:13px;background:var(--surface2);border-radius:11px}
+.detail-box span{display:block;color:var(--muted);font-size:11px}
+.detail-box strong{display:block;margin-top:6px;word-break:break-word}
+.fee-box{margin-top:16px;padding:16px;border:1px solid rgba(77,141,255,.35);border-radius:14px;background:linear-gradient(145deg,rgba(77,141,255,.10),rgba(16,29,23,.5))}
+.fee-box h4{font-size:14px;margin-bottom:10px;color:#8cb5ff}
+.fee-box .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:var(--muted);border-bottom:1px dashed var(--border)}
+.fee-box .row:last-child{border-bottom:0}
+.fee-box .row strong{color:var(--text)}
+.fee-box .wave-line{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,0,0,.35);font-family:var(--mono);text-align:center;font-size:15px;color:var(--green);font-weight:700;letter-spacing:.5px;user-select:all}
+.toast-container{position:fixed;right:18px;bottom:18px;z-index:1000;display:flex;flex-direction:column;gap:9px}
+.toast{min-width:280px;max-width:380px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);box-shadow:var(--shadow);animation:toastIn .25s ease}
+.toast.success{border-color:rgba(25,199,122,.35)}
+.toast.error{border-color:rgba(255,91,99,.35)}
+@keyframes toastIn{from{opacity:0;transform:translateY(15px)}}
+.loader{width:18px;height:18px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;justify-content:center;align-items:center;min-height:130px}
+.security-box{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:15px;border:1px solid rgba(25,199,122,.2);border-radius:13px;background:rgba(25,199,122,.06)}
+.security-icon{font-size:21px}
+.security-box strong{display:block;font-size:13px}
+.security-box p{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:900px){
+  .hero,.profile-grid,.calculator{grid-template-columns:1fr}
+  .offers{grid-template-columns:1fr}
+  .filters{grid-template-columns:1fr 1fr}
+  .trade-info{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .topbar{height:64px;padding:0 13px}
+  .brand-text span{display:none}
+  .brand-logo{width:38px;height:38px}
+  .top-actions .btn{padding:0 10px;font-size:13px}
+  main{padding:16px 13px 60px}
+  .main-nav{padding:12px 13px 0}
+  .hero-card{padding:23px}
+  .filters{grid-template-columns:1fr}
+  .form-grid,.detail-grid{grid-template-columns:1fr}
+  .trade-info{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:1fr 1fr 1fr}
+  .steps{grid-template-columns:1fr}
+  .toast-container{left:13px;right:13px}
+  .toast{min-width:0;width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="disclaimer">
+    🔐 <strong>SENUSDT est un service de mise en relation.</strong>
+    Nous ne détenons <strong>ni vos USDT ni vos FCFA</strong>.
+    <a href="#" onclick="showPage('market');scrollToHow();return false;" style="color:var(--green);text-decoration:underline">En savoir plus</a>
+  </div>
+
+  <header class="topbar">
+    <a href="#" class="brand" onclick="showPage('market'); return false;">
+      <div class="brand-logo">₮</div>
+      <div class="brand-text">
+        <strong>SENUSDT</strong>
+        <span>P2P • Sénégal</span>
+      </div>
+    </a>
+    <div class="top-actions" id="authZone" aria-live="polite">
+      <div class="loader"></div>
+    </div>
+  </header>
+
+  <nav class="main-nav">
+    <div class="tabs">
+      <button class="tab active" data-page="market" onclick="showPage('market')">Marché</button>
+      <button class="tab" data-page="trades" onclick="showPage('trades')">Mes commandes</button>
+      <button class="tab" data-page="create" onclick="showPage('create')">Publier une offre</button>
+      <button class="tab" data-page="calculator" onclick="showPage('calculator')">Calculateur</button>
+      <button class="tab" data-page="profile" onclick="showPage('profile')">Profil</button>
+    </div>
+  </nav>
+
+  <main>
+
+    <section id="page-market" class="page active">
+      <div class="hero">
+        <div class="hero-card">
+          <h1>Achetez et vendez <span>USDT</span> en P2P.</h1>
+          <p>SENUSDT met en relation acheteurs et vendeurs au Sénégal. Les USDT restent dans <strong>vos</strong> portefeuilles : Binance, Bybit, Trust Wallet… Nous ne stockons rien.</p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="scrollToOffers()">Voir les offres</button>
+            <button class="btn" onclick="requireAuth(function(){ showPage('create'); })">Publier une offre</button>
+          </div>
+        </div>
+        <div class="info-card">
+          <h3>Frais de service SENUSDT</h3>
+          <div class="commission-big">1 %</div>
+          <p>Prélevés sur chaque transaction, payables par <strong>Wave</strong> directement à SENUSDT.</p>
+          <span class="wave-num">Wave → +221 77 567 31 82</span>
+          <div class="security-box">
+            <div class="security-icon">🔐</div>
+            <div>
+              <strong>Modèle non-custodial</strong>
+              <p>SENUSDT ne détient ni USDT ni FCFA.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header" id="howSection">
+        <div><h2>Comment ça marche</h2><p>4 étapes — aucun dépôt chez SENUSDT</p></div>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Acheteur et vendeur se mettent d'accord via la plateforme.</p></div>
+        <div class="step"><span class="step-num">2</span><h4>Commission Wave</h4><p>L'acheteur envoie les 1 % sur Wave <strong>+221 77 567 31 82</strong>.</p></div>
+        <div class="step"><span class="step-num">3</span><h4>Paiement fiat</h4><p>L'acheteur envoie les FCFA au vendeur (Wave, OM…).</p></div>
+        <div class="step"><span class="step-num">4</span><h4>Envoi USDT</h4><p>Le vendeur envoie les USDT depuis son propre wallet.</p></div>
+      </div>
+
+      <div class="section-header" id="offersSection">
+        <div><h2>Marché P2P</h2><p>Offres actuellement disponibles</p></div>
+        <button class="btn btn-small" onclick="loadOffers()">↻ Actualiser</button>
+      </div>
+
+      <div class="filters">
+        <input id="searchInput" class="input" placeholder="Rechercher…" oninput="renderOffers()">
+        <select id="offerTypeFilter" class="select" onchange="renderOffers()">
+          <option value="">Acheter + vendre</option>
+          <option value="sell">Acheter USDT</option>
+          <option value="buy">Vendre USDT</option>
+        </select>
+        <select id="currencyFilter" class="select" onchange="renderOffers()">
+          <option value="XOF">FCFA / XOF</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="">Toutes devises</option>
+        </select>
+        <button class="btn btn-small" onclick="resetFilters()">Réinitialiser</button>
+      </div>
+
+      <div id="offers" class="offers">
+        <div class="loading"><div class="loader"></div></div>
+      </div>
+    </section>
+
+    <section id="page-trades" class="page">
+      <div class="section-header">
+        <div><h2>Mes commandes</h2><p>Suivez toutes vos transactions.</p></div>
+        <button class="btn btn-small" onclick="loadTrades()">↻ Actualiser</button>
+      </div>
+      <div id="trades" class="trades"></div>
+    </section>
+
+    <section id="page-create" class="page">
+      <div class="section-header">
+        <div><h2>Publier une offre</h2><p>Créez une proposition d'achat ou de vente.</p></div>
+      </div>
+      <div class="panel">
+        <form id="offerForm" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="offerType">Type d'offre</label>
+              <select id="offerType" class="select" required>
+                <option value="sell">Je vends des USDT</option>
+                <option value="buy">Je veux acheter des USDT</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerCurrency">Devise</label>
+              <select id="offerCurrency" class="select">
+                <option value="XOF">FCFA / XOF</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="offerPlatform">Ma plateforme USDT</label>
+            <select id="offerPlatform" class="select" required>
+              <option value="Binance">Binance</option>
+              <option value="Bybit">Bybit</option>
+              <option value="OKX">OKX</option>
+              <option value="Kucoin">Kucoin</option>
+              <option value="Trust Wallet">Trust Wallet</option>
+              <option value="MetaMask">MetaMask</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="offerAmount">Quantité totale USDT</label>
+              <input id="offerAmount" class="input" type="number" min="0.000001" step="0.000001" placeholder="Ex : 100" required>
+            </div>
+            <div class="form-group">
+              <label for="offerPrice">Prix pour 1 USDT</label>
+              <input id="offerPrice" class="input" type="number" min="0.000001" step="0.000001" placeholder="Ex : 615" required>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="offerMin">Limite minimale</label>
+              <input id="offerMin" class="input" type="number" min="0" step="0.01" placeholder="Ex : 5000" required>
+            </div>
+            <div class="form-group">
+              <label for="offerMax">Limite maximale</label>
+              <input id="offerMax" class="input" type="number" min="0" step="0.01" placeholder="Ex : 100000" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="offerPayments">Moyens de paiement fiat acceptés</label>
+            <input id="offerPayments" class="input" placeholder="Ex : Wave, Orange Money" required>
+          </div>
+          <div class="form-group">
+            <label for="offerTerms">Conditions de l'offre</label>
+            <textarea id="offerTerms" class="input" placeholder="Décrivez vos conditions…"></textarea>
+          </div>
+          <div class="security-box">
+            <div class="security-icon">💡</div>
+            <div>
+              <strong>Rappel non-custodial</strong>
+              <p>SENUSDT ne vérifie ni ne stocke vos USDT.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:18px" type="submit">Publier l'offre</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="page-calculator" class="page">
+      <div class="section-header">
+        <div><h2>Calculateur P2P</h2><p>Visualisez les 1 % de frais.</p></div>
+      </div>
+      <div class="calculator">
+        <div class="calc-card">
+          <div class="form-group">
+            <label for="calcUSDT">Montant USDT</label>
+            <input id="calcUSDT" class="input" type="number" value="100" min="0" step="0.000001" oninput="calculateCommission()">
+          </div>
+          <div class="form-group">
+            <label for="calcPrice">Prix d'un USDT (FCFA)</label>
+            <input id="calcPrice" class="input" type="number" value="615" min="0" step="0.01" oninput="calculateCommission()">
+          </div>
+          <div class="form-group">
+            <label for="calcSplit">Répartition</label>
+            <select id="calcSplit" class="select" onchange="calculateCommission()">
+              <option value="100">100 % acheteur</option>
+              <option value="50">50 / 50</option>
+              <option value="0">100 % vendeur</option>
+            </select>
+          </div>
+        </div>
+        <div class="calc-card">
+          <h3>Résultat</h3>
+          <div id="calcResult" class="calc-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-profile" class="page">
+      <div class="section-header">
+        <div><h2>Mon profil</h2><p>Informations de votre compte.</p></div>
+      </div>
+      <div id="profileContent"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="authModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>SENUSDT</h2>
+      <button class="close" type="button" onclick="closeModal('authModal')">×</button>
+    </div>
+    <div class="auth-switch">
+      <button id="loginTab" type="button" class="active" onclick="switchAuth('login')">Connexion</button>
+      <button id="registerTab" type="button" onclick="switchAuth('register')">Inscription</button>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">E-mail</label>
+        <input id="loginEmail" class="input" type="email" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Mot de passe</label>
+        <input id="loginPassword" class="input" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary" style="width:100%" type="submit">Se connecter</button>
+    </form>
+    <form id="registerForm" style="display:none">
+      <div class="form-group">
+        <label for="registerUsername">Nom d'utilisateur</label>
+        <input id="registerUsername" class="input" minlength="3" required>
+      </div>
+      <div class="form-group">
+        <label for="registerEmail">E-mail</label>
+        <input id="registerEmail" class="input" type="email" required>
+      </div>
+      <div class="form-group">
+        <label for="registerPassword">Mot de passe (min. 8 caractères)</label>
+        <input id="registerPassword" class="input" type="password" minlength="8" required>
+      </div>
+      <button class="btn btn-primary" style="width:100%" type="submit">Créer mon compte</button>
+    </form>
+  </div>
+</div>
+
+<div id="tradeModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Nouvelle commande</h2>
+      <button class="close" type="button" onclick="closeModal('tradeModal')">×</button>
+    </div>
+    <div id="tradeCreationContent"></div>
+  </div>
+</div>
+
+<div id="feeModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Frais de service — Wave</h2>
+      <button class="close" type="button" onclick="closeModal('feeModal')">×</button>
+    </div>
+    <div id="feeContent"></div>
+  </div>
+</div>
+
+<div id="usdtModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Preuve d'envoi USDT</h2>
+      <button class="close" type="button" onclick="closeModal('usdtModal')">×</button>
+    </div>
+    <div id="usdtContent"></div>
+  </div>
+</div>
+
+<div id="detailModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Détails</h2>
+      <button class="close" type="button" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div id="tradeDetailContent"></div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+var SUPABASE_URL='https://zwftxkhylzmdnfrmowza.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZnR4a2h5bHptZG5mcm1vd3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NjYzODQsImV4cCI6MjEwNTA0MjM4NH0.jgA-zADFwOdhGoUjoquV_7GF4uwcQRkZv2_NVj7Xb2s';
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+var COMMISSION_RATE=0.01;
+var WAVE_NUMBER='+221 77 567 31 82';
+
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function fmtAmount(n){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:6}).format(Number(n)||0);}
+function fmtPrice(n,cur){
+  cur=cur||'XOF';
+  var v=Number(n)||0;
+  if(cur==='XOF')return new Intl.NumberFormat('fr-FR').format(Math.round(v))+' FCFA';
+  return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:2}).format(v)+' '+cur;
+}
+function escapeHTML(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function timeAgo(ts){
+  var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);
+  if(s<60)return'à l\'instant';
+  var m=Math.floor(s/60);if(m<60)return'il y a '+m+' min';
+  var h=Math.floor(m/60);if(h<24)return'il y a '+h+' h';
+  return 'il y a '+Math.floor(h/24)+' j';
+}
+
+var state={user:null,profile:null,offers:[]};
+
+function toast(msg,type){
+  type=type||'success';
+  var box=$('#toastContainer');if(!box)return;
+  var el=document.createElement('div');
+  el.className='toast '+type;
+  el.textContent=msg;
+  box.appendChild(el);
+  setTimeout(function(){
+    el.style.transition='opacity .25s';el.style.opacity='0';
+    setTimeout(function(){el.remove();},250);
+  },3200);
+}
+
+window.closeModal=function(id){var m=document.getElementById(id);if(m)m.classList.remove('open');};
+function openModal(id){var m=document.getElementById(id);if(m)m.classList.add('open');}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')$$('.modal.open').forEach(function(m){m.classList.remove('open');});
+});
+$$('.modal').forEach(function(m){
+  m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open');});
+});
+
+window.showPage=function(page){
+  if((page==='trades'||page==='profile'||page==='create')&&!state.user){
+    openModal('authModal');return;
+  }
+  $$('.page').forEach(function(p){p.classList.remove('active');});
+  var t=document.getElementById('page-'+page);
+  if(t)t.classList.add('active');
+  $$('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
+  if(page==='trades')loadTrades();
+  if(page==='profile')renderProfile();
+  if(page==='market')loadOffers();
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+window.scrollToOffers=function(){var el=document.getElementById('offersSection');if(el)el.scrollIntoView({behavior:'smooth'});};
+window.scrollToHow=function(){var el=document.getElementById('howSection');if(el)el.scrollIntoView({behavior:'smooth'});};
+window.requireAuth=function(cb){
+  if(!state.user){openModal('authModal');return;}
+  if(typeof cb==='function')cb();
+};
+
+window.switchAuth=function(mode){
+  var isLogin=mode==='login';
+  $('#loginTab').classList.toggle('active',isLogin);
+  $('#registerTab').classList.toggle('active',!isLogin);
+  $('#loginForm').style.display=isLogin?'':'none';
+  $('#registerForm').style.display=isLogin?'none':'';
+};
+window.openAuth=function(mode){switchAuth(mode);openModal('authModal');};
+window.logout=function(){
+  sb.auth.signOut().then(function(){
+    toast('Déconnecté');
+    showPage('market');
+  });
+};
+
+function renderAuthZone(){
+  var zone=$('#authZone');if(!zone)return;
+  if(state.user){
+    var initials=(state.profile&&state.profile.username||state.user.email||'?').slice(0,2).toUpperCase();
+    var name=(state.profile&&state.profile.username)||state.user.email;
+    zone.innerHTML=
+      '<button class="btn btn-small" onclick="showPage(\'profile\')">'+escapeHTML(initials)+' · '+escapeHTML(name)+'</button>'+
+      '<button class="btn btn-small btn-danger" onclick="logout()">Déconnexion</button>';
+  }else{
+    zone.innerHTML=
+      '<button class="btn btn-small" onclick="openAuth(\'login\')">Connexion</button>'+
+      '<button class="btn btn-small btn-primary" onclick="openAuth(\'register\')">Inscription</button>';
+  }
+}
+
+async function loadProfile(userId){
+  var r=await sb.from('profiles').select('*').eq('id',userId).maybeSingle();
+  if(r.error||!r.data){state.profile=null;return;}
+  state.profile=r.data;
+}
+
+$('#registerForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var username=$('#registerUsername').value.trim();
+  var email=$('#registerEmail').value.trim();
+  var password=$('#registerPassword').value;
+  if(username.length<3){toast('Nom trop court','error');return;}
+  var r=await sb.auth.signUp({
+    email:email,
+    password:password,
+    options:{data:{username:username}}
+  });
+  if(r.error){toast('Erreur : '+r.error.message,'error');return;}
+  toast('Compte créé');
+  closeModal('authModal');
+  e.target.reset();
+});
+
+$('#loginForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var email=$('#loginEmail').value.trim();
+  var password=$('#loginPassword').value;
+  var r=await sb.auth.signInWithPassword({email:email,password:password});
+  if(r.error){toast('Identifiants incorrects','error');return;}
+  closeModal('authModal');
+  toast('Connexion réussie');
+  e.target.reset();
+});
+
+sb.auth.onAuthStateChange(async function(event,session){
+  if(session&&session.user){
+    state.user=session.user;
+    await loadProfile(session.user.id);
+  }else{
+    state.user=null;
+    state.profile=null;
+  }
+  renderAuthZone();
+});
+
+window.loadOffers=async function(){
+  var box=$('#offers');if(!box)return;
+  box.innerHTML='<div class="loading"><div class="loader"></div></div>';
+  var r=await sb.from('offers')
+    .select('*, profiles(username)')
+    .eq('is_active',true)
+    .order('created_at',{ascending:false})
+    .limit(100);
+  if(r.error){box.innerHTML='<div class="empty">Erreur : '+escapeHTML(r.error.message)+'</div>';return;}
+  state.offers=r.data||[];
+  renderOffers();
+};
+
+window.renderOffers=function(){
+  var box=$('#offers');if(!box)return;
+  var q=($('#searchInput').value||'').trim().toLowerCase();
+  var type=$('#offerTypeFilter').value;
+  var currency=$('#currencyFilter').value;
+  var filtered=state.offers.filter(function(o){
+    if(type&&o.type!==type)return false;
+    if(currency&&o.currency!==currency)return false;
+    if(q){
+      var hay=((o.profiles&&o.profiles.username||'')+' '+o.payments+' '+o.platform+' '+(o.terms||'')).toLowerCase();
+      if(hay.indexOf(q)===-1)return false;
+    }
+    return true;
+  });
+  if(!filtered.length){
+    box.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div>Aucune offre.</div></div>';
+    return;
+  }
+  box.innerHTML=filtered.map(function(o){
+    var isSell=o.type==='sell';
+    var label=isSell?'Achat USDT':'Vente USDT';
+    var cls=isSell?'buy':'sell';
+    var owner=(o.profiles&&o.profiles.username)||'—';
+    return '<article class="offer-card">'+
+      '<div class="offer-top"><span class="offer-type '+cls+'">'+label+'</span><span style="color:var(--muted);font-size:12px">'+escapeHTML(owner)+'</span></div>'+
+      '<div class="offer-price">'+fmtPrice(o.price,o.currency)+' <small>/ USDT</small></div>'+
+      '<div class="offer-meta">'+
+        '<div class="meta-box"><span>Disponible</span><strong>'+fmtAmount(o.remaining)+' USDT</strong></div>'+
+        '<div class="meta-box"><span>Source USDT</span><strong>'+escapeHTML(o.platform)+'</strong></div>'+
+        '<div class="meta-box"><span>Min</span><strong>'+fmtPrice(o.min_limit,o.currency)+'</strong></div>'+
+        '<div class="meta-box"><span>Max</span><strong>'+fmtPrice(o.max_limit,o.currency)+'</strong></div>'+
+      '</div>'+
+      '<div class="offer-user"><span>⏱ '+timeAgo(o.created_at)+'</span><span>'+escapeHTML(o.payments)+'</span></div>'+
+      '<div class="offer-actions"><button class="btn btn-small btn-primary" onclick="openTrade(\''+o.id+'\')">'+(isSell?'Acheter':'Vendre')+'</button></div>'+
+    '</article>';
+  }).join('');
+};
+
+window.resetFilters=function(){
+  $('#searchInput').value='';
+  $('#offerTypeFilter').value='';
+  $('#currencyFilter').value='XOF';
+  renderOffers();
+};
+
+$('#offerForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  if(!state.user){openModal('authModal');return;}
+  var type=$('#offerType').value;
+  var currency=$('#offerCurrency').value;
+  var platform=$('#offerPlatform').value;
+  var amount=parseFloat($('#offerAmount').value);
+  var price=parseFloat($('#offerPrice').value);
+  var min=parseFloat($('#offerMin').value);
+  var max=parseFloat($('#offerMax').value);
+  var payments=$('#offerPayments').value.trim();
+  var terms=$('#offerTerms').value.trim();
+  if(!(amount>0)||!(price>0)){toast('Montants invalides','error');return;}
+  if(min>max){toast('Min > Max','error');return;}
+  if(!payments){toast('Indiquez un moyen de paiement','error');return;}
+  var r=await sb.from('offers').insert({
+    user_id:state.user.id,
+    type:type,currency:currency,platform:platform,
+    amount:amount,remaining:amount,price:price,
+    min_limit:min,max_limit:max,payments:payments,terms:terms
+  });
+  if(r.error){toast('Erreur : '+r.error.message,'error');return;}
+  toast('Offre publiée');
+  e.target.reset();
+  showPage('market');
+  loadOffers();
+});
+
+window.openTrade=async function(offerId){
+  if(!state.user){openModal('authModal');return;}
+  var r=await sb.from('offers').select('*, profiles(username)').eq('id',offerId).maybeSingle();
+  if(r.error||!r.data){toast('Offre introuvable','error');return;}
+  var offer=r.data;
+  if(offer.user_id===state.user.id){toast('C\'est votre propre offre','error');return;}
+
+  var isBuying=offer.type==='sell';
+  var maxUsdt=Math.min(offer.remaining,offer.max_limit/offer.price);
+  var minUsdt=offer.min_limit/offer.price;
+  if(minUsdt>maxUsdt){toast('Offre indisponible','error');return;}
+
+  var walletFieldHTML=isBuying
+    ? '<div class="form-group" style="margin-top:14px"><label for="tradeWallet">Votre adresse USDT de réception *</label>'+
+      '<input id="tradeWallet" class="input" placeholder="TRC20 / ERC20 / BEP20…" required></div>'
+    : '';
+
+  $('#tradeCreationContent').innerHTML=
+    '<div class="detail-grid">'+
+      '<div class="detail-box"><span>Type</span><strong>'+(isBuying?'Achat':'Vente')+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Prix</span><strong>'+fmtPrice(offer.price,offer.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Source USDT</span><strong>'+escapeHTML(offer.platform)+'</strong></div>'+
+      '<div class="detail-box"><span>Paiement</span><strong>'+escapeHTML(offer.payments)+'</strong></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:16px"><label for="tradeAmount">Quantité d\'USDT</label>'+
+    '<input id="tradeAmount" class="input" type="number" min="0" step="0.000001" placeholder="'+fmtAmount(minUsdt)+' – '+fmtAmount(maxUsdt)+'"></div>'+
+    walletFieldHTML+
+    '<div class="calc-line"><span>Sous-total</span><strong id="tradeSubtotal">—</strong></div>'+
+    '<div class="calc-line"><span>Frais SENUSDT (1 %)</span><strong id="tradeFee">—</strong></div>'+
+    '<div class="calc-total"><span>Total</span><span id="tradeTotal">—</span></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:14px" id="tradeConfirm">Créer la commande</button>';
+
+  function updateTotals(){
+    var q=parseFloat($('#tradeAmount').value)||0;
+    var sub=q*offer.price,fee=sub*COMMISSION_RATE;
+    $('#tradeSubtotal').textContent=fmtPrice(sub,offer.currency);
+    $('#tradeFee').textContent=fmtPrice(fee,offer.currency);
+    $('#tradeTotal').textContent=fmtPrice(sub+fee,offer.currency);
+  }
+  $('#tradeAmount').addEventListener('input',updateTotals);
+  updateTotals();
+
+  $('#tradeConfirm').addEventListener('click',async function(){
+    var q=parseFloat($('#tradeAmount').value);
+    if(!(q>0))return toast('Quantité invalide','error');
+    if(q<minUsdt)return toast('Sous le minimum','error');
+    if(q>maxUsdt)return toast('Au-dessus du maximum','error');
+
+    var buyerWallet='';
+    if(isBuying){
+      buyerWallet=($('#tradeWallet').value||'').trim();
+      if(buyerWallet.length<10)return toast('Adresse USDT invalide','error');
+    }
+
+    var subtotal=q*offer.price,fee=subtotal*COMMISSION_RATE,total=subtotal+fee;
+    var insert={
+      offer_id:offer.id,
+      buyer_id:isBuying?state.user.id:offer.user_id,
+      seller_id:isBuying?offer.user_id:state.user.id,
+      amount:q,price:offer.price,currency:offer.currency,
+      subtotal:subtotal,fee:fee,total:total,
+      status:'awaiting_fee',
+      platform:offer.platform,
+      payments:offer.payments,
+      buyer_wallet:buyerWallet,
+      fee_paid:false
+    };
+    var r2=await sb.from('trades').insert(insert).select().single();
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+
+    await sb.from('offers').update({remaining:Math.max(0,offer.remaining-q)}).eq('id',offer.id);
+
+    closeModal('tradeModal');
+    openFeeModal(r2.data.id);
+  });
+
+  openModal('tradeModal');
+};
+
+async function openFeeModal(tradeId){
+  var r=await sb.from('trades').select('*').eq('id',tradeId).maybeSingle();
+  if(r.error||!r.data)return;
+  var t=r.data;
+
+  $('#feeContent').innerHTML=
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Envoyez les frais SENUSDT par <strong>Wave</strong>. Cette somme ne va <strong>pas</strong> au vendeur.</p>'+
+    '<div class="fee-box">'+
+      '<h4>Paiement de la commission</h4>'+
+      '<div class="row"><span>Référence</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
+      '<div class="row"><span>Montant USDT</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
+      '<div class="row"><span>Frais SENUSDT (1 %)</span><strong>'+fmtPrice(t.fee,'XOF')+'</strong></div>'+
+      '<div class="wave-line">'+WAVE_NUMBER+'</div>'+
+    '</div>'+
+    '<div class="security-box" style="margin-top:14px"><div class="security-icon">⚠️</div>'+
+    '<div><strong>Important</strong><p>Mettez <strong>#'+t.id.slice(0,8)+'</strong> en motif du transfert Wave.</p></div></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:16px" id="feeConfirm">J\'ai envoyé les frais — Activer</button>'+
+    '<button class="btn" style="width:100%;margin-top:8px" onclick="closeModal(\'feeModal\');showPage(\'trades\')">Voir dans « Mes commandes »</button>';
+
+  $('#feeConfirm').addEventListener('click',async function(){
+    var r2=await sb.from('trades').update({fee_paid:true,status:'open',updated_at:new Date().toISOString()}).eq('id',tradeId);
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+    closeModal('feeModal');
+    toast('Commande activée');
+    showPage('trades');
+  });
+
+  openModal('feeModal');
+}
+
+window.openUsdtModal=async function(tradeId){
+  var r=await sb.from('trades').select('*').eq('id',tradeId).maybeSingle();
+  if(r.error||!r.data)return;
+  var t=r.data;
+
+  $('#usdtContent').innerHTML=
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Confirmez l\'envoi des USDT depuis votre wallet <strong>'+escapeHTML(t.platform)+'</strong>.</p>'+
+    '<div class="detail-grid">'+
+      '<div class="detail-box"><span>Quantité</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Adresse acheteur</span><strong style="font-family:var(--mono);font-size:11px">'+escapeHTML(t.buyer_wallet||'—')+'</strong></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:14px"><label for="txHashInput">Hash de la transaction (TXID)</label>'+
+    '<input id="txHashInput" class="input" placeholder="0xabc… ou hash Tronscan…"></div>'+
+    '<div class="security-box"><div class="security-icon">⚠️</div>'+
+    '<div><strong>Irreversible</strong><p>Vérifiez l\'adresse avant d\'envoyer.</p></div></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:16px" id="usdtConfirm">Confirmer l\'envoi</button>';
+
+  $('#usdtConfirm').addEventListener('click',async function(){
+    var hash=$('#txHashInput').value.trim();
+    if(hash.length<10)return toast('Hash invalide','error');
+    var r2=await sb.from('trades').update({tx_hash:hash,status:'usdt_sent',updated_at:new Date().toISOString()}).eq('id',tradeId);
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+    closeModal('usdtModal');
+    toast('USDT marqués comme envoyés');
+    loadTrades();
+  });
+
+  openModal('usdtModal');
+};
+
+var STATUS_LABEL={
+  awaiting_fee:'Frais en attente',open:'Ouverte',
+  fiat_sent:'Fiat envoyé',usdt_sent:'USDT envoyés',
+  completed:'Terminée',cancelled:'Annulée',disputed:'Litige'
+};
+
+window.loadTrades=async function(){
+  var box=$('#trades');if(!box)return;
+  if(!state.user){box.innerHTML='';return;}
+  box.innerHTML='<div class="loading"><div class="loader"></div></div>';
+  var r=await sb.from('trades')
+    .select('*, buyer:buyer_id(username), seller:seller_id(username)')
+    .or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id)
+    .order('created_at',{ascending:false});
+  if(r.error){box.innerHTML='<div class="empty">Erreur : '+escapeHTML(r.error.message)+'</div>';return;}
+  var all=r.data||[];
+  if(!all.length){
+    box.innerHTML='<div class="empty"><div class="empty-icon">📄</div><div>Aucune commande.</div></div>';
+    return;
+  }
+  box.innerHTML=all.map(function(t){
+    var isBuyer=t.buyer_id===state.user.id;
+    var role=isBuyer?'Acheteur':'Vendeur';
+    var buyerName=(t.buyer&&t.buyer.username)||'—';
+    var sellerName=(t.seller&&t.seller.username)||'—';
+    var otherName=isBuyer?sellerName:buyerName;
+    return '<article class="trade-card">'+
+      '<div class="trade-head"><div>'+
+        '<div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · face à '+escapeHTML(otherName)+'</div>'+
+        '<div class="trade-amount">'+fmtAmount(t.amount)+' USDT</div>'+
+        '<div style="color:var(--muted);font-size:12px;margin-top:4px">'+fmtPrice(t.price,t.currency)+' / USDT · Total '+fmtPrice(t.total,t.currency)+'</div>'+
+      '</div><span class="status '+t.status+'">'+(STATUS_LABEL[t.status]||t.status)+'</span></div>'+
+      '<div class="trade-info">'+
+        '<div class="detail-box"><span>Plateforme</span><strong>'+escapeHTML(t.platform||'—')+'</strong></div>'+
+        '<div class="detail-box"><span>Paiement</span><strong>'+escapeHTML(t.payments||'—')+'</strong></div>'+
+        '<div class="detail-box"><span>Frais</span><strong>'+fmtPrice(t.fee,'XOF')+(t.fee_paid?' ✅':' ⏳')+'</strong></div>'+
+        '<div class="detail-box"><span>TXID</span><strong style="font-family:var(--mono);font-size:11px">'+(t.tx_hash?escapeHTML(t.tx_hash.slice(0,14))+'…':'—')+'</strong></div>'+
+      '</div>'+
+      '<div class="trade-actions">'+
+        '<button class="btn btn-small" onclick="openTradeDetail(\''+t.id+'\')">Détails</button>'+
+        nextActionButtons(t,isBuyer)+
+      '</div>'+
+    '</article>';
+  }).join('');
+};
+
+function nextActionButtons(t,isBuyer){
+  var html='';
+  if(t.status==='awaiting_fee'&&isBuyer){
+    html+='<button class="btn btn-small btn-warn" onclick="openFeeModal(\''+t.id+'\')">Payer les frais</button>';
+    html+='<button class="btn btn-small btn-danger" onclick="advanceTrade(\''+t.id+'\',\'cancelled\')">Annuler</button>';
+  }
+  if(t.status==='open'&&isBuyer){
+    html+='<button class="btn btn-small btn-blue" onclick="advanceTrade(\''+t.id+'\',\'fiat_sent\')">J\'ai payé le vendeur</button>';
+    html+='<button class="btn btn-small btn-danger" onclick="advanceTrade(\''+t.id+'\',\'cancelled\')">Annuler</button>';
+  }
+  if(t.status==='fiat_sent'&&!isBuyer){
+    html+='<button class="btn btn-small btn-success" onclick="openUsdtModal(\''+t.id+'\')">J\'ai envoyé les USDT</button>';
+  }
+  if(t.status==='usdt_sent'&&isBuyer){
+    html+='<button class="btn btn-small btn-primary" onclick="advanceTrade(\''+t.id+'\',\'completed\')">J\'ai reçu — Clôturer</button>';
+  }
+  return html;
+}
+
+window.advanceTrade=async function(id,next){
+  var r=await sb.from('trades').update({status:next,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){toast('Erreur : '+r.error.message,'error');return;}
+  toast('Statut : '+(STATUS_LABEL[next]||next));
+  loadTrades();
+};
+
+window.openTradeDetail=async function(id){
+  var r=await sb.from('trades').select('*').eq('id',id).maybeSingle();
+  if(r.error||!r.data)return;
+  var t=r.data;
+  $('#tradeDetailContent').innerHTML=
+    '<div class="detail-grid">'+
+      '<div class="detail-box"><span>Référence</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
+      '<div class="detail-box"><span>Statut</span><strong>'+(STATUS_LABEL[t.status]||t.status)+'</strong></div>'+
+      '<div class="detail-box"><span>Montant</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Prix</span><strong>'+fmtPrice(t.price,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Sous-total</span><strong>'+fmtPrice(t.subtotal,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Frais SENUSDT</span><strong>'+fmtPrice(t.fee,'XOF')+(t.fee_paid?' (payés)':' (en attente)')+'</strong></div>'+
+      '<div class="detail-box"><span>Total</span><strong>'+fmtPrice(t.total,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Plateforme</span><strong>'+escapeHTML(t.platform||'—')+'</strong></div>'+
+      '<div class="detail-box" style="grid-column:1/-1"><span>Adresse USDT acheteur</span><strong style="font-family:var(--mono);font-size:12px">'+escapeHTML(t.buyer_wallet||'—')+'</strong></div>'+
+      (t.tx_hash?'<div class="detail-box" style="grid-column:1/-1"><span>TXID</span><strong style="font-family:var(--mono);font-size:12px">'+escapeHTML(t.tx_hash)+'</strong></div>':'')+
+      '<div class="detail-box" style="grid-column:1/-1"><span>Frais Wave</span><strong style="font-family:var(--mono);color:var(--green)">'+WAVE_NUMBER+'</strong></div>'+
+    '</div>'+
+    '<p style="margin-top:16px;color:var(--muted);font-size:12px">Créée le '+new Date(t.created_at).toLocaleString('fr-FR')+'</p>';
+  openModal('detailModal');
+};
+
+async function renderProfile(){
+  var box=$('#profileContent');if(!box)return;
+  if(!state.user){box.innerHTML='<div class="empty">Connectez-vous.</div>';return;}
+  await loadProfile(state.user.id);
+  var u=state.profile||{};
+  var r=await sb.from('trades').select('total').or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id);
+  var trades=r.data||[];
+  var volume=trades.reduce(function(s,t){return s+(Number(t.total)||0);},0);
+  var initials=(u.username||'?').slice(0,2).toUpperCase();
+  box.innerHTML=
+    '<div class="profile-grid">'+
+      '<div class="panel">'+
+        '<div class="profile-avatar">'+escapeHTML(initials)+'</div>'+
+        '<div class="profile-name">'+escapeHTML(u.username||'—')+'</div>'+
+        '<div class="profile-email">'+escapeHTML(u.email||'')+'</div>'+
+        '<div class="stats">'+
+          '<div class="stat"><span>Échanges</span><strong>'+(u.trades_count||0)+'</strong></div>'+
+          '<div class="stat"><span>Volume</span><strong>'+fmtAmount(volume)+'</strong></div>'+
+          '<div class="stat"><span>Note</span><strong>'+((u.rating)||5)+'★</strong></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="panel">'+
+        '<h3 style="margin-bottom:14px">Informations</h3>'+
+        '<div class="form-group"><label>Compte créé le</label>'+
+        '<input class="input" value="'+(u.created_at?new Date(u.created_at).toLocaleString('fr-FR'):'—')+'" disabled></div>'+
+        '<div class="form-group"><label>Frais de service</label>'+
+        '<input class="input" value="1 % — Wave '+WAVE_NUMBER+'" disabled></div>'+
+        '<div class="security-box"><div class="security-icon">🔐</div><div>'+
+        '<strong>Non-custodial</strong><p>SENUSDT ne détient jamais vos fonds.</p>'+
+        '</div></div>'+
+      '</div>'+
+    '</div>';
+}
+
+window.calculateCommission=function(){
+  var q=parseFloat($('#calcUSDT').value)||0;
+  var price=parseFloat($('#calcPrice').value)||0;
+  var split=parseFloat($('#calcSplit').value)||0;
+  var subtotal=q*price;
+  var fee=subtotal*COMMISSION_RATE;
+  var buyerFee=fee*(split/100);
+  var sellerFee=fee-buyerFee;
+  $('#calcResult').innerHTML=
+    '<div class="calc-line"><span>Sous-total</span><strong>'+fmtPrice(subtotal,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Frais SENUSDT (1 %)</span><strong>'+fmtPrice(fee,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Part acheteur</span><strong>'+fmtPrice(buyerFee,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Part vendeur</span><strong>'+fmtPrice(sellerFee,'XOF')+'</strong></div>'+
+    '<div class="calc-total"><span>Acheteur paie</span><span>'+fmtPrice(subtotal+buyerFee,'XOF')+'</span></div>'+
+    '<div class="calc-total" style="margin-top:8px"><span>Vendeur reçoit</span><span>'+fmtPrice(subtotal-sellerFee,'XOF')+'</span></div>'+
+    '<p style="margin-top:14px;font-size:12px;color:var(--muted)">Frais à envoyer par Wave au <strong style="color:var(--green);font-family:var(--mono)">'+WAVE_NUMBER+'</strong>.</p>';
+};
+
+async function init(){
+  var r=await sb.auth.getSession();
+  if(r.data&&r.data.session&&r.data.session.user){
+    state.user=r.data.session.user;
+    await loadProfile(state.user.id);
+  }
+  renderAuthZone();
+  loadOffers();
+  calculateCommission();
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+
+})();
+</script>
+
+</body>
+    </html>
