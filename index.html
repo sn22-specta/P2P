@@ -6,6 +6,7 @@
 <title>SENUSDT — P2P USDT Sénégal</title>
 <meta name="theme-color" content="#07140f">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
 <style>
 :root{
   --bg:#07100c;--surface:#101d17;--surface2:#14251d;--surface3:#192d24;
@@ -17,1117 +18,1404 @@
   --mono:"SF Mono","SFMono-Regular",ui-monospace,Consolas,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
 body{min-height:100vh;background:radial-gradient(circle at 20% 0%,rgba(25,199,122,.09),transparent 30%),radial-gradient(circle at 100% 20%,rgba(77,141,255,.06),transparent 25%),var(--bg);color:var(--text);font-family:var(--font)}
 button,input,select,textarea{font:inherit}
 button{border:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
-.app{min-height:100vh}
-.disclaimer{background:linear-gradient(90deg,rgba(25,199,122,.10),rgba(77,141,255,.08));border-bottom:1px solid var(--border);color:var(--text);font-size:12.5px;padding:10px 20px;text-align:center}
+.disclaimer{background:linear-gradient(90deg,rgba(25,199,122,.10),rgba(77,141,255,.08));border-bottom:1px solid var(--border);font-size:12px;padding:8px 16px;text-align:center}
 .disclaimer strong{color:var(--green)}
-.topbar{position:sticky;top:0;z-index:100;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,16,12,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-logo{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,var(--green),var(--green2));color:#fff;font-weight:900;box-shadow:0 10px 30px rgba(25,199,122,.22)}
-.brand-text strong{display:block;font-size:17px;letter-spacing:.5px}
-.brand-text span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
-.top-actions{display:flex;align-items:center;gap:10px}
-.btn{min-height:42px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);transition:.2s ease}
-.btn:hover{transform:translateY(-1px);background:var(--surface3)}
+
+/* TICKER TAPE */
+.ticker-tape-wrap{background:var(--surface);border-bottom:1px solid var(--border);overflow:hidden;height:46px;position:relative}
+.ticker-tape-wrap .tradingview-widget-container,
+.ticker-tape-wrap .tradingview-widget-container__widget{height:100%}
+
+.topbar{position:sticky;top:0;z-index:100;height:auto;min-height:60px;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(7,16,12,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(145deg,var(--green),var(--green2));color:#fff;font-weight:900}
+.brand-text strong{display:block;font-size:14px}
+.brand-text span{display:block;color:var(--muted);font-size:10px}
+.top-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn{min-height:36px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);transition:.2s;font-size:12px}
+.btn:hover{background:var(--surface3)}
 .btn-primary{background:var(--green);color:#04150d;border-color:var(--green);font-weight:800}
-.btn-primary:hover{background:#25d986}
 .btn-danger{background:rgba(255,91,99,.1);color:#ff858b;border-color:rgba(255,91,99,.25)}
 .btn-blue{background:rgba(77,141,255,.12);color:#8cb5ff;border-color:rgba(77,141,255,.25)}
 .btn-warn{background:rgba(246,200,95,.12);color:#f6c85f;border-color:rgba(246,200,95,.3)}
 .btn-success{background:rgba(25,199,122,.12);color:#48e49b;border-color:rgba(25,199,122,.25)}
-.btn-small{min-height:36px;padding:0 12px;font-size:13px}
-.main-nav{max-width:1250px;margin:0 auto;padding:18px 20px 0}
-.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.btn-small{min-height:30px;padding:0 9px;font-size:11px}
+.badge-verified{display:inline-flex;align-items:center;gap:3px;background:rgba(77,141,255,.15);color:#8cb5ff;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;border:1px solid rgba(77,141,255,.3)}
+.badge-kyc-none{background:rgba(142,166,155,.15);color:var(--muted);border-color:var(--border)}
+.badge-kyc-pending{background:rgba(246,200,95,.15);color:#f6c85f;border-color:rgba(246,200,95,.3)}
+.badge-kyc-approved{background:rgba(25,199,122,.15);color:#48e49b;border-color:rgba(25,199,122,.3)}
+.badge-kyc-rejected{background:rgba(255,91,99,.15);color:#ff858b;border-color:rgba(255,91,99,.3)}
+.main-nav{max-width:1250px;margin:0 auto;padding:14px 16px 0}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:11px 17px;border-radius:11px;background:transparent;border:1px solid transparent;color:var(--muted)}
+.tab{flex:0 0 auto;padding:9px 14px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px}
 .tab.active{background:var(--green-soft);border-color:rgba(25,199,122,.2);color:#54e8a1}
-main{max-width:1250px;margin:0 auto;padding:22px 20px 80px}
+.tab.admin{color:#f6c85f}
+main{max-width:1250px;margin:0 auto;padding:18px 16px 70px}
 .page{display:none;animation:fadeIn .25s ease}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:18px;margin-bottom:22px}
-.hero-card{position:relative;overflow:hidden;padding:30px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,rgba(25,199,122,.10),rgba(16,29,23,.92));box-shadow:var(--shadow)}
-.hero-card::after{content:"";position:absolute;width:220px;height:220px;right:-100px;top:-100px;border-radius:50%;background:rgba(25,199,122,.07)}
-.hero-card h1{position:relative;z-index:1;max-width:650px;font-size:clamp(28px,5vw,46px);line-height:1.05;letter-spacing:-1.5px}
+.section-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0 12px}
+.section-header h2{font-size:19px}
+.section-header p{color:var(--muted);font-size:12px}
+.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:14px;margin-bottom:18px}
+.hero-card{padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,rgba(25,199,122,.10),rgba(16,29,23,.92));box-shadow:var(--shadow)}
+.hero-card h1{font-size:clamp(22px,4vw,34px);line-height:1.1}
 .hero-card h1 span{color:var(--green)}
-.hero-card p{position:relative;z-index:1;max-width:620px;margin-top:14px;color:var(--muted);line-height:1.7}
-.hero-buttons{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.info-card{padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-.info-card h3{font-size:14px;color:var(--muted);font-weight:600}
-.commission-big{margin-top:10px;font-size:42px;font-weight:900;color:var(--green)}
-.info-card p{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.6}
-.wave-num{display:block;margin-top:8px;font-family:var(--mono);color:var(--green);font-weight:700;word-break:break-all}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:8px 0 6px}
-.step{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);position:relative}
-.step-num{position:absolute;top:-12px;left:18px;width:28px;height:28px;border-radius:50%;background:var(--green);color:#04150d;display:grid;place-items:center;font-weight:900;font-size:13px}
-.step h4{margin:10px 0 6px;font-size:14px}
-.step p{color:var(--muted);font-size:12px;line-height:1.6}
-.section-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:25px 0 15px}
-.section-header h2{font-size:21px}
-.section-header p{color:var(--muted);font-size:13px}
-.filters{display:grid;grid-template-columns:1.3fr .7fr .7fr auto;gap:10px;margin-bottom:15px}
-.input,.select,textarea.input{width:100%;min-height:46px;padding:0 14px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;transition:.2s}
-textarea.input{padding:13px;min-height:100px;resize:vertical}
-.input:focus,.select:focus{border-color:rgba(25,199,122,.6);box-shadow:0 0 0 3px rgba(25,199,122,.08)}
-.offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.offer-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);transition:.2s ease}
-.offer-card:hover{transform:translateY(-2px);border-color:#345545}
+.hero-card p{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6}
+.hero-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.info-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.info-card h3{font-size:12px;color:var(--muted)}
+.commission-big{margin-top:6px;font-size:30px;font-weight:900;color:var(--green)}
+.info-card p{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
+.wave-num{display:block;margin-top:6px;font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;word-break:break-all}
+.filters{display:grid;grid-template-columns:1.3fr .8fr .8fr .8fr .8fr auto;gap:8px;margin-bottom:14px}
+.input,.select,textarea.input{width:100%;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;font-size:13px}
+textarea.input{padding:10px;min-height:70px;resize:vertical}
+.input:focus,.select:focus{border-color:rgba(25,199,122,.6)}
+.offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.offer-card{padding:15px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);transition:.2s}
+.offer-card:hover{border-color:#345545}
 .offer-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.offer-type{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase}
+.offer-owner{display:flex;align-items:center;gap:8px}
+.offer-avatar{width:34px;height:34px;border-radius:50%;background:var(--surface3);display:grid;place-items:center;font-size:17px;border:1px solid var(--border)}
+.offer-owner-name{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.online-dot,.offline-dot{width:7px;height:7px;border-radius:50%}
+.online-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.offline-dot{background:var(--muted)}
+.offer-type{display:inline-flex;padding:4px 7px;border-radius:6px;font-size:10px;font-weight:800;text-transform:uppercase}
 .offer-type.sell{color:#ffae78;background:rgba(255,155,82,.1)}
 .offer-type.buy{color:#51e69e;background:rgba(25,199,122,.1)}
-.offer-price{margin:17px 0;font-size:29px;font-weight:900}
-.offer-price small{color:var(--muted);font-size:13px;font-weight:500}
-.offer-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.meta-box{padding:11px;border-radius:10px;background:var(--surface2)}
-.meta-box span{display:block;color:var(--muted);font-size:11px}
-.meta-box strong{display:block;margin-top:5px;font-size:13px}
-.offer-user{display:flex;justify-content:space-between;align-items:center;margin-top:15px;padding-top:14px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
-.offer-actions{display:flex;gap:8px;margin-top:13px}
+.offer-price{margin:12px 0;font-size:23px;font-weight:900}
+.offer-price small{color:var(--muted);font-size:11px;font-weight:500}
+.offer-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.meta-box{padding:8px;border-radius:8px;background:var(--surface2)}
+.meta-box span{display:block;color:var(--muted);font-size:10px}
+.meta-box strong{display:block;margin-top:3px;font-size:12px}
+.offer-user{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted);font-size:11px}
+.offer-actions{display:flex;gap:6px;margin-top:8px}
 .offer-actions .btn{flex:1}
-.empty{padding:45px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted)}
-.empty-icon{font-size:35px;margin-bottom:10px}
-.trades{display:grid;gap:12px}
-.trade-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-.trade-head{display:flex;justify-content:space-between;gap:12px}
-.trade-id{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.trade-amount{margin-top:8px;font-size:23px;font-weight:900}
-.status{display:inline-flex;padding:6px 9px;border-radius:8px;font-size:11px;font-weight:800}
+.stars{color:#f6c85f;font-size:11px}
+.empty{padding:36px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-size:13px}
+.empty-icon{font-size:30px;margin-bottom:8px}
+.trades{display:grid;gap:10px}
+.trade-card{padding:15px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.trade-head{display:flex;justify-content:space-between;gap:10px}
+.trade-id{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.trade-amount{margin-top:5px;font-size:19px;font-weight:900}
+.status{display:inline-flex;padding:4px 8px;border-radius:7px;font-size:10px;font-weight:800}
 .status.awaiting_fee{color:#d4a7ff;background:rgba(170,95,255,.12)}
 .status.open{color:#8cb5ff;background:rgba(77,141,255,.1)}
 .status.fiat_sent{color:#ffc978;background:rgba(246,200,95,.1)}
 .status.usdt_sent{color:#66e9a7;background:rgba(25,199,122,.1)}
 .status.completed{color:#5ee4a1;background:rgba(25,199,122,.12)}
 .status.cancelled{color:#ff858b;background:rgba(255,91,99,.1)}
-.trade-info{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
-.trade-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
-.profile-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:16px}
-.panel{padding:22px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-.profile-avatar{width:75px;height:75px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,var(--green),var(--green2));color:#04150d;font-size:25px;font-weight:900}
-.profile-name{margin-top:15px;font-size:23px;font-weight:900}
-.profile-email{margin-top:4px;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
-.stat{padding:13px;background:var(--surface2);border-radius:11px}
-.stat span{color:var(--muted);font-size:10px}
-.stat strong{display:block;margin-top:4px;font-size:17px}
-.form-group{margin-bottom:15px}
-.form-group label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.calculator{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.calc-card{padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-.calc-result{margin-top:20px}
-.calc-line{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--border);color:var(--muted)}
-.calc-line strong{color:var(--text)}
-.calc-total{padding-top:15px;display:flex;justify-content:space-between;font-size:20px;font-weight:900}
-.modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
+.trade-info{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.trade-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.profile-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:14px}
+.panel{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(145deg,var(--green),var(--green2));display:grid;place-items:center;font-size:38px}
+.profile-name{margin-top:10px;font-size:19px;font-weight:900;display:flex;align-items:center;gap:6px;justify-content:center}
+.profile-email{margin-top:3px;color:var(--muted);font-size:12px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+.stat{padding:10px;background:var(--surface2);border-radius:9px;text-align:center}
+.stat span{color:var(--muted);font-size:10px;display:block}
+.stat strong{display:block;margin-top:3px;font-size:15px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;margin-bottom:5px;color:var(--muted);font-size:11px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.avatar-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.avatar-choice{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid transparent;display:grid;place-items:center;font-size:19px;cursor:pointer}
+.avatar-choice.selected{border-color:var(--green);background:var(--green-soft)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:0}
+.toggle{position:relative;width:42px;height:22px;background:var(--surface3);border-radius:11px;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on::after{left:22px}
+.reviews-list{margin-top:10px}
+.review-item{padding:10px;background:var(--surface2);border-radius:9px;margin-bottom:6px}
+.review-head{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.review-comment{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.5}
+.review-date{color:var(--muted);font-size:10px}
+.modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
 .modal.open{display:flex}
-.modal-box{width:min(560px,100%);max-height:90vh;overflow-y:auto;padding:23px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:var(--shadow)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.modal-head h2{font-size:20px}
-.close{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:var(--surface2);color:var(--muted)}
-.auth-switch{display:flex;gap:6px;padding:4px;margin-bottom:18px;border-radius:11px;background:var(--surface2)}
-.auth-switch button{flex:1;padding:10px;border-radius:8px;background:transparent;color:var(--muted)}
+.modal-box{width:min(560px,100%);max-height:92vh;overflow-y:auto;padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modal-head h2{font-size:17px}
+.close{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--surface2);color:var(--muted);font-size:17px}
+.auth-switch{display:flex;gap:5px;padding:3px;margin-bottom:14px;border-radius:10px;background:var(--surface2)}
+.auth-switch button{flex:1;padding:9px;border-radius:8px;background:transparent;color:var(--muted);font-size:13px}
 .auth-switch button.active{background:var(--surface3);color:var(--text)}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.detail-box{padding:13px;background:var(--surface2);border-radius:11px}
-.detail-box span{display:block;color:var(--muted);font-size:11px}
-.detail-box strong{display:block;margin-top:6px;word-break:break-word}
-.fee-box{margin-top:16px;padding:16px;border:1px solid rgba(77,141,255,.35);border-radius:14px;background:linear-gradient(145deg,rgba(77,141,255,.10),rgba(16,29,23,.5))}
-.fee-box h4{font-size:14px;margin-bottom:10px;color:#8cb5ff}
-.fee-box .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:var(--muted);border-bottom:1px dashed var(--border)}
-.fee-box .row:last-child{border-bottom:0}
-.fee-box .row strong{color:var(--text)}
-.fee-box .wave-line{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,0,0,.35);font-family:var(--mono);text-align:center;font-size:15px;color:var(--green);font-weight:700;letter-spacing:.5px;user-select:all}
-.bank-box{margin-top:16px;padding:16px;border:1px solid rgba(246,200,95,.3);border-radius:14px;background:linear-gradient(145deg,rgba(246,200,95,.08),rgba(16,29,23,.5))}
-.bank-box h4{font-size:14px;margin-bottom:10px;color:#f6c85f}
-.bank-box .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:var(--muted);border-bottom:1px dashed var(--border)}
-.bank-box .row:last-child{border-bottom:0}
-.bank-box .row strong{color:var(--text);font-family:var(--mono);font-size:12px;text-align:right;margin-left:10px;user-select:all}
-.pay-box{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
-.pay-box label{display:flex;align-items:center;gap:6px;color:var(--text);font-size:13px;cursor:pointer}
-.toast-container{position:fixed;right:18px;bottom:18px;z-index:1000;display:flex;flex-direction:column;gap:9px}
-.toast{min-width:280px;max-width:380px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);box-shadow:var(--shadow);animation:toastIn .25s ease}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.detail-box{padding:10px;background:var(--surface2);border-radius:9px}
+.detail-box span{display:block;color:var(--muted);font-size:10px}
+.detail-box strong{display:block;margin-top:4px;word-break:break-word;font-size:12px}
+.fee-box,.bank-box{margin-top:12px;padding:14px;border-radius:12px}
+.fee-box{border:1px solid rgba(77,141,255,.35);background:linear-gradient(145deg,rgba(77,141,255,.10),rgba(16,29,23,.5))}
+.bank-box{border:1px solid rgba(246,200,95,.3);background:linear-gradient(145deg,rgba(246,200,95,.08),rgba(16,29,23,.5))}
+.fee-box h4,.bank-box h4{font-size:13px;margin-bottom:8px;color:#8cb5ff}
+.bank-box h4{color:#f6c85f}
+.fee-box .row,.bank-box .row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--muted);border-bottom:1px dashed var(--border)}
+.fee-box .row:last-child,.bank-box .row:last-child{border-bottom:0}
+.fee-box .row strong,.bank-box .row strong{color:var(--text);margin-left:8px;text-align:right}
+.wave-line{margin-top:10px;padding:10px;border-radius:9px;background:rgba(0,0,0,.35);font-family:var(--mono);text-align:center;font-size:14px;color:var(--green);font-weight:700;user-select:all}
+.calc-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);color:var(--muted);font-size:13px}
+.calc-line strong{color:var(--text)}
+.calc-total{padding-top:10px;display:flex;justify-content:space-between;font-size:16px;font-weight:900}
+.security-box{display:flex;gap:10px;margin-top:12px;padding:12px;border:1px solid rgba(25,199,122,.2);border-radius:11px;background:rgba(25,199,122,.06)}
+.security-icon{font-size:17px}
+.security-box strong{display:block;font-size:12px}
+.security-box p{margin-top:3px;color:var(--muted);font-size:11px;line-height:1.5}
+.pay-box{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.pay-box label{display:flex;align-items:center;gap:5px;color:var(--text);font-size:12px;cursor:pointer}
+.star-picker{display:flex;gap:6px;font-size:30px;justify-content:center;margin:10px 0;cursor:pointer}
+.star-picker span{color:#444;transition:.15s}
+.star-picker span.on{color:#f6c85f}
+.admin-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.admin-stat .stat{padding:13px}
+.admin-stat .stat strong{font-size:19px;color:var(--green)}
+.toast-container{position:fixed;right:12px;bottom:12px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast{min-width:220px;max-width:320px;padding:11px 13px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);box-shadow:var(--shadow);font-size:12px;animation:toastIn .25s ease}
 .toast.success{border-color:rgba(25,199,122,.35)}
 .toast.error{border-color:rgba(255,91,99,.35)}
 @keyframes toastIn{from{opacity:0;transform:translateY(15px)}}
-.loader{width:18px;height:18px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+.loader{width:16px;height:16px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading{display:flex;justify-content:center;align-items:center;min-height:130px}
-.security-box{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:15px;border:1px solid rgba(25,199,122,.2);border-radius:13px;background:rgba(25,199,122,.06)}
-.security-icon{font-size:21px}
-.security-box strong{display:block;font-size:13px}
-.security-box p{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.6}
+.loading{display:flex;justify-content:center;align-items:center;min-height:100px}
+.chat-box{display:flex;flex-direction:column;height:380px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface2)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:80%;padding:8px 11px;border-radius:12px;font-size:12px;line-height:1.4;word-break:break-word}
+.chat-msg.me{align-self:flex-end;background:var(--green);color:#04150d}
+.chat-msg.other{align-self:flex-start;background:var(--surface3);color:var(--text)}
+.chat-msg .chat-time{display:block;font-size:9px;opacity:.65;margin-top:3px}
+.chat-input-row{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);background:var(--surface)}
+.chat-input-row input{flex:1;min-height:36px;padding:0 10px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-size:13px}
+.file-drop{padding:16px;border:2px dashed var(--border);border-radius:11px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface2)}
+.file-drop:hover{border-color:var(--green);background:var(--green-soft)}
+.file-drop input{display:none}
+.file-drop .file-icon{font-size:28px;margin-bottom:6px}
+.file-drop .file-label{font-size:12px;color:var(--muted)}
+.file-preview{margin-top:8px;display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface3);border-radius:9px;font-size:12px}
+.file-preview img{width:44px;height:44px;object-fit:cover;border-radius:6px}
+.kyc-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700}
+.review-item.kyc-review{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.chart-card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chart-symbol-tag{font-size:10px;font-family:var(--mono);color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px}
+.chart-container{height:340px;border-radius:10px;overflow:hidden;background:var(--surface2)}
+
 @media(max-width:900px){
-  .hero,.profile-grid,.calculator{grid-template-columns:1fr}
+  .hero,.profile-grid{grid-template-columns:1fr}
   .offers{grid-template-columns:1fr}
   .filters{grid-template-columns:1fr 1fr}
   .trade-info{grid-template-columns:1fr 1fr}
-  .steps{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .chart-container{height:300px}
 }
 @media(max-width:600px){
-  .topbar{height:64px;padding:0 13px}
-  .brand-text span{display:none}
-  .brand-logo{width:38px;height:38px}
-  .top-actions .btn{padding:0 10px;font-size:13px}
-  main{padding:16px 13px 60px}
-  .main-nav{padding:12px 13px 0}
-  .hero-card{padding:23px}
+  .main-nav{padding:10px 12px 0}
+  main{padding:14px 12px 60px}
   .filters{grid-template-columns:1fr}
   .form-grid,.detail-grid{grid-template-columns:1fr}
+  .admin-stat{grid-template-columns:1fr}
   .trade-info{grid-template-columns:1fr 1fr}
-  .stats{grid-template-columns:1fr 1fr 1fr}
-  .steps{grid-template-columns:1fr}
-  .toast-container{left:13px;right:13px}
-  .toast{min-width:0;width:100%}
+  .ticker-tape-wrap{height:40px}
 }
 </style>
 </head>
 <body>
 
-<div class="app">
+<div class="disclaimer">🔐 <strong>SENUSDT est un service de mise en relation.</strong> Nous ne détenons <strong>ni vos USDT ni vos FCFA</strong>.</div>
 
-  <div class="disclaimer">
-    🔐 <strong>SENUSDT est un service de mise en relation.</strong>
-    Nous ne détenons <strong>ni vos USDT ni vos FCFA</strong>.
-    <a href="#" onclick="showPage('market');scrollToHow();return false;" style="color:var(--green);text-decoration:underline">En savoir plus</a>
+<!-- TICKER TAPE — Prix en direct -->
+<div class="ticker-tape-wrap">
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        {"proName": "BINANCE:BTCUSDT", "title": "Bitcoin"},
+        {"proName": "BINANCE:ETHUSDT", "title": "Ethereum"},
+        {"proName": "BINANCE:SOLUSDT", "title": "Solana"},
+        {"proName": "BINANCE:BNBUSDT", "title": "BNB"},
+        {"proName": "BINANCE:XRPUSDT", "title": "XRP"},
+        {"proName": "BINANCE:XAUUSDT.P", "title": "Or/USDT"},
+        {"proName": "OANDA:XAUUSD", "title": "Or (spot)"},
+        {"proName": "OANDA:EURUSD", "title": "EUR/USD"}
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "fr"
+    }
+    </script>
   </div>
+</div>
 
-  <header class="topbar">
-    <a href="#" class="brand" onclick="showPage('market'); return false;">
-      <div class="brand-logo">₮</div>
-      <div class="brand-text">
-        <strong>SENUSDT</strong>
-        <span>P2P • Sénégal</span>
-      </div>
-    </a>
-    <div class="top-actions" id="authZone" aria-live="polite">
-      <div class="loader"></div>
-    </div>
-  </header>
+<header class="topbar">
+  <a href="#" class="brand" onclick="showPage('market');return false;">
+    <div class="brand-logo">₮</div>
+    <div class="brand-text"><strong>SENUSDT</strong><span>P2P • Sénégal</span></div>
+  </a>
+  <div class="top-actions" id="authZone"><div class="loader"></div></div>
+</header>
 
-  <nav class="main-nav">
-    <div class="tabs">
-      <button class="tab active" data-page="market" onclick="showPage('market')">Marché</button>
-      <button class="tab" data-page="trades" onclick="showPage('trades')">Mes commandes</button>
-      <button class="tab" data-page="create" onclick="showPage('create')">Publier une offre</button>
-      <button class="tab" data-page="calculator" onclick="showPage('calculator')">Calculateur</button>
-      <button class="tab" data-page="profile" onclick="showPage('profile')">Profil</button>
-    </div>
-  </nav>
+<nav class="main-nav">
+  <div class="tabs" id="navTabs">
+    <button class="tab active" data-page="market" onclick="showPage('market')">Marché</button>
+    <button class="tab" data-page="trades" onclick="showPage('trades')">Commandes</button>
+    <button class="tab" data-page="create" onclick="showPage('create')">Publier</button>
+    <button class="tab" data-page="charts" onclick="showPage('charts')">📈 Marchés</button>
+    <button class="tab" data-page="calculator" onclick="showPage('calculator')">Calculateur</button>
+    <button class="tab" data-page="profile" onclick="showPage('profile')">Profil</button>
+    <button class="tab admin" id="adminTab" style="display:none" data-page="admin" onclick="showPage('admin')">👑 Admin</button>
+  </div>
+</nav>
 
-  <main>
-
-    <section id="page-market" class="page active">
-      <div class="hero">
-        <div class="hero-card">
-          <h1>Achetez et vendez <span>USDT</span> en P2P.</h1>
-          <p>SENUSDT met en relation acheteurs et vendeurs au Sénégal. Les USDT restent dans <strong>vos</strong> portefeuilles : Binance, Bybit, Trust Wallet… Nous ne stockons rien.</p>
-          <div class="hero-buttons">
-            <button class="btn btn-primary" onclick="scrollToOffers()">Voir les offres</button>
-            <button class="btn" onclick="requireAuth(function(){ showPage('create'); })">Publier une offre</button>
-          </div>
-        </div>
-        <div class="info-card">
-          <h3>Frais de service SENUSDT</h3>
-          <div class="commission-big">1 %</div>
-          <p>Prélevés sur chaque transaction, payables par <strong>Wave</strong> directement à SENUSDT.</p>
-          <span class="wave-num">Wave → +221 77 567 31 82</span>
-          <div class="security-box">
-            <div class="security-icon">🔐</div>
-            <div>
-              <strong>Modèle non-custodial</strong>
-              <p>SENUSDT ne détient ni USDT ni FCFA.</p>
-            </div>
-          </div>
+<main>
+  <!-- MARKET -->
+  <section id="page-market" class="page active">
+    <div class="hero">
+      <div class="hero-card">
+        <h1>Achetez et vendez <span>USDT</span> en P2P.</h1>
+        <p>Marketplace non-custodiale avec chat temps réel, KYC et sécurisation des échanges.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="scrollToOffers()">Voir les offres</button>
+          <button class="btn" onclick="requireAuth(function(){showPage('create')})">Publier une offre</button>
         </div>
       </div>
+      <div class="info-card">
+        <h3>Frais de service SENUSDT</h3>
+        <div class="commission-big">1 %</div>
+        <p>Payables par Wave directement à SENUSDT.</p>
+        <span class="wave-num">Wave → +221 77 567 31 82</span>
+      </div>
+    </div>
 
-      <div class="section-header" id="howSection">
-        <div><h2>Comment ça marche</h2><p>4 étapes — aucun dépôt chez SENUSDT</p></div>
+    <div class="section-header" id="offersSection">
+      <div><h2>Marché P2P</h2><p>Offres disponibles</p></div>
+      <button class="btn btn-small" onclick="loadOffers()">↻ Actualiser</button>
+    </div>
+
+    <div class="filters">
+      <input id="searchInput" class="input" placeholder="Rechercher…" oninput="renderOffers()">
+      <select id="offerTypeFilter" class="select" onchange="renderOffers()">
+        <option value="">Acheter + vendre</option>
+        <option value="sell">Acheter USDT</option>
+        <option value="buy">Vendre USDT</option>
+      </select>
+      <select id="currencyFilter" class="select" onchange="renderOffers()">
+        <option value="XOF">FCFA</option>
+        <option value="USD">USD</option>
+        <option value="">Toutes</option>
+      </select>
+      <select id="paymentFilter" class="select" onchange="renderOffers()">
+        <option value="">Tous paiements</option>
+        <option value="wave">Wave</option>
+        <option value="orange">Orange Money</option>
+        <option value="virement">Virement</option>
+      </select>
+      <select id="verifiedFilter" class="select" onchange="renderOffers()">
+        <option value="">Tous</option>
+        <option value="verified">✅ Vérifiés</option>
+      </select>
+      <select id="sortFilter" class="select" onchange="renderOffers()">
+        <option value="recent">Récentes</option>
+        <option value="price_asc">Prix ↑</option>
+        <option value="price_desc">Prix ↓</option>
+        <option value="rating">Note</option>
+      </select>
+    </div>
+
+    <div id="offers" class="offers"><div class="loading"><div class="loader"></div></div></div>
+  </section>
+
+  <!-- TRADES -->
+  <section id="page-trades" class="page">
+    <div class="section-header">
+      <div><h2>Mes commandes</h2></div>
+      <button class="btn btn-small" onclick="loadTrades()">↻ Actualiser</button>
+    </div>
+    <div id="trades" class="trades"></div>
+  </section>
+
+  <!-- CREATE -->
+  <section id="page-create" class="page">
+    <div class="section-header"><div><h2>Publier une offre</h2></div></div>
+    <div class="panel">
+      <form id="offerForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group"><label>Type</label>
+            <select id="offerType" class="select"><option value="sell">Je vends des USDT</option><option value="buy">Je veux acheter des USDT</option></select></div>
+          <div class="form-group"><label>Devise</label>
+            <select id="offerCurrency" class="select"><option value="XOF">FCFA/XOF</option><option value="USD">USD</option></select></div>
+        </div>
+        <div class="form-group"><label>Plateforme</label>
+          <select id="offerPlatform" class="select"><option>Binance</option><option>Bybit</option><option>OKX</option><option>Trust Wallet</option><option>Autre</option></select></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Quantité USDT</label><input id="offerAmount" class="input" type="number" min="0.000001" step="0.000001" placeholder="100" required></div>
+          <div class="form-group"><label>Prix / USDT</label><input id="offerPrice" class="input" type="number" min="0.000001" step="0.000001" placeholder="615" required></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Min</label><input id="offerMin" class="input" type="number" min="0" step="0.01" placeholder="5000" required></div>
+          <div class="form-group"><label>Max</label><input id="offerMax" class="input" type="number" min="0" step="0.01" placeholder="100000" required></div>
+        </div>
+        <div class="form-group"><label>Paiements acceptés</label>
+          <div class="pay-box">
+            <label><input type="checkbox" class="pay-check" value="Wave" checked> Wave</label>
+            <label><input type="checkbox" class="pay-check" value="Orange Money" checked> Orange Money</label>
+            <label><input type="checkbox" class="pay-check" value="Virement bancaire"> Virement bancaire</label>
+            <label><input type="checkbox" class="pay-check" value="Espèces"> Espèces</label>
+          </div>
+        </div>
+        <div class="form-group"><label>Conditions</label><textarea id="offerTerms" class="input" placeholder="Vos conditions…"></textarea></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px" type="submit">Publier l'offre</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section id="page-charts" class="page">
+    <div class="section-header">
+      <div>
+        <h2>📈 Marchés en temps réel</h2>
+        <p>Graphiques TradingView — données live</p>
       </div>
-      <div class="steps">
-        <div class="step"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Acheteur et vendeur se mettent d'accord.</p></div>
-        <div class="step"><span class="step-num">2</span><h4>Commission Wave</h4><p>L'acheteur envoie les 1 % sur Wave <strong>+221 77 567 31 82</strong>.</p></div>
-        <div class="step"><span class="step-num">3</span><h4>Paiement fiat</h4><p>L'acheteur envoie les FCFA au vendeur (Wave, OM, virement…).</p></div>
-        <div class="step"><span class="step-num">4</span><h4>Envoi USDT</h4><p>Le vendeur envoie les USDT depuis son propre wallet.</p></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT</span></h3>
+        <div class="chart-container" id="chart-btc"></div>
       </div>
 
-      <div class="section-header" id="offersSection">
-        <div><h2>Marché P2P</h2><p>Offres actuellement disponibles</p></div>
-        <button class="btn btn-small" onclick="loadOffers()">↻ Actualiser</button>
+      <div class="chart-card">
+        <h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT</span></h3>
+        <div class="chart-container" id="chart-eth"></div>
       </div>
 
-      <div class="filters">
-        <input id="searchInput" class="input" placeholder="Rechercher…" oninput="renderOffers()">
-        <select id="offerTypeFilter" class="select" onchange="renderOffers()">
-          <option value="">Acheter + vendre</option>
-          <option value="sell">Acheter USDT</option>
-          <option value="buy">Vendre USDT</option>
-        </select>
-        <select id="currencyFilter" class="select" onchange="renderOffers()">
-          <option value="XOF">FCFA / XOF</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="">Toutes devises</option>
-        </select>
-        <button class="btn btn-small" onclick="resetFilters()">Réinitialiser</button>
+      <div class="chart-card">
+        <h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT</span></h3>
+        <div class="chart-container" id="chart-sol"></div>
       </div>
 
-      <div id="offers" class="offers">
-        <div class="loading"><div class="loader"></div></div>
+      <div class="chart-card">
+        <h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT</span></h3>
+        <div class="chart-container" id="chart-bnb"></div>
       </div>
-    </section>
 
-    <section id="page-trades" class="page">
-      <div class="section-header">
-        <div><h2>Mes commandes</h2><p>Suivez toutes vos transactions.</p></div>
-        <button class="btn btn-small" onclick="loadTrades()">↻ Actualiser</button>
+      <div class="chart-card">
+        <h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT</span></h3>
+        <div class="chart-container" id="chart-xau"></div>
       </div>
-      <div id="trades" class="trades"></div>
-    </section>
 
-    <section id="page-create" class="page">
-      <div class="section-header">
-        <div><h2>Publier une offre</h2><p>Créez une proposition d'achat ou de vente.</p></div>
+      <div class="chart-card">
+        <h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD</span></h3>
+        <div class="chart-container" id="chart-eurusd"></div>
       </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section id="page-calculator" class="page">
+    <div class="section-header"><div><h2>Calculateur P2P</h2></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
       <div class="panel">
-        <form id="offerForm" novalidate>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="offerType">Type d'offre</label>
-              <select id="offerType" class="select" required>
-                <option value="sell">Je vends des USDT</option>
-                <option value="buy">Je veux acheter des USDT</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="offerCurrency">Devise</label>
-              <select id="offerCurrency" class="select">
-                <option value="XOF">FCFA / XOF</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="offerPlatform">Ma plateforme USDT</label>
-            <select id="offerPlatform" class="select" required>
-              <option value="Binance">Binance</option>
-              <option value="Bybit">Bybit</option>
-              <option value="OKX">OKX</option>
-              <option value="Kucoin">Kucoin</option>
-              <option value="Trust Wallet">Trust Wallet</option>
-              <option value="MetaMask">MetaMask</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="offerAmount">Quantité totale USDT</label>
-              <input id="offerAmount" class="input" type="number" min="0.000001" step="0.000001" placeholder="Ex : 100" required>
-            </div>
-            <div class="form-group">
-              <label for="offerPrice">Prix pour 1 USDT</label>
-              <input id="offerPrice" class="input" type="number" min="0.000001" step="0.000001" placeholder="Ex : 615" required>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="offerMin">Limite minimale</label>
-              <input id="offerMin" class="input" type="number" min="0" step="0.01" placeholder="Ex : 5000" required>
-            </div>
-            <div class="form-group">
-              <label for="offerMax">Limite maximale</label>
-              <input id="offerMax" class="input" type="number" min="0" step="0.01" placeholder="Ex : 100000" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Moyens de paiement fiat acceptés</label>
-            <div class="pay-box">
-              <label><input type="checkbox" class="pay-check" value="Wave" checked> Wave</label>
-              <label><input type="checkbox" class="pay-check" value="Orange Money" checked> Orange Money</label>
-              <label><input type="checkbox" class="pay-check" value="Free Money"> Free Money</label>
-              <label><input type="checkbox" class="pay-check" value="Virement bancaire"> Virement bancaire</label>
-              <label><input type="checkbox" class="pay-check" value="Espèces"> Espèces</label>
-            </div>
-            <input id="offerPaymentsExtra" class="input" placeholder="Autre moyen (optionnel)">
-          </div>
-          <div class="form-group">
-            <label for="offerTerms">Conditions de l'offre</label>
-            <textarea id="offerTerms" class="input" placeholder="Décrivez vos conditions…"></textarea>
-          </div>
-          <div class="security-box">
-            <div class="security-icon">💡</div>
-            <div>
-              <strong>Rappel non-custodial</strong>
-              <p>SENUSDT ne vérifie ni ne stocke vos USDT.</p>
-            </div>
-          </div>
-          <button class="btn btn-primary" style="width:100%;margin-top:18px" type="submit">Publier l'offre</button>
-        </form>
+        <div class="form-group"><label>Montant USDT</label><input id="calcUSDT" class="input" type="number" value="100" oninput="calculateCommission()"></div>
+        <div class="form-group"><label>Prix USDT</label><input id="calcPrice" class="input" type="number" value="615" oninput="calculateCommission()"></div>
+        <div class="form-group"><label>Répartition</label>
+          <select id="calcSplit" class="select" onchange="calculateCommission()"><option value="100">100 % acheteur</option><option value="50">50/50</option><option value="0">100 % vendeur</option></select></div>
       </div>
-    </section>
-
-    <section id="page-calculator" class="page">
-      <div class="section-header">
-        <div><h2>Calculateur P2P</h2><p>Visualisez les 1 % de frais.</p></div>
-      </div>
-      <div class="calculator">
-        <div class="calc-card">
-          <div class="form-group">
-            <label for="calcUSDT">Montant USDT</label>
-            <input id="calcUSDT" class="input" type="number" value="100" min="0" step="0.000001" oninput="calculateCommission()">
-          </div>
-          <div class="form-group">
-            <label for="calcPrice">Prix d'un USDT (FCFA)</label>
-            <input id="calcPrice" class="input" type="number" value="615" min="0" step="0.01" oninput="calculateCommission()">
-          </div>
-          <div class="form-group">
-            <label for="calcSplit">Répartition</label>
-            <select id="calcSplit" class="select" onchange="calculateCommission()">
-              <option value="100">100 % acheteur</option>
-              <option value="50">50 / 50</option>
-              <option value="0">100 % vendeur</option>
-            </select>
-          </div>
-        </div>
-        <div class="calc-card">
-          <h3>Résultat</h3>
-          <div id="calcResult" class="calc-result"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-profile" class="page">
-      <div class="section-header">
-        <div><h2>Mon profil</h2><p>Informations de votre compte.</p></div>
-      </div>
-      <div id="profileContent"></div>
-    </section>
-
-  </main>
-</div>
-
-<div id="authModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>SENUSDT</h2>
-      <button class="close" type="button" onclick="closeModal('authModal')">×</button>
+      <div class="panel"><h3 style="margin-bottom:10px;font-size:14px">Résultat</h3><div id="calcResult"></div></div>
     </div>
-    <div class="auth-switch">
-      <button id="loginTab" type="button" class="active" onclick="switchAuth('login')">Connexion</button>
-      <button id="registerTab" type="button" onclick="switchAuth('register')">Inscription</button>
-    </div>
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="loginEmail">E-mail</label>
-        <input id="loginEmail" class="input" type="email" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label for="loginPassword">Mot de passe</label>
-        <input id="loginPassword" class="input" type="password" autocomplete="current-password" required>
-      </div>
-      <button class="btn btn-primary" style="width:100%" type="submit">Se connecter</button>
-    </form>
-    <form id="registerForm" style="display:none">
-      <div class="form-group">
-        <label for="registerUsername">Nom d'utilisateur</label>
-        <input id="registerUsername" class="input" minlength="3" required>
-      </div>
-      <div class="form-group">
-        <label for="registerEmail">E-mail</label>
-        <input id="registerEmail" class="input" type="email" required>
-      </div>
-      <div class="form-group">
-        <label for="registerPassword">Mot de passe (min. 8 caractères)</label>
-        <input id="registerPassword" class="input" type="password" minlength="8" required>
-      </div>
-      <button class="btn btn-primary" style="width:100%" type="submit">Créer mon compte</button>
-    </form>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="page-profile" class="page">
+    <div class="section-header"><div><h2>Mon profil</h2></div></div>
+    <div id="profileContent"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="page-admin" class="page">
+    <div class="section-header"><div><h2>👑 Admin</h2></div></div>
+    <div id="adminContent"></div>
+  </section>
+</main>
+
+<!-- MODALS -->
+<div id="authModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>SENUSDT</h2><button class="close" onclick="closeModal('authModal')">×</button></div>
+  <div class="auth-switch">
+    <button id="loginTab" class="active" onclick="switchAuth('login')">Connexion</button>
+    <button id="registerTab" onclick="switchAuth('register')">Inscription</button>
   </div>
-</div>
+  <form id="loginForm">
+    <div class="form-group"><label>E-mail</label><input id="loginEmail" class="input" type="email" required></div>
+    <div class="form-group"><label>Mot de passe</label><input id="loginPassword" class="input" type="password" required></div>
+    <button class="btn btn-primary" style="width:100%" type="submit">Se connecter</button>
+  </form>
+  <form id="registerForm" style="display:none">
+    <div class="form-group"><label>Nom d'utilisateur</label><input id="registerUsername" class="input" minlength="3" required></div>
+    <div class="form-group"><label>E-mail</label><input id="registerEmail" class="input" type="email" required></div>
+    <div class="form-group"><label>Mot de passe (min 8)</label><input id="registerPassword" class="input" type="password" minlength="8" required></div>
+    <button class="btn btn-primary" style="width:100%" type="submit">Créer mon compte</button>
+  </form>
+</div></div>
 
-<div id="tradeModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Nouvelle commande</h2>
-      <button class="close" type="button" onclick="closeModal('tradeModal')">×</button>
-    </div>
-    <div id="tradeCreationContent"></div>
-  </div>
-</div>
+<div id="tradeModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Nouvelle commande</h2><button class="close" onclick="closeModal('tradeModal')">×</button></div>
+  <div id="tradeCreationContent"></div>
+</div></div>
 
-<div id="feeModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Frais de service — Wave</h2>
-      <button class="close" type="button" onclick="closeModal('feeModal')">×</button>
-    </div>
-    <div id="feeContent"></div>
-  </div>
-</div>
+<div id="feeModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Frais — Wave</h2><button class="close" onclick="closeModal('feeModal')">×</button></div>
+  <div id="feeContent"></div>
+</div></div>
 
-<div id="usdtModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Preuve d'envoi USDT</h2>
-      <button class="close" type="button" onclick="closeModal('usdtModal')">×</button>
-    </div>
-    <div id="usdtContent"></div>
-  </div>
-</div>
+<div id="usdtModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Envoi USDT</h2><button class="close" onclick="closeModal('usdtModal')">×</button></div>
+  <div id="usdtContent"></div>
+</div></div>
 
-<div id="detailModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Détails</h2>
-      <button class="close" type="button" onclick="closeModal('detailModal')">×</button>
-    </div>
-    <div id="tradeDetailContent"></div>
-  </div>
-</div>
+<div id="detailModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Détails</h2><button class="close" onclick="closeModal('detailModal')">×</button></div>
+  <div id="tradeDetailContent"></div>
+</div></div>
 
-<div id="bankModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Coordonnées bancaires</h2>
-      <button class="close" type="button" onclick="closeModal('bankModal')">×</button>
-    </div>
-    <div id="bankContent"></div>
-  </div>
-</div>
+<div id="bankModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Détails</h2><button class="close" onclick="closeModal('bankModal')">×</button></div>
+  <div id="bankContent"></div>
+</div></div>
 
-<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+<div id="reviewModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Avis</h2><button class="close" onclick="closeModal('reviewModal')">×</button></div>
+  <div id="reviewContent"></div>
+</div></div>
+
+<div id="reportModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Signaler</h2><button class="close" onclick="closeModal('reportModal')">×</button></div>
+  <div id="reportContent"></div>
+</div></div>
+
+<div id="chatModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2 id="chatTitle">Chat</h2><button class="close" onclick="closeChat()">×</button></div>
+  <div id="chatContent"></div>
+</div></div>
+
+<div id="paymentProofModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Preuve de paiement</h2><button class="close" onclick="closeModal('paymentProofModal')">×</button></div>
+  <div id="paymentProofContent"></div>
+</div></div>
+
+<div id="kycModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h2>Vérification d'identité</h2><button class="close" onclick="closeModal('kycModal')">×</button></div>
+  <div id="kycContent"></div>
+</div></div>
+
+<div id="toastContainer" class="toast-container"></div>
 
 <script>
 (function(){
 'use strict';
 
-var SUPABASE_URL='https://zwftxkhylzmdnfrmowza.supabase.co';
-var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZnR4a2h5bHptZG5mcm1vd3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NjYzODQsImV4cCI6MjEwNTA0MjM4NH0.jgA-zADFwOdhGoUjoquV_7GF4uwcQRkZv2_NVj7Xb2s';
-var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+var SB_URL='https://zwftxkhylzmdnfrmowza.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZnR4a2h5bHptZG5mcm1vd3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NjYzODQsImV4cCI6MjEwNTA0MjM4NH0.jgA-zADFwOdhGoUjoquV_7GF4uwcQRkZv2_NVj7Xb2s';
+var sb=window.supabase.createClient(SB_URL,SB_KEY);
 
-var COMMISSION_RATE=0.01;
-var WAVE_NUMBER='+221 77 567 31 82';
+var RATE=0.01;
+var WAVE='+221 77 567 31 82';
+var AVATARS=['👤','🧑','👨','👩','🧔','👨‍💼','👩‍💼','🦁','🐘','🦅','🌟','💎','🚀','💰','🎯','🌍'];
 
 function $(s,r){return (r||document).querySelector(s);}
 function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
-function fmtAmount(n){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:6}).format(Number(n)||0);}
-function fmtPrice(n,cur){
-  cur=cur||'XOF';
-  var v=Number(n)||0;
-  if(cur==='XOF')return new Intl.NumberFormat('fr-FR').format(Math.round(v))+' FCFA';
-  return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:2}).format(v)+' '+cur;
-}
-function escapeHTML(s){
-  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
-}
-function timeAgo(ts){
-  var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);
-  if(s<60)return'à l\'instant';
-  var m=Math.floor(s/60);if(m<60)return'il y a '+m+' min';
-  var h=Math.floor(m/60);if(h<24)return'il y a '+h+' h';
-  return 'il y a '+Math.floor(h/24)+' j';
-}
+function fmt(n){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:6}).format(Number(n)||0);}
+function fmtP(n,c){c=c||'XOF';var v=Number(n)||0;if(c==='XOF')return new Intl.NumberFormat('fr-FR').format(Math.round(v))+' FCFA';return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:2}).format(v)+' '+c;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function ago(ts){var s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return'à l\'instant';var m=Math.floor(s/60);if(m<60)return m+' min';var h=Math.floor(m/60);if(h<24)return h+' h';return Math.floor(h/24)+' j';}
+function stars(r){r=Math.round(Number(r)||0);var s='';for(var i=1;i<=5;i++)s+=i<=r?'★':'☆';return '<span class="stars">'+s+'</span>';}
+function fmtDT(ts){return new Date(ts).toLocaleString('fr-FR');}
 
-var state={user:null,profile:null,bank:null,offers:[]};
+var state={user:null,profile:null,bank:null,offers:[],notifs:[],chatSub:null,currentTrade:null};
 
-function toast(msg,type){
-  type=type||'success';
-  var box=$('#toastContainer');if(!box)return;
-  var el=document.createElement('div');
-  el.className='toast '+type;
-  el.textContent=msg;
-  box.appendChild(el);
-  setTimeout(function(){
-    el.style.transition='opacity .25s';el.style.opacity='0';
-    setTimeout(function(){el.remove();},250);
-  },3200);
-}
+function toast(m,t){t=t||'success';var b=$('#toastContainer');if(!b)return;var e=document.createElement('div');e.className='toast '+t;e.textContent=m;b.appendChild(e);setTimeout(function(){e.style.transition='opacity .25s';e.style.opacity='0';setTimeout(function(){e.remove();},250);},3000);}
 
 window.closeModal=function(id){var m=document.getElementById(id);if(m)m.classList.remove('open');};
 function openModal(id){var m=document.getElementById(id);if(m)m.classList.add('open');}
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape')$$('.modal.open').forEach(function(m){m.classList.remove('open');});
-});
-$$('.modal').forEach(function(m){
-  m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open');});
-});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.open').forEach(function(m){m.classList.remove('open');});});
+$$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
-window.showPage=function(page){
-  if((page==='trades'||page==='profile'||page==='create')&&!state.user){
-    openModal('authModal');return;
-  }
-  $$('.page').forEach(function(p){p.classList.remove('active');});
-  var t=document.getElementById('page-'+page);
-  if(t)t.classList.add('active');
-  $$('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
-  if(page==='trades')loadTrades();
-  if(page==='profile')renderProfile();
-  if(page==='market')loadOffers();
+/* ========== CHARTS TRADINGVIEW ========== */
+function loadTvChart(containerId,symbol,interval){
+  if(!window.TradingView)return;
+  var container=document.getElementById(containerId);
+  if(!container)return;
+  if(container.dataset.loaded==='1')return;
+  container.innerHTML='';
+  new TradingView.widget({
+    autosize:true,
+    symbol:symbol,
+    interval:interval||'60',
+    timezone:'Africa/Dakar',
+    theme:'dark',
+    style:'1',
+    locale:'fr',
+    toolbar_bg:'#101d17',
+    enable_publishing:false,
+    hide_side_toolbar:true,
+    allow_symbol_change:true,
+    save_image:false,
+    container_id:containerId,
+    withdateranges:true,
+    details:false,
+    hotlist:false,
+    calendar:false,
+    studies:[]
+  });
+  container.dataset.loaded='1';
+}
+
+function loadAllCharts(){
+  loadTvChart('chart-btc','BINANCE:BTCUSDT');
+  loadTvChart('chart-eth','BINANCE:ETHUSDT');
+  loadTvChart('chart-sol','BINANCE:SOLUSDT');
+  loadTvChart('chart-bnb','BINANCE:BNBUSDT');
+  loadTvChart('chart-xau','BINANCE:XAUUSDT.P');
+  loadTvChart('chart-eurusd','OANDA:EURUSD');
+}
+
+/* ========== NAVIGATION ========== */
+window.showPage=function(p){
+  if(['trades','profile','create','admin'].indexOf(p)>=0&&!state.user){openModal('authModal');return;}
+  if(p==='admin'&&!(state.profile&&state.profile.is_admin)){toast('Accès refusé','error');return;}
+  $$('.page').forEach(function(x){x.classList.remove('active');});
+  var t=document.getElementById('page-'+p);if(t)t.classList.add('active');
+  $$('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
+  if(p==='trades')loadTrades();
+  if(p==='profile')renderProfile();
+  if(p==='market')loadOffers();
+  if(p==='admin')renderAdmin();
+  if(p==='charts')setTimeout(loadAllCharts,100);
   window.scrollTo({top:0,behavior:'smooth'});
 };
-window.scrollToOffers=function(){var el=document.getElementById('offersSection');if(el)el.scrollIntoView({behavior:'smooth'});};
-window.scrollToHow=function(){var el=document.getElementById('howSection');if(el)el.scrollIntoView({behavior:'smooth'});};
-window.requireAuth=function(cb){
-  if(!state.user){openModal('authModal');return;}
-  if(typeof cb==='function')cb();
-};
+window.scrollToOffers=function(){var e=document.getElementById('offersSection');if(e)e.scrollIntoView({behavior:'smooth'});};
+window.requireAuth=function(cb){if(!state.user){openModal('authModal');return;}if(typeof cb==='function')cb();};
 
-window.switchAuth=function(mode){
-  var isLogin=mode==='login';
-  $('#loginTab').classList.toggle('active',isLogin);
-  $('#registerTab').classList.toggle('active',!isLogin);
-  $('#loginForm').style.display=isLogin?'':'none';
-  $('#registerForm').style.display=isLogin?'none':'';
-};
-window.openAuth=function(mode){switchAuth(mode);openModal('authModal');};
-window.logout=function(){
-  sb.auth.signOut().then(function(){
-    toast('Déconnecté');
-    showPage('market');
-  });
-};
+window.switchAuth=function(m){var l=m==='login';$('#loginTab').classList.toggle('active',l);$('#registerTab').classList.toggle('active',!l);$('#loginForm').style.display=l?'':'none';$('#registerForm').style.display=l?'none':'';};
+window.openAuth=function(m){switchAuth(m);openModal('authModal');};
+window.logout=function(){sb.auth.signOut().then(function(){toast('Déconnecté');showPage('market');});};
 
-function renderAuthZone(){
-  var zone=$('#authZone');if(!zone)return;
+function renderAuth(){
+  var z=$('#authZone');if(!z)return;
   if(state.user){
-    var initials=(state.profile&&state.profile.username||state.user.email||'?').slice(0,2).toUpperCase();
-    var name=(state.profile&&state.profile.username)||state.user.email;
-    zone.innerHTML=
-      '<button class="btn btn-small" onclick="showPage(\'profile\')">'+escapeHTML(initials)+' · '+escapeHTML(name)+'</button>'+
-      '<button class="btn btn-small btn-danger" onclick="logout()">Déconnexion</button>';
+    var p=state.profile||{};var av=p.avatar_emoji||'👤';var nm=p.username||state.user.email;
+    var badge=p.is_verified?' <span class="badge-verified">✅ Vérifié</span>':'';
+    var nb=state.notifs.length;
+    z.innerHTML='<button class="btn btn-small" onclick="openNotifs()">🔔'+(nb>0?' <span style="background:var(--red);color:#fff;padding:1px 6px;border-radius:8px;font-size:10px">'+nb+'</span>':'')+'</button>'+
+      '<button class="btn btn-small" onclick="showPage(\'profile\')">'+av+' '+esc(nm)+badge+'</button>'+
+      '<button class="btn btn-small btn-danger" onclick="logout()">Sortir</button>';
   }else{
-    zone.innerHTML=
-      '<button class="btn btn-small" onclick="openAuth(\'login\')">Connexion</button>'+
+    z.innerHTML='<button class="btn btn-small" onclick="openAuth(\'login\')">Connexion</button>'+
       '<button class="btn btn-small btn-primary" onclick="openAuth(\'register\')">Inscription</button>';
   }
 }
 
-async function loadProfile(userId){
-  var r=await sb.from('profiles').select('*').eq('id',userId).maybeSingle();
-  if(r.error||!r.data){state.profile=null;return;}
-  state.profile=r.data;
-  var rb=await sb.from('bank_accounts').select('*').eq('user_id',userId).maybeSingle();
+async function loadProfile(uid){
+  var r=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+  if(!r.error&&r.data)state.profile=r.data;
+  var rb=await sb.from('bank_accounts').select('*').eq('user_id',uid).maybeSingle();
   state.bank=(rb.error||!rb.data)?null:rb.data;
+  var a=$('#adminTab');if(a)a.style.display=state.profile&&state.profile.is_admin?'':'none';
 }
+async function loadNotifs(){
+  if(!state.user){state.notifs=[];return;}
+  var r=await sb.from('trades').select('id,status,updated_at,buyer_id')
+    .or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id)
+    .in('status',['awaiting_fee','open','fiat_sent','usdt_sent']).order('updated_at',{ascending:false}).limit(20);
+  state.notifs=r.data||[];
+}
+window.openNotifs=function(){
+  if(!state.notifs.length){$('#bankContent').innerHTML='<div class="empty">Aucune notification.</div>';}
+  else{
+    $('#bankContent').innerHTML='<h3 style="font-size:14px;margin-bottom:10px">Commandes actives</h3>'+
+      state.notifs.map(function(t){return '<div class="review-item"><div class="review-head"><strong>#'+t.id.slice(0,8)+'</strong><span class="review-date">'+ago(t.updated_at)+'</span></div><div class="review-comment">Statut : '+t.status+'</div></div>';}).join('');
+  }
+  openModal('bankModal');
+};
 
+/* AUTH */
 $('#registerForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  var username=$('#registerUsername').value.trim();
-  var email=$('#registerEmail').value.trim();
-  var password=$('#registerPassword').value;
-  if(username.length<3){toast('Nom trop court','error');return;}
-  var r=await sb.auth.signUp({
-    email:email,
-    password:password,
-    options:{data:{username:username}}
-  });
+  var u=$('#registerUsername').value.trim(),em=$('#registerEmail').value.trim(),p=$('#registerPassword').value;
+  if(u.length<3){toast('Nom trop court','error');return;}
+  var r=await sb.auth.signUp({email:em,password:p,options:{data:{username:u}}});
   if(r.error){toast('Erreur : '+r.error.message,'error');return;}
-  toast('Compte créé');
-  closeModal('authModal');
-  e.target.reset();
+  toast('Compte créé');closeModal('authModal');e.target.reset();
 });
-
 $('#loginForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  var email=$('#loginEmail').value.trim();
-  var password=$('#loginPassword').value;
-  var r=await sb.auth.signInWithPassword({email:email,password:password});
+  var r=await sb.auth.signInWithPassword({email:$('#loginEmail').value.trim(),password:$('#loginPassword').value});
   if(r.error){toast('Identifiants incorrects','error');return;}
-  closeModal('authModal');
-  toast('Connexion réussie');
-  e.target.reset();
+  closeModal('authModal');toast('Connecté');e.target.reset();
+});
+sb.auth.onAuthStateChange(async function(ev,s){
+  if(s&&s.user){state.user=s.user;await loadProfile(s.user.id);await loadNotifs();}
+  else{state.user=null;state.profile=null;state.bank=null;state.notifs=[];}
+  renderAuth();
 });
 
-sb.auth.onAuthStateChange(async function(event,session){
-  if(session&&session.user){
-    state.user=session.user;
-    await loadProfile(session.user.id);
-  }else{
-    state.user=null;
-    state.profile=null;
-    state.bank=null;
-  }
-  renderAuthZone();
-});
-
+/* OFFERS */
 window.loadOffers=async function(){
-  var box=$('#offers');if(!box)return;
-  box.innerHTML='<div class="loading"><div class="loader"></div></div>';
-  var r=await sb.from('offers')
-    .select('*, profiles(username)')
-    .eq('is_active',true)
-    .order('created_at',{ascending:false})
-    .limit(100);
-  if(r.error){box.innerHTML='<div class="empty">Erreur : '+escapeHTML(r.error.message)+'</div>';return;}
-  state.offers=r.data||[];
-  renderOffers();
+  var b=$('#offers');if(!b)return;
+  b.innerHTML='<div class="loading"><div class="loader"></div></div>';
+  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,country,is_online,trades_count,is_verified)')
+    .eq('is_active',true).order('created_at',{ascending:false}).limit(200);
+  if(r.error){b.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>';return;}
+  state.offers=r.data||[];renderOffers();
 };
 
 window.renderOffers=function(){
-  var box=$('#offers');if(!box)return;
-  var q=($('#searchInput').value||'').trim().toLowerCase();
-  var type=$('#offerTypeFilter').value;
-  var currency=$('#currencyFilter').value;
-  var filtered=state.offers.filter(function(o){
-    if(type&&o.type!==type)return false;
-    if(currency&&o.currency!==currency)return false;
+  var b=$('#offers');if(!b)return;
+  var q=($('#searchInput').value||'').toLowerCase();
+  var typ=$('#offerTypeFilter').value,cur=$('#currencyFilter').value;
+  var pay=$('#paymentFilter').value.toLowerCase();
+  var ver=$('#verifiedFilter').value;
+  var sort=$('#sortFilter').value;
+  var f=state.offers.filter(function(o){
+    if(typ&&o.type!==typ)return false;
+    if(cur&&o.currency!==cur)return false;
+    if(pay&&(o.payments||'').toLowerCase().indexOf(pay)===-1)return false;
+    if(ver==='verified'&&!(o.profiles&&o.profiles.is_verified))return false;
     if(q){
-      var hay=((o.profiles&&o.profiles.username||'')+' '+o.payments+' '+o.platform+' '+(o.terms||'')).toLowerCase();
-      if(hay.indexOf(q)===-1)return false;
+      var h=((o.profiles&&o.profiles.username||'')+' '+o.payments+' '+o.platform+' '+(o.terms||'')).toLowerCase();
+      if(h.indexOf(q)===-1)return false;
     }
     return true;
   });
-  if(!filtered.length){
-    box.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div>Aucune offre.</div></div>';
-    return;
-  }
-  box.innerHTML=filtered.map(function(o){
-    var isSell=o.type==='sell';
-    var label=isSell?'Achat USDT':'Vente USDT';
-    var cls=isSell?'buy':'sell';
-    var owner=(o.profiles&&o.profiles.username)||'—';
+  if(sort==='price_asc')f.sort(function(a,b){return a.price-b.price;});
+  else if(sort==='price_desc')f.sort(function(a,b){return b.price-a.price;});
+  else if(sort==='rating')f.sort(function(a,b){return ((b.profiles&&b.profiles.rating)||0)-((a.profiles&&a.profiles.rating)||0);});
+
+  if(!f.length){b.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div>Aucune offre.</div>';return;}
+  b.innerHTML=f.map(function(o){
+    var sell=o.type==='sell',lbl=sell?'Achat USDT':'Vente USDT',cls=sell?'buy':'sell';
+    var p=o.profiles||{};var av=p.avatar_emoji||'👤';
+    var ver=p.is_verified?' <span class="badge-verified">✅</span>':'';
     return '<article class="offer-card">'+
-      '<div class="offer-top"><span class="offer-type '+cls+'">'+label+'</span><span style="color:var(--muted);font-size:12px">'+escapeHTML(owner)+'</span></div>'+
-      '<div class="offer-price">'+fmtPrice(o.price,o.currency)+' <small>/ USDT</small></div>'+
-      '<div class="offer-meta">'+
-        '<div class="meta-box"><span>Disponible</span><strong>'+fmtAmount(o.remaining)+' USDT</strong></div>'+
-        '<div class="meta-box"><span>Source USDT</span><strong>'+escapeHTML(o.platform)+'</strong></div>'+
-        '<div class="meta-box"><span>Min</span><strong>'+fmtPrice(o.min_limit,o.currency)+'</strong></div>'+
-        '<div class="meta-box"><span>Max</span><strong>'+fmtPrice(o.max_limit,o.currency)+'</strong></div>'+
+      '<div class="offer-top">'+
+        '<div class="offer-owner"><div class="offer-avatar">'+av+'</div>'+
+          '<div class="offer-owner-name">'+
+            '<div>'+(p.is_online?'<span class="online-dot"></span> ':'<span class="offline-dot"></span> ')+esc(p.username||'—')+ver+'</div>'+
+            '<div>'+stars(p.rating)+' <span style="opacity:.6">('+(p.trades_count||0)+')</span></div>'+
+          '</div>'+
+        '</div>'+
+        '<span class="offer-type '+cls+'">'+lbl+'</span>'+
       '</div>'+
-      '<div class="offer-user"><span>⏱ '+timeAgo(o.created_at)+'</span><span>'+escapeHTML(o.payments)+'</span></div>'+
-      '<div class="offer-actions"><button class="btn btn-small btn-primary" onclick="openTrade(\''+o.id+'\')">'+(isSell?'Acheter':'Vendre')+'</button></div>'+
+      '<div class="offer-price">'+fmtP(o.price,o.currency)+' <small>/USDT</small></div>'+
+      '<div class="offer-meta">'+
+        '<div class="meta-box"><span>Dispo</span><strong>'+fmt(o.remaining)+' USDT</strong></div>'+
+        '<div class="meta-box"><span>Source</span><strong>'+esc(o.platform)+'</strong></div>'+
+        '<div class="meta-box"><span>Min</span><strong>'+fmtP(o.min_limit,o.currency)+'</strong></div>'+
+        '<div class="meta-box"><span>Max</span><strong>'+fmtP(o.max_limit,o.currency)+'</strong></div>'+
+      '</div>'+
+      '<div class="offer-user"><span>⏱ '+ago(o.created_at)+'</span><span>'+esc(o.payments)+'</span></div>'+
+      '<div class="offer-actions"><button class="btn btn-small btn-primary" onclick="openTrade(\''+o.id+'\')">'+(sell?'Acheter':'Vendre')+'</button>'+
+      '<button class="btn btn-small" onclick="openProfile(\''+o.user_id+'\')">Profil</button></div>'+
     '</article>';
   }).join('');
 };
 
-window.resetFilters=function(){
-  $('#searchInput').value='';
-  $('#offerTypeFilter').value='';
-  $('#currencyFilter').value='XOF';
-  renderOffers();
+window.openProfile=async function(uid){
+  var r=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+  if(r.error||!r.data){toast('Introuvable','error');return;}
+  var u=r.data;
+  var rr=await sb.from('reviews').select('*, reviewer:reviewer_id(username)').eq('reviewed_id',uid).order('created_at',{ascending:false}).limit(15);
+  var rev=rr.data||[];
+  var ver=u.is_verified?'<span class="badge-verified">✅ Vérifié</span>':'';
+  $('#bankContent').innerHTML=
+    '<div style="text-align:center"><div class="profile-avatar" style="margin:0 auto">'+(u.avatar_emoji||'👤')+'</div>'+
+    '<div class="profile-name">'+esc(u.username)+' '+ver+'</div>'+
+    '<div class="profile-email">'+stars(u.rating)+' · '+(u.trades_count||0)+' échanges</div></div>'+
+    '<div class="reviews-list" style="margin-top:14px"><h4 style="font-size:13px;margin-bottom:8px">Avis récents</h4>'+
+    (rev.length?rev.map(function(x){return '<div class="review-item"><div class="review-head"><strong>'+esc(x.reviewer&&x.reviewer.username||'Anonyme')+'</strong>'+stars(x.rating)+'</div>'+(x.comment?'<div class="review-comment">'+esc(x.comment)+'</div>':'')+'<div class="review-date">'+ago(x.created_at)+'</div></div>';}).join(''):'<div class="empty">Aucun avis.</div>')+'</div>';
+  openModal('bankModal');
 };
 
+/* OFFER FORM */
 $('#offerForm').addEventListener('submit',async function(e){
   e.preventDefault();
   if(!state.user){openModal('authModal');return;}
-  var type=$('#offerType').value;
-  var currency=$('#offerCurrency').value;
-  var platform=$('#offerPlatform').value;
-  var amount=parseFloat($('#offerAmount').value);
-  var price=parseFloat($('#offerPrice').value);
-  var min=parseFloat($('#offerMin').value);
-  var max=parseFloat($('#offerMax').value);
-  var terms=$('#offerTerms').value.trim();
-
-  var selected=[];
-  $$('.pay-check:checked').forEach(function(c){selected.push(c.value);});
-  var extra=$('#offerPaymentsExtra').value.trim();
-  if(extra)selected.push(extra);
-  var payments=selected.join(', ');
-
-  if(!(amount>0)||!(price>0)){toast('Montants invalides','error');return;}
-  if(min>max){toast('Min > Max','error');return;}
-  if(!payments){toast('Choisissez au moins un moyen de paiement','error');return;}
-
-  if(selected.indexOf('Virement bancaire')!==-1){
-    if(!state.bank||(!state.bank.rib&&!state.bank.iban)){
-      toast('Remplissez d\'abord vos coordonnées bancaires dans Profil','error');
-      showPage('profile');
-      return;
-    }
+  var s=[];$$('.pay-check:checked').forEach(function(c){s.push(c.value);});
+  var amt=parseFloat($('#offerAmount').value),pr=parseFloat($('#offerPrice').value);
+  var mn=parseFloat($('#offerMin').value),mx=parseFloat($('#offerMax').value);
+  if(!(amt>0)||!(pr>0)){toast('Montants invalides','error');return;}
+  if(mn>mx){toast('Min > Max','error');return;}
+  if(!s.length){toast('Choisissez un paiement','error');return;}
+  if(s.indexOf('Virement bancaire')!==-1&&(!state.bank||(!state.bank.rib&&!state.bank.iban))){
+    toast('Remplissez vos coordonnées bancaires','error');showPage('profile');return;
   }
-
   var r=await sb.from('offers').insert({
-    user_id:state.user.id,
-    type:type,currency:currency,platform:platform,
-    amount:amount,remaining:amount,price:price,
-    min_limit:min,max_limit:max,payments:payments,terms:terms
+    user_id:state.user.id,type:$('#offerType').value,currency:$('#offerCurrency').value,
+    platform:$('#offerPlatform').value,amount:amt,remaining:amt,price:pr,
+    min_limit:mn,max_limit:mx,payments:s.join(', '),terms:$('#offerTerms').value.trim()
   });
   if(r.error){toast('Erreur : '+r.error.message,'error');return;}
-  toast('Offre publiée');
-  e.target.reset();
-  showPage('market');
-  loadOffers();
+  toast('Publiée');e.target.reset();showPage('market');loadOffers();
 });
 
-window.openTrade=async function(offerId){
+/* TRADE CREATE */
+window.openTrade=async function(oid){
   if(!state.user){openModal('authModal');return;}
-  var r=await sb.from('offers').select('*, profiles(username)').eq('id',offerId).maybeSingle();
+  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,trades_count,is_verified)').eq('id',oid).maybeSingle();
   if(r.error||!r.data){toast('Offre introuvable','error');return;}
-  var offer=r.data;
-  if(offer.user_id===state.user.id){toast('C\'est votre propre offre','error');return;}
+  var o=r.data;
+  if(o.user_id===state.user.id){toast('Votre propre offre','error');return;}
+  var buying=o.type==='sell';
+  var maxU=Math.min(o.remaining,o.max_limit/o.price),minU=o.min_limit/o.price;
+  if(minU>maxU){toast('Indisponible','error');return;}
 
-  var isBuying=offer.type==='sell';
-  var maxUsdt=Math.min(offer.remaining,offer.max_limit/offer.price);
-  var minUsdt=offer.min_limit/offer.price;
-  if(minUsdt>maxUsdt){toast('Offre indisponible','error');return;}
-
-  var bankHTML='';
-  if(isBuying && (offer.payments||'').toLowerCase().indexOf('virement')!==-1){
-    var rb=await sb.from('bank_accounts').select('*').eq('user_id',offer.user_id).maybeSingle();
+  var bankH='';
+  if(buying&&(o.payments||'').toLowerCase().indexOf('virement')!==-1){
+    var rb=await sb.from('bank_accounts').select('*').eq('user_id',o.user_id).maybeSingle();
     if(rb.data){
-      bankHTML=
-        '<div class="bank-box">'+
-          '<h4>🏦 Coordonnées bancaires du vendeur</h4>'+
-          (rb.data.bank_name?'<div class="row"><span>Banque</span><strong>'+escapeHTML(rb.data.bank_name)+'</strong></div>':'')+
-          (rb.data.account_name?'<div class="row"><span>Titulaire</span><strong>'+escapeHTML(rb.data.account_name)+'</strong></div>':'')+
-          (rb.data.rib?'<div class="row"><span>RIB</span><strong>'+escapeHTML(rb.data.rib)+'</strong></div>':'')+
-          (rb.data.iban?'<div class="row"><span>IBAN</span><strong>'+escapeHTML(rb.data.iban)+'</strong></div>':'')+
-          (rb.data.phone?'<div class="row"><span>Téléphone</span><strong>'+escapeHTML(rb.data.phone)+'</strong></div>':'')+
-        '</div>';
-    }else{
-      bankHTML='<div class="security-box"><div class="security-icon">⚠️</div><div><strong>Vendeur sans coordonnées</strong><p>Le vendeur a coché « Virement bancaire » mais n\'a pas renseigné ses coordonnées. Contactez-le pour un autre moyen.</p></div></div>';
+      bankH='<div class="bank-box"><h4>🏦 Coordonnées bancaires vendeur</h4>'+
+        (rb.data.bank_name?'<div class="row"><span>Banque</span><strong>'+esc(rb.data.bank_name)+'</strong></div>':'')+
+        (rb.data.account_name?'<div class="row"><span>Titulaire</span><strong>'+esc(rb.data.account_name)+'</strong></div>':'')+
+        (rb.data.rib?'<div class="row"><span>RIB</span><strong>'+esc(rb.data.rib)+'</strong></div>':'')+
+        (rb.data.iban?'<div class="row"><span>IBAN</span><strong>'+esc(rb.data.iban)+'</strong></div>':'')+
+        (rb.data.phone?'<div class="row"><span>Tél</span><strong>'+esc(rb.data.phone)+'</strong></div>':'')+'</div>';
     }
   }
-
-  var walletFieldHTML=isBuying
-    ? '<div class="form-group" style="margin-top:14px"><label for="tradeWallet">Votre adresse USDT de réception *</label>'+
-      '<input id="tradeWallet" class="input" placeholder="TRC20 / ERC20 / BEP20…" required></div>'
-    : '';
 
   $('#tradeCreationContent').innerHTML=
     '<div class="detail-grid">'+
-      '<div class="detail-box"><span>Type</span><strong>'+(isBuying?'Achat':'Vente')+' USDT</strong></div>'+
-      '<div class="detail-box"><span>Prix</span><strong>'+fmtPrice(offer.price,offer.currency)+'</strong></div>'+
-      '<div class="detail-box"><span>Source USDT</span><strong>'+escapeHTML(offer.platform)+'</strong></div>'+
-      '<div class="detail-box"><span>Paiement</span><strong>'+escapeHTML(offer.payments)+'</strong></div>'+
+      '<div class="detail-box"><span>Type</span><strong>'+(buying?'Achat':'Vente')+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Prix</span><strong>'+fmtP(o.price,o.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Source</span><strong>'+esc(o.platform)+'</strong></div>'+
+      '<div class="detail-box"><span>Paiement</span><strong>'+esc(o.payments)+'</strong></div>'+
     '</div>'+
-    bankHTML+
-    '<div class="form-group" style="margin-top:16px"><label for="tradeAmount">Quantité d\'USDT</label>'+
-    '<input id="tradeAmount" class="input" type="number" min="0" step="0.000001" placeholder="'+fmtAmount(minUsdt)+' – '+fmtAmount(maxUsdt)+'"></div>'+
-    walletFieldHTML+
-    '<div class="calc-line"><span>Sous-total</span><strong id="tradeSubtotal">—</strong></div>'+
-    '<div class="calc-line"><span>Frais SENUSDT (1 %)</span><strong id="tradeFee">—</strong></div>'+
-    '<div class="calc-total"><span>Total</span><span id="tradeTotal">—</span></div>'+
-    '<button class="btn btn-primary" style="width:100%;margin-top:14px" id="tradeConfirm">Créer la commande</button>';
+    bankH+
+    '<div class="security-box" style="margin-top:12px"><div class="security-icon">🛡️</div><div><strong>Transaction sécurisée</strong><p>Chat intégré, preuves obligatoires et délai de contestation de 24h.</p></div></div>'+
+    '<div class="form-group" style="margin-top:14px"><label>Quantité USDT</label>'+
+    '<input id="tradeAmount" class="input" type="number" min="0" step="0.000001" placeholder="'+fmt(minU)+' – '+fmt(maxU)+'"></div>'+
+    (buying?'<div class="form-group"><label>Votre adresse USDT de réception *</label><input id="tradeWallet" class="input" placeholder="TRC20 / ERC20…" required></div>':'')+
+    '<div class="calc-line"><span>Sous-total</span><strong id="trSub">—</strong></div>'+
+    '<div class="calc-line"><span>Frais 1 %</span><strong id="trFee">—</strong></div>'+
+    '<div class="calc-total"><span>Total</span><span id="trTot">—</span></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" id="tradeOK">Créer la commande</button>';
 
-  function updateTotals(){
+  function upd(){
     var q=parseFloat($('#tradeAmount').value)||0;
-    var sub=q*offer.price,fee=sub*COMMISSION_RATE;
-    $('#tradeSubtotal').textContent=fmtPrice(sub,offer.currency);
-    $('#tradeFee').textContent=fmtPrice(fee,offer.currency);
-    $('#tradeTotal').textContent=fmtPrice(sub+fee,offer.currency);
+    var sub=q*o.price,fee=sub*RATE;
+    $('#trSub').textContent=fmtP(sub,o.currency);
+    $('#trFee').textContent=fmtP(fee,o.currency);
+    $('#trTot').textContent=fmtP(sub+fee,o.currency);
   }
-  $('#tradeAmount').addEventListener('input',updateTotals);
-  updateTotals();
+  $('#tradeAmount').addEventListener('input',upd);upd();
 
-  $('#tradeConfirm').addEventListener('click',async function(){
+  $('#tradeOK').addEventListener('click',async function(){
     var q=parseFloat($('#tradeAmount').value);
     if(!(q>0))return toast('Quantité invalide','error');
-    if(q<minUsdt)return toast('Sous le minimum','error');
-    if(q>maxUsdt)return toast('Au-dessus du maximum','error');
-
-    var buyerWallet='';
-    if(isBuying){
-      buyerWallet=($('#tradeWallet').value||'').trim();
-      if(buyerWallet.length<10)return toast('Adresse USDT invalide','error');
-    }
-
-    var subtotal=q*offer.price,fee=subtotal*COMMISSION_RATE,total=subtotal+fee;
-    var insert={
-      offer_id:offer.id,
-      buyer_id:isBuying?state.user.id:offer.user_id,
-      seller_id:isBuying?offer.user_id:state.user.id,
-      amount:q,price:offer.price,currency:offer.currency,
-      subtotal:subtotal,fee:fee,total:total,
-      status:'awaiting_fee',
-      platform:offer.platform,
-      payments:offer.payments,
-      buyer_wallet:buyerWallet,
-      fee_paid:false
+    if(q<minU)return toast('Sous le min','error');
+    if(q>maxU)return toast('Au-dessus du max','error');
+    var w='';
+    if(buying){w=($('#tradeWallet').value||'').trim();if(w.length<10)return toast('Adresse invalide','error');}
+    var sub=q*o.price,fee=sub*RATE,total=sub+fee;
+    var ins={
+      offer_id:o.id,buyer_id:buying?state.user.id:o.user_id,seller_id:buying?o.user_id:state.user.id,
+      amount:q,price:o.price,currency:o.currency,subtotal:sub,fee:fee,total:total,
+      status:'awaiting_fee',platform:o.platform,payments:o.payments,buyer_wallet:w,fee_paid:false
     };
-    var r2=await sb.from('trades').insert(insert).select().single();
+    var r2=await sb.from('trades').insert(ins).select().single();
     if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
-
-    await sb.from('offers').update({remaining:Math.max(0,offer.remaining-q)}).eq('id',offer.id);
-
-    closeModal('tradeModal');
-    openFeeModal(r2.data.id);
+    await sb.from('offers').update({remaining:Math.max(0,o.remaining-q)}).eq('id',o.id);
+    closeModal('tradeModal');openFeeModal(r2.data.id);
   });
-
   openModal('tradeModal');
 };
 
-async function openFeeModal(tradeId){
-  var r=await sb.from('trades').select('*').eq('id',tradeId).maybeSingle();
-  if(r.error||!r.data)return;
-  var t=r.data;
-
+async function openFeeModal(tid){
+  var r=await sb.from('trades').select('*').eq('id',tid).maybeSingle();
+  if(r.error||!r.data)return;var t=r.data;
   $('#feeContent').innerHTML=
-    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Envoyez les frais SENUSDT par <strong>Wave</strong>.</p>'+
-    '<div class="fee-box">'+
-      '<h4>Paiement de la commission</h4>'+
-      '<div class="row"><span>Référence</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
-      '<div class="row"><span>Montant USDT</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
-      '<div class="row"><span>Frais SENUSDT (1 %)</span><strong>'+fmtPrice(t.fee,'XOF')+'</strong></div>'+
-      '<div class="wave-line">'+WAVE_NUMBER+'</div>'+
-    '</div>'+
-    '<div class="security-box" style="margin-top:14px"><div class="security-icon">⚠️</div>'+
-    '<div><strong>Important</strong><p>Mettez <strong>#'+t.id.slice(0,8)+'</strong> en motif du transfert Wave.</p></div></div>'+
-    '<button class="btn btn-primary" style="width:100%;margin-top:16px" id="feeConfirm">J\'ai envoyé les frais — Activer</button>'+
-    '<button class="btn" style="width:100%;margin-top:8px" onclick="closeModal(\'feeModal\');showPage(\'trades\')">Voir dans « Mes commandes »</button>';
-
-  $('#feeConfirm').addEventListener('click',async function(){
-    var r2=await sb.from('trades').update({fee_paid:true,status:'open',updated_at:new Date().toISOString()}).eq('id',tradeId);
-    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
-    closeModal('feeModal');
-    toast('Commande activée');
-    showPage('trades');
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:10px">Envoyez les frais par Wave.</p>'+
+    '<div class="fee-box"><h4>Commission SENUSDT</h4>'+
+      '<div class="row"><span>Réf</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
+      '<div class="row"><span>Montant</span><strong>'+fmt(t.amount)+' USDT</strong></div>'+
+      '<div class="row"><span>Frais</span><strong>'+fmtP(t.fee,'XOF')+'</strong></div>'+
+      '<div class="wave-line">'+WAVE+'</div></div>'+
+    '<div class="security-box"><div class="security-icon">⚠️</div><div><strong>Motif obligatoire</strong><p>Mettez <strong>#'+t.id.slice(0,8)+'</strong> en motif.</p></div></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" id="feeOK">J\'ai envoyé — Activer</button>';
+  $('#feeOK').addEventListener('click',async function(){
+    var r2=await sb.from('trades').update({fee_paid:true,status:'open',updated_at:new Date().toISOString()}).eq('id',tid);
+    if(r2.error){toast('Erreur','error');return;}
+    closeModal('feeModal');toast('Activée');showPage('trades');
   });
-
   openModal('feeModal');
 }
 
-window.openUsdtModal=async function(tradeId){
-  var r=await sb.from('trades').select('*').eq('id',tradeId).maybeSingle();
-  if(r.error||!r.data)return;
-  var t=r.data;
+window.openPaymentProofModal=async function(tid){
+  var r=await sb.from('trades').select('*').eq('id',tid).maybeSingle();
+  if(r.error||!r.data)return;var t=r.data;
+  var rb=await sb.from('bank_accounts').select('*').eq('user_id',t.seller_id).maybeSingle();
+  var bank=(t.payments||'').toLowerCase().indexOf('virement')!==-1&&rb.data?
+    '<div class="bank-box" style="margin-top:10px"><h4>🏦 Virement vers</h4>'+
+    (rb.data.bank_name?'<div class="row"><span>Banque</span><strong>'+esc(rb.data.bank_name)+'</strong></div>':'')+
+    (rb.data.account_name?'<div class="row"><span>Titulaire</span><strong>'+esc(rb.data.account_name)+'</strong></div>':'')+
+    (rb.data.rib?'<div class="row"><span>RIB</span><strong>'+esc(rb.data.rib)+'</strong></div>':'')+'</div>':'';
 
-  $('#usdtContent').innerHTML=
-    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Confirmez l\'envoi des USDT depuis votre wallet <strong>'+escapeHTML(t.platform)+'</strong>.</p>'+
+  $('#paymentProofContent').innerHTML=
     '<div class="detail-grid">'+
-      '<div class="detail-box"><span>Quantité</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
-      '<div class="detail-box"><span>Adresse acheteur</span><strong style="font-family:var(--mono);font-size:11px">'+escapeHTML(t.buyer_wallet||'—')+'</strong></div>'+
-    '</div>'+
-    '<div class="form-group" style="margin-top:14px"><label for="txHashInput">Hash de la transaction (TXID)</label>'+
-    '<input id="txHashInput" class="input" placeholder="0xabc… ou hash Tronscan…"></div>'+
-    '<div class="security-box"><div class="security-icon">⚠️</div>'+
-    '<div><strong>Irreversible</strong><p>Vérifiez l\'adresse avant d\'envoyer.</p></div></div>'+
-    '<button class="btn btn-primary" style="width:100%;margin-top:16px" id="usdtConfirm">Confirmer l\'envoi</button>';
+      '<div class="detail-box"><span>À payer au vendeur</span><strong>'+fmtP(t.subtotal,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Moyens</span><strong>'+esc(t.payments)+'</strong></div>'+
+    '</div>'+bank+
+    '<div class="security-box" style="margin-top:12px"><div class="security-icon">📸</div><div><strong>Preuve obligatoire</strong><p>Uploadez une capture d\'écran du paiement.</p></div></div>'+
+    '<label class="file-drop" style="margin-top:12px"><input type="file" id="payProofFile" accept="image/*">'+
+      '<div class="file-icon">📤</div><div class="file-label">Cliquez pour uploader</div></label>'+
+    '<div id="payProofPreview"></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" id="payProofOK" disabled>Confirmer le paiement</button>';
 
-  $('#usdtConfirm').addEventListener('click',async function(){
-    var hash=$('#txHashInput').value.trim();
-    if(hash.length<10)return toast('Hash invalide','error');
-    var r2=await sb.from('trades').update({tx_hash:hash,status:'usdt_sent',updated_at:new Date().toISOString()}).eq('id',tradeId);
-    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
-    closeModal('usdtModal');
-    toast('USDT marqués comme envoyés');
-    loadTrades();
+  var file=null;
+  $('#payProofFile').addEventListener('change',function(e){
+    file=e.target.files[0];if(!file)return;
+    var rd=new FileReader();
+    rd.onload=function(ev){$('#payProofPreview').innerHTML='<div class="file-preview"><img src="'+ev.target.result+'">'+file.name+'</div>';$('#payProofOK').disabled=false;};
+    rd.readAsDataURL(file);
   });
 
+  $('#payProofOK').addEventListener('click',async function(){
+    if(!file)return;
+    this.disabled=true;this.textContent='Envoi…';
+    var path=tid+'/'+state.user.id+'-'+Date.now()+'.jpg';
+    var up=await sb.storage.from('trade-proofs').upload(path,file,{upsert:true});
+    if(up.error){toast('Erreur upload','error');this.disabled=false;this.textContent='Réessayer';return;}
+    var r2=await sb.from('trades').update({payment_proof_url:path,status:'fiat_sent',updated_at:new Date().toISOString()}).eq('id',tid);
+    if(r2.error){toast('Erreur','error');return;}
+    closeModal('paymentProofModal');toast('Paiement confirmé');loadTrades();
+  });
+  openModal('paymentProofModal');
+};
+
+window.openUsdtModal=async function(tid){
+  var r=await sb.from('trades').select('*').eq('id',tid).maybeSingle();
+  if(r.error||!r.data)return;var t=r.data;
+  $('#usdtContent').innerHTML=
+    '<div class="detail-grid">'+
+      '<div class="detail-box"><span>À envoyer</span><strong>'+fmt(t.amount)+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Adresse acheteur</span><strong style="font-family:var(--mono);font-size:10px">'+esc(t.buyer_wallet||'—')+'</strong></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:12px"><label>Hash TXID</label><input id="txHash" class="input" placeholder="0xabc…"></div>'+
+    '<div class="security-box"><div class="security-icon">⚠️</div><div><strong>Irreversible</strong><p>Vérifiez l\'adresse.</p></div></div>'+
+    '<label class="file-drop" style="margin-top:12px"><input type="file" id="usdtProofFile" accept="image/*">'+
+      '<div class="file-icon">📸</div><div class="file-label">Capture d\'écran (optionnel)</div></label>'+
+    '<div id="usdtProofPreview"></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" id="usdtOK">Confirmer l\'envoi</button>';
+
+  var file=null;
+  $('#usdtProofFile').addEventListener('change',function(e){
+    file=e.target.files[0];if(!file)return;
+    var rd=new FileReader();
+    rd.onload=function(ev){$('#usdtProofPreview').innerHTML='<div class="file-preview"><img src="'+ev.target.result+'">'+file.name+'</div>';};
+    rd.readAsDataURL(file);
+  });
+
+  $('#usdtOK').addEventListener('click',async function(){
+    var hash=$('#txHash').value.trim();
+    if(hash.length<10)return toast('Hash invalide','error');
+    var upd={tx_hash:hash,status:'usdt_sent',updated_at:new Date().toISOString(),
+      auto_release_at:new Date(Date.now()+24*3600*1000).toISOString()};
+    if(file){
+      var path=tid+'/usdt-'+state.user.id+'-'+Date.now()+'.jpg';
+      var up=await sb.storage.from('trade-proofs').upload(path,file,{upsert:true});
+      if(!up.error)upd.usdt_proof_url=path;
+    }
+    var r2=await sb.from('trades').update(upd).eq('id',tid);
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+    closeModal('usdtModal');toast('USDT envoyés');loadTrades();
+  });
   openModal('usdtModal');
 };
 
-var STATUS_LABEL={
-  awaiting_fee:'Frais en attente',open:'Ouverte',
-  fiat_sent:'Fiat envoyé',usdt_sent:'USDT envoyés',
-  completed:'Terminée',cancelled:'Annulée',disputed:'Litige'
+/* CHAT */
+window.openChat=async function(tid,otherName){
+  if(!state.user){openModal('authModal');return;}
+  state.currentTrade=tid;
+  $('#chatTitle').textContent='Chat · '+otherName;
+  $('#chatContent').innerHTML='<div class="chat-box"><div class="chat-messages" id="chatMessages"><div class="loader"></div></div>'+
+    '<div class="chat-input-row"><input id="chatInput" placeholder="Votre message…"><button class="btn btn-primary btn-small" onclick="sendMessage()">Envoyer</button></div></div>';
+  $('#chatInput').addEventListener('keydown',function(e){if(e.key==='Enter')sendMessage();});
+  openModal('chatModal');
+  await loadChatMessages(tid);
+
+  if(state.chatSub)state.chatSub.unsubscribe();
+  state.chatSub=sb.channel('chat-'+tid).on('postgres_changes',
+    {event:'INSERT',schema:'public',table:'messages',filter:'trade_id=eq.'+tid},
+    function(p){appendMessage(p.new);}
+  ).subscribe();
 };
 
+async function loadChatMessages(tid){
+  var r=await sb.from('messages').select('*').eq('trade_id',tid).order('created_at',{ascending:true});
+  if(r.error){$('#chatMessages').innerHTML='<div class="empty">Erreur</div>';return;}
+  var html=(r.data||[]).map(function(m){
+    return '<div class="chat-msg '+(m.sender_id===state.user.id?'me':'other')+'">'+esc(m.content)+'<span class="chat-time">'+ago(m.created_at)+'</span></div>';
+  }).join('');
+  $('#chatMessages').innerHTML=html||'<div class="empty" style="font-size:12px">Aucun message.</div>';
+  $('#chatMessages').scrollTop=$('#chatMessages').scrollHeight;
+}
+
+function appendMessage(m){
+  var b=$('#chatMessages');if(!b)return;
+  if(b.innerHTML.indexOf('empty')>=0)b.innerHTML='';
+  var d=document.createElement('div');
+  d.className='chat-msg '+(m.sender_id===state.user.id?'me':'other');
+  d.innerHTML=esc(m.content)+'<span class="chat-time">'+ago(m.created_at)+'</span>';
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+
+window.sendMessage=async function(){
+  var inp=$('#chatInput');var c=inp.value.trim();
+  if(!c||!state.currentTrade)return;
+  inp.value='';inp.disabled=true;
+  var r=await sb.from('messages').insert({trade_id:state.currentTrade,sender_id:state.user.id,content:c});
+  inp.disabled=false;inp.focus();
+  if(r.error){toast('Erreur','error');return;}
+};
+
+window.closeChat=function(){
+  if(state.chatSub){state.chatSub.unsubscribe();state.chatSub=null;}
+  state.currentTrade=null;
+  closeModal('chatModal');
+};
+
+/* TRADES */
+var STAT={awaiting_fee:'Frais attente',open:'Ouverte',fiat_sent:'Fiat envoyé',usdt_sent:'USDT envoyés',completed:'Terminée',cancelled:'Annulée',disputed:'Litige'};
+
 window.loadTrades=async function(){
-  var box=$('#trades');if(!box)return;
-  if(!state.user){box.innerHTML='';return;}
-  box.innerHTML='<div class="loading"><div class="loader"></div></div>';
-  var r=await sb.from('trades')
-    .select('*, buyer:buyer_id(username), seller:seller_id(username)')
-    .or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id)
-    .order('created_at',{ascending:false});
-  if(r.error){box.innerHTML='<div class="empty">Erreur : '+escapeHTML(r.error.message)+'</div>';return;}
+  var b=$('#trades');if(!b)return;
+  if(!state.user){b.innerHTML='';return;}
+  b.innerHTML='<div class="loading"><div class="loader"></div></div>';
+  var r=await sb.from('trades').select('*').or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id).order('created_at',{ascending:false});
+  if(r.error){b.innerHTML='<div class="empty">Erreur</div>';return;}
   var all=r.data||[];
-  if(!all.length){
-    box.innerHTML='<div class="empty"><div class="empty-icon">📄</div><div>Aucune commande.</div></div>';
-    return;
-  }
-  box.innerHTML=all.map(function(t){
-    var isBuyer=t.buyer_id===state.user.id;
-    var role=isBuyer?'Acheteur':'Vendeur';
-    var buyerName=(t.buyer&&t.buyer.username)||'—';
-    var sellerName=(t.seller&&t.seller.username)||'—';
-    var otherName=isBuyer?sellerName:buyerName;
-    var showBank = isBuyer && (t.payments||'').toLowerCase().indexOf('virement')!==-1;
+  if(!all.length){b.innerHTML='<div class="empty"><div class="empty-icon">📄</div>Aucune commande.</div>';return;}
+
+  var uids=[];all.forEach(function(t){if(uids.indexOf(t.buyer_id)<0)uids.push(t.buyer_id);if(uids.indexOf(t.seller_id)<0)uids.push(t.seller_id);});
+  var pr=await sb.from('profiles').select('id,username,avatar_emoji,rating,is_verified').in('id',uids);
+  var profs={};(pr.data||[]).forEach(function(p){profs[p.id]=p;});
+  var rv=await sb.from('reviews').select('trade_id').eq('reviewer_id',state.user.id);
+  var reviewed={};(rv.data||[]).forEach(function(x){reviewed[x.trade_id]=true;});
+
+  b.innerHTML=all.map(function(t){
+    var buyer=t.buyer_id===state.user.id;
+    var role=buyer?'Acheteur':'Vendeur';
+    var o=buyer?profs[t.seller_id]:profs[t.buyer_id];
+    var oName=o?o.username:'—',oAv=o?(o.avatar_emoji||'👤'):'👤';
+    var oVer=o&&o.is_verified?' <span class="badge-verified">✅</span>':'';
+    var showBank=buyer&&(t.payments||'').toLowerCase().indexOf('virement')!==-1;
+    var canReview=t.status==='completed'&&!reviewed[t.id];
+    var msgs='<button class="btn btn-small btn-blue" onclick="openChat(\''+t.id+'\',\''+esc(oName).replace(/'/g,"\\'")+'\')">💬 Chat</button>';
+    var actions='';
+    if(t.status==='awaiting_fee'&&buyer)actions+='<button class="btn btn-small btn-warn" onclick="openFeeModal(\''+t.id+'\')">Payer frais</button>';
+    if(t.status==='open'&&buyer)actions+='<button class="btn btn-small btn-blue" onclick="openPaymentProofModal(\''+t.id+'\')">J\'ai payé</button>';
+    if(t.status==='fiat_sent'&&!buyer)actions+='<button class="btn btn-small btn-success" onclick="openUsdtModal(\''+t.id+'\')">J\'ai envoyé USDT</button>';
+    if(t.status==='usdt_sent'&&buyer)actions+='<button class="btn btn-small btn-primary" onclick="advanceTrade(\''+t.id+'\',\'completed\')">J\'ai reçu</button>';
+    if((t.status==='open'||t.status==='awaiting_fee')&&buyer)actions+='<button class="btn btn-small btn-danger" onclick="advanceTrade(\''+t.id+'\',\'cancelled\')">Annuler</button>';
+
+    var deadline='';
+    if(t.status==='usdt_sent'&&t.auto_release_at){
+      var rest=new Date(t.auto_release_at).getTime()-Date.now();
+      if(rest>0)deadline='<div style="font-size:11px;color:var(--yellow);margin-top:6px">⏳ Libération auto : '+Math.floor(rest/3600000)+'h '+Math.floor((rest%3600000)/60000)+'min</div>';
+    }
+
     return '<article class="trade-card">'+
-      '<div class="trade-head"><div>'+
-        '<div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · face à '+escapeHTML(otherName)+'</div>'+
-        '<div class="trade-amount">'+fmtAmount(t.amount)+' USDT</div>'+
-        '<div style="color:var(--muted);font-size:12px;margin-top:4px">'+fmtPrice(t.price,t.currency)+' / USDT · Total '+fmtPrice(t.total,t.currency)+'</div>'+
-      '</div><span class="status '+t.status+'">'+(STATUS_LABEL[t.status]||t.status)+'</span></div>'+
+      '<div class="trade-head"><div style="display:flex;gap:10px;align-items:center">'+
+        '<div class="offer-avatar" style="width:38px;height:38px;font-size:19px">'+oAv+'</div>'+
+        '<div><div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · '+esc(oName)+oVer+'</div>'+
+          '<div class="trade-amount">'+fmt(t.amount)+' USDT</div>'+
+          '<div style="color:var(--muted);font-size:11px">'+fmtP(t.price,t.currency)+' /USDT · '+fmtP(t.total,t.currency)+'</div>'+
+        '</div>'+
+      '</div><span class="status '+t.status+'">'+(STAT[t.status]||t.status)+'</span></div>'+
       '<div class="trade-info">'+
-        '<div class="detail-box"><span>Plateforme</span><strong>'+escapeHTML(t.platform||'—')+'</strong></div>'+
-        '<div class="detail-box"><span>Paiement</span><strong>'+escapeHTML(t.payments||'—')+'</strong></div>'+
-        '<div class="detail-box"><span>Frais</span><strong>'+fmtPrice(t.fee,'XOF')+(t.fee_paid?' ✅':' ⏳')+'</strong></div>'+
-        '<div class="detail-box"><span>TXID</span><strong style="font-family:var(--mono);font-size:11px">'+(t.tx_hash?escapeHTML(t.tx_hash.slice(0,14))+'…':'—')+'</strong></div>'+
-      '</div>'+
-      '<div class="trade-actions">'+
+        '<div class="detail-box"><span>Plateforme</span><strong>'+esc(t.platform||'—')+'</strong></div>'+
+        '<div class="detail-box"><span>Paiement</span><strong>'+esc(t.payments||'—')+'</strong></div>'+
+        '<div class="detail-box"><span>Frais</span><strong>'+fmtP(t.fee,'XOF')+(t.fee_paid?' ✅':' ⏳')+'</strong></div>'+
+        '<div class="detail-box"><span>TXID</span><strong style="font-family:var(--mono);font-size:10px">'+(t.tx_hash?esc(t.tx_hash.slice(0,12))+'…':'—')+'</strong></div>'+
+      '</div>'+deadline+
+      '<div class="trade-actions">'+msgs+
         '<button class="btn btn-small" onclick="openTradeDetail(\''+t.id+'\')">Détails</button>'+
-        (showBank?'<button class="btn btn-small btn-warn" onclick="openBankModal(\''+t.seller_id+'\')">🏦 Coordonnées bancaires</button>':'')+
-        nextActionButtons(t,isBuyer)+
-      '</div>'+
-    '</article>';
+        (showBank?'<button class="btn btn-small btn-warn" onclick="openBankModal(\''+t.seller_id+'\')">🏦 Banque</button>':'')+
+        (t.payment_proof_url?'<button class="btn btn-small" onclick="viewProof(\''+t.payment_proof_url+'\')">📸 Preuve</button>':'')+
+        (canReview?'<button class="btn btn-small btn-success" onclick="openReview(\''+t.id+'\',\''+(buyer?t.seller_id:t.buyer_id)+'\')">⭐ Noter</button>':'')+
+        '<button class="btn btn-small btn-danger" onclick="openReport(\''+(buyer?t.seller_id:t.buyer_id)+'\',\''+t.id+'\')">🚩</button>'+
+        actions+
+      '</div></article>';
   }).join('');
 };
 
-function nextActionButtons(t,isBuyer){
-  var html='';
-  if(t.status==='awaiting_fee'&&isBuyer){
-    html+='<button class="btn btn-small btn-warn" onclick="openFeeModal(\''+t.id+'\')">Payer les frais</button>';
-    html+='<button class="btn btn-small btn-danger" onclick="advanceTrade(\''+t.id+'\',\'cancelled\')">Annuler</button>';
-  }
-  if(t.status==='open'&&isBuyer){
-    html+='<button class="btn btn-small btn-blue" onclick="advanceTrade(\''+t.id+'\',\'fiat_sent\')">J\'ai payé le vendeur</button>';
-    html+='<button class="btn btn-small btn-danger" onclick="advanceTrade(\''+t.id+'\',\'cancelled\')">Annuler</button>';
-  }
-  if(t.status==='fiat_sent'&&!isBuyer){
-    html+='<button class="btn btn-small btn-success" onclick="openUsdtModal(\''+t.id+'\')">J\'ai envoyé les USDT</button>';
-  }
-  if(t.status==='usdt_sent'&&isBuyer){
-    html+='<button class="btn btn-small btn-primary" onclick="advanceTrade(\''+t.id+'\',\'completed\')">J\'ai reçu — Clôturer</button>';
-  }
-  return html;
-}
+window.viewProof=async function(path){
+  var r=await sb.storage.from('trade-proofs').createSignedUrl(path,3600);
+  if(r.error){toast('Erreur','error');return;}
+  window.open(r.data.signedUrl,'_blank');
+};
 
 window.advanceTrade=async function(id,next){
   var r=await sb.from('trades').update({status:next,updated_at:new Date().toISOString()}).eq('id',id);
-  if(r.error){toast('Erreur : '+r.error.message,'error');return;}
-  toast('Statut : '+(STATUS_LABEL[next]||next));
-  loadTrades();
+  if(r.error){toast('Erreur','error');return;}
+  toast('Statut mis à jour');loadTrades();
 };
 
 window.openTradeDetail=async function(id){
   var r=await sb.from('trades').select('*').eq('id',id).maybeSingle();
-  if(r.error||!r.data)return;
-  var t=r.data;
+  if(r.error||!r.data)return;var t=r.data;
   $('#tradeDetailContent').innerHTML=
     '<div class="detail-grid">'+
-      '<div class="detail-box"><span>Référence</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
-      '<div class="detail-box"><span>Statut</span><strong>'+(STATUS_LABEL[t.status]||t.status)+'</strong></div>'+
-      '<div class="detail-box"><span>Montant</span><strong>'+fmtAmount(t.amount)+' USDT</strong></div>'+
-      '<div class="detail-box"><span>Prix</span><strong>'+fmtPrice(t.price,t.currency)+'</strong></div>'+
-      '<div class="detail-box"><span>Sous-total</span><strong>'+fmtPrice(t.subtotal,t.currency)+'</strong></div>'+
-      '<div class="detail-box"><span>Frais SENUSDT</span><strong>'+fmtPrice(t.fee,'XOF')+(t.fee_paid?' (payés)':' (en attente)')+'</strong></div>'+
-      '<div class="detail-box"><span>Total</span><strong>'+fmtPrice(t.total,t.currency)+'</strong></div>'+
-      '<div class="detail-box"><span>Plateforme</span><strong>'+escapeHTML(t.platform||'—')+'</strong></div>'+
-      '<div class="detail-box" style="grid-column:1/-1"><span>Adresse USDT acheteur</span><strong style="font-family:var(--mono);font-size:12px">'+escapeHTML(t.buyer_wallet||'—')+'</strong></div>'+
-      (t.tx_hash?'<div class="detail-box" style="grid-column:1/-1"><span>TXID</span><strong style="font-family:var(--mono);font-size:12px">'+escapeHTML(t.tx_hash)+'</strong></div>':'')+
-      '<div class="detail-box" style="grid-column:1/-1"><span>Frais Wave</span><strong style="font-family:var(--mono);color:var(--green)">'+WAVE_NUMBER+'</strong></div>'+
+      '<div class="detail-box"><span>Réf</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
+      '<div class="detail-box"><span>Statut</span><strong>'+(STAT[t.status]||t.status)+'</strong></div>'+
+      '<div class="detail-box"><span>Montant</span><strong>'+fmt(t.amount)+' USDT</strong></div>'+
+      '<div class="detail-box"><span>Prix</span><strong>'+fmtP(t.price,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Sous-total</span><strong>'+fmtP(t.subtotal,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Frais</span><strong>'+fmtP(t.fee,'XOF')+(t.fee_paid?' (payés)':' (attente)')+'</strong></div>'+
+      '<div class="detail-box"><span>Total</span><strong>'+fmtP(t.total,t.currency)+'</strong></div>'+
+      '<div class="detail-box"><span>Plateforme</span><strong>'+esc(t.platform||'—')+'</strong></div>'+
+      '<div class="detail-box" style="grid-column:1/-1"><span>Adresse USDT acheteur</span><strong style="font-family:var(--mono);font-size:11px">'+esc(t.buyer_wallet||'—')+'</strong></div>'+
+      (t.tx_hash?'<div class="detail-box" style="grid-column:1/-1"><span>TXID</span><strong style="font-family:var(--mono);font-size:11px">'+esc(t.tx_hash)+'</strong></div>':'')+
     '</div>'+
-    '<p style="margin-top:16px;color:var(--muted);font-size:12px">Créée le '+new Date(t.created_at).toLocaleString('fr-FR')+'</p>';
+    '<p style="margin-top:12px;color:var(--muted);font-size:11px">Créée le '+fmtDT(t.created_at)+'</p>';
   openModal('detailModal');
 };
 
-window.openBankModal=async function(sellerId){
-  var r=await sb.from('bank_accounts').select('*').eq('user_id',sellerId).maybeSingle();
-  if(r.error||!r.data){
-    $('#bankContent').innerHTML='<div class="empty">Le vendeur n\'a pas renseigné de coordonnées bancaires.</div>';
-    openModal('bankModal');return;
-  }
+window.openBankModal=async function(uid){
+  var r=await sb.from('bank_accounts').select('*').eq('user_id',uid).maybeSingle();
+  if(r.error||!r.data){$('#bankContent').innerHTML='<div class="empty">Pas de coordonnées.</div>';openModal('bankModal');return;}
   var b=r.data;
-  $('#bankContent').innerHTML=
-    '<div class="bank-box">'+
-      '<h4>🏦 Coordonnées du vendeur</h4>'+
-      (b.bank_name?'<div class="row"><span>Banque</span><strong>'+escapeHTML(b.bank_name)+'</strong></div>':'')+
-      (b.account_name?'<div class="row"><span>Titulaire</span><strong>'+escapeHTML(b.account_name)+'</strong></div>':'')+
-      (b.rib?'<div class="row"><span>RIB</span><strong>'+escapeHTML(b.rib)+'</strong></div>':'')+
-      (b.iban?'<div class="row"><span>IBAN</span><strong>'+escapeHTML(b.iban)+'</strong></div>':'')+
-      (b.phone?'<div class="row"><span>Téléphone</span><strong>'+escapeHTML(b.phone)+'</strong></div>':'')+
-    '</div>'+
-    '<div class="security-box" style="margin-top:14px"><div class="security-icon">⚠️</div>'+
-    '<div><strong>Vérifiez avant d\'envoyer</strong><p>Assurez-vous que le titulaire correspond au nom du vendeur sur la commande.</p></div></div>';
+  $('#bankContent').innerHTML='<div class="bank-box"><h4>🏦 Coordonnées</h4>'+
+    (b.bank_name?'<div class="row"><span>Banque</span><strong>'+esc(b.bank_name)+'</strong></div>':'')+
+    (b.account_name?'<div class="row"><span>Titulaire</span><strong>'+esc(b.account_name)+'</strong></div>':'')+
+    (b.rib?'<div class="row"><span>RIB</span><strong>'+esc(b.rib)+'</strong></div>':'')+
+    (b.iban?'<div class="row"><span>IBAN</span><strong>'+esc(b.iban)+'</strong></div>':'')+'</div>';
   openModal('bankModal');
 };
 
-async function renderProfile(){
-  var box=$('#profileContent');if(!box)return;
-  if(!state.user){box.innerHTML='<div class="empty">Connectez-vous.</div>';return;}
-  await loadProfile(state.user.id);
-  var u=state.profile||{};
-  var b=state.bank||{};
-  var r=await sb.from('trades').select('total').or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id);
-  var trades=r.data||[];
-  var volume=trades.reduce(function(s,t){return s+(Number(t.total)||0);},0);
-  var initials=(u.username||'?').slice(0,2).toUpperCase();
+/* REVIEW */
+var revSt={tid:null,rid:null,r:5};
+window.openReview=function(tid,rid){
+  revSt={tid:tid,rid:rid,r:5};
+  $('#reviewContent').innerHTML=
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:8px">Note ton partenaire.</p>'+
+    '<div class="star-picker" id="sp">'+[1,2,3,4,5].map(function(i){return '<span data-r="'+i+'" class="on">★</span>';}).join('')+'</div>'+
+    '<div class="form-group"><label>Commentaire</label><textarea id="rc" class="input" placeholder="Votre expérience…"></textarea></div>'+
+    '<button class="btn btn-primary" style="width:100%" id="rs">Envoyer</button>';
+  $('#sp').addEventListener('click',function(e){
+    var t=e.target;if(!t.dataset.r)return;
+    var r=parseInt(t.dataset.r,10);revSt.r=r;
+    $$('#sp span').forEach(function(s){s.classList.toggle('on',parseInt(s.dataset.r,10)<=r);});
+  });
+  $('#rs').addEventListener('click',async function(){
+    var r=await sb.from('reviews').insert({trade_id:revSt.tid,reviewer_id:state.user.id,reviewed_id:revSt.rid,rating:revSt.r,comment:$('#rc').value.trim()||null});
+    if(r.error){toast('Erreur','error');return;}
+    toast('Avis envoyé');closeModal('reviewModal');loadTrades();
+  });
+  openModal('reviewModal');
+};
 
-  box.innerHTML=
+/* REPORT */
+window.openReport=function(rid,tid){
+  $('#reportContent').innerHTML=
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:10px">Signaler un problème.</p>'+
+    '<div class="form-group"><label>Motif</label><select id="rr" class="select"><option>Arnaque</option><option>Comportement abusif</option><option>Fausses infos</option><option>Ne répond pas</option></select></div>'+
+    '<div class="form-group"><label>Détails</label><textarea id="rd" class="input" placeholder="Explique…"></textarea></div>'+
+    '<button class="btn btn-danger" style="width:100%" id="rsb">Envoyer</button>';
+  $('#rsb').addEventListener('click',async function(){
+    var r=await sb.from('reports').insert({reporter_id:state.user.id,reported_id:rid,trade_id:tid||null,reason:$('#rr').value,details:$('#rd').value.trim()||null});
+    if(r.error){toast('Erreur','error');return;}
+    toast('Signalement envoyé');closeModal('reportModal');
+  });
+  openModal('reportModal');
+};
+
+/* KYC */
+window.openKycModal=async function(){
+  var r=await sb.from('kyc_submissions').select('*').eq('user_id',state.user.id).maybeSingle();
+  var k=r.data;
+  var cur=state.profile.kyc_status||'none';
+
+  if(cur==='approved'){
+    $('#kycContent').innerHTML='<div class="security-box"><div class="security-icon">✅</div><div><strong>Identité vérifiée</strong><p>Vous pouvez trader sans limite.</p></div></div>';
+    openModal('kycModal');return;
+  }
+  if(cur==='pending'){
+    $('#kycContent').innerHTML='<div class="security-box"><div class="security-icon">⏳</div><div><strong>En cours de vérification</strong><p>Soumis le '+(k?fmtDT(k.submitted_at):'—')+'. Délai : 24-48h.</p></div></div>';
+    openModal('kycModal');return;
+  }
+  if(cur==='rejected'){
+    $('#kycContent').innerHTML='<div class="security-box" style="border-color:rgba(255,91,99,.3);background:rgba(255,91,99,.06)"><div class="security-icon">❌</div><div><strong>Refusé</strong><p>'+(k?esc(k.rejection_reason||'Document illisible'):'')+'</p></div></div>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="kycForm()">Refaire ma demande</button>';
+    openModal('kycModal');return;
+  }
+  kycForm();
+};
+
+window.kycForm=function(){
+  $('#kycContent').innerHTML=
+    '<div class="security-box"><div class="security-icon">🔐</div><div><strong>Vérification d\'identité</strong><p>Vos documents sont chiffrés.</p></div></div>'+
+    '<div class="form-group" style="margin-top:14px"><label>Type de document</label>'+
+      '<select id="kycType" class="select"><option value="cni">Carte Nationale d\'Identité</option><option value="passport">Passeport</option><option value="permis">Permis</option></select></div>'+
+    '<div class="form-group"><label>Nom complet</label><input id="kycName" class="input" placeholder="Prénom NOM" required></div>'+
+    '<div class="form-group"><label>Numéro du document</label><input id="kycNum" class="input" placeholder="1234567890"></div>'+
+    '<div class="form-group"><label>Date de naissance</label><input id="kycBirth" class="input" type="date"></div>'+
+    '<label class="file-drop"><input type="file" id="kycDoc" accept="image/*" required>'+
+      '<div class="file-icon">📄</div><div class="file-label">Photo du document</div></label>'+
+    '<div id="kycDocPreview"></div>'+
+    '<label class="file-drop" style="margin-top:10px"><input type="file" id="kycSelfie" accept="image/*">'+
+      '<div class="file-icon">🤳</div><div class="file-label">Selfie (optionnel)</div></label>'+
+    '<div id="kycSelfiePreview"></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:14px" id="kycSubmit">Envoyer</button>';
+
+  var docFile=null,selfieFile=null;
+  $('#kycDoc').addEventListener('change',function(e){
+    docFile=e.target.files[0];if(!docFile)return;
+    var rd=new FileReader();rd.onload=function(ev){$('#kycDocPreview').innerHTML='<div class="file-preview"><img src="'+ev.target.result+'">'+docFile.name+'</div>';};rd.readAsDataURL(docFile);
+  });
+  $('#kycSelfie').addEventListener('change',function(e){
+    selfieFile=e.target.files[0];if(!selfieFile)return;
+    var rd=new FileReader();rd.onload=function(ev){$('#kycSelfiePreview').innerHTML='<div class="file-preview"><img src="'+ev.target.result+'">'+selfieFile.name+'</div>';};rd.readAsDataURL(selfieFile);
+  });
+
+  $('#kycSubmit').addEventListener('click',async function(){
+    if(!docFile)return toast('Document obligatoire','error');
+    var name=$('#kycName').value.trim();
+    if(name.length<3)return toast('Nom complet requis','error');
+    this.disabled=true;this.textContent='Envoi…';
+
+    var pathDoc=state.user.id+'/doc-'+Date.now()+'.jpg';
+    var upDoc=await sb.storage.from('kyc-docs').upload(pathDoc,docFile,{upsert:true});
+    if(upDoc.error){toast('Erreur upload','error');this.disabled=false;this.textContent='Réessayer';return;}
+
+    var pathSelf=null;
+    if(selfieFile){
+      var p2=state.user.id+'/selfie-'+Date.now()+'.jpg';
+      var up2=await sb.storage.from('kyc-docs').upload(p2,selfieFile,{upsert:true});
+      if(!up2.error)pathSelf=p2;
+    }
+
+    var r2=await sb.from('kyc_submissions').upsert({
+      user_id:state.user.id,document_type:$('#kycType').value,document_number:$('#kycNum').value.trim(),
+      full_name:name,birth_date:$('#kycBirth').value||null,document_url:pathDoc,selfie_url:pathSelf,
+      status:'pending',submitted_at:new Date().toISOString()
+    },{onConflict:'user_id'});
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+
+    await sb.from('profiles').update({kyc_status:'pending'}).eq('id',state.user.id);
+    await loadProfile(state.user.id);
+    closeModal('kycModal');toast('Demande envoyée');renderProfile();
+  });
+
+  openModal('kycModal');
+};
+
+/* PROFILE */
+async function renderProfile(){
+  var b=$('#profileContent');if(!b)return;
+  if(!state.user){b.innerHTML='<div class="empty">Connectez-vous.</div>';return;}
+  await loadProfile(state.user.id);
+  var u=state.profile||{},bn=state.bank||{};
+
+  var tr=await sb.from('trades').select('total,status').or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id);
+  var all=tr.data||[];
+  var vol=all.reduce(function(s,t){return s+(Number(t.total)||0);},0);
+  var done=all.filter(function(t){return t.status==='completed';}).length;
+  var act=all.filter(function(t){return ['open','fiat_sent','usdt_sent','awaiting_fee'].indexOf(t.status)>=0;}).length;
+  var of=await sb.from('offers').select('id').eq('user_id',state.user.id).eq('is_active',true);
+  var ofc=(of.data||[]).length;
+  var rv=await sb.from('reviews').select('*, reviewer:reviewer_id(username)').eq('reviewed_id',state.user.id).order('created_at',{ascending:false}).limit(10);
+  var reviews=rv.data||[];
+
+  var av=u.avatar_emoji||'👤';
+  var kyc=u.kyc_status||'none';
+  var kycBadges={
+    none:'<span class="kyc-badge badge-kyc-none">Non vérifié</span>',
+    pending:'<span class="kyc-badge badge-kyc-pending">⏳ En attente</span>',
+    approved:'<span class="kyc-badge badge-kyc-approved">✅ Vérifié</span>',
+    rejected:'<span class="kyc-badge badge-kyc-rejected">❌ Refusé</span>'
+  };
+
+  b.innerHTML=
     '<div class="profile-grid">'+
       '<div class="panel">'+
-        '<div class="profile-avatar">'+escapeHTML(initials)+'</div>'+
-        '<div class="profile-name">'+escapeHTML(u.username||'—')+'</div>'+
-        '<div class="profile-email">'+escapeHTML(u.email||'')+'</div>'+
+        '<div class="profile-avatar" style="margin:0 auto">'+av+'</div>'+
+        '<div class="profile-name">'+esc(u.username||'—')+'</div>'+
+        '<div class="profile-email">'+esc(u.email||'')+'</div>'+
+        '<div style="text-align:center;margin-top:6px">'+stars(u.rating)+' <span style="color:var(--muted);font-size:11px">('+(u.trades_count||0)+' échanges)</span></div>'+
+        '<div style="text-align:center;margin-top:10px">'+kycBadges[kyc]+'</div>'+
+        '<button class="btn btn-small" style="width:100%;margin-top:10px" onclick="openKycModal()">'+
+          (kyc==='approved'?'Voir mon KYC':kyc==='pending'?'Voir mon dossier':'Vérifier mon identité ✅')+'</button>'+
         '<div class="stats">'+
-          '<div class="stat"><span>Échanges</span><strong>'+(u.trades_count||0)+'</strong></div>'+
-          '<div class="stat"><span>Volume</span><strong>'+fmtAmount(volume)+'</strong></div>'+
-          '<div class="stat"><span>Note</span><strong>'+((u.rating)||5)+'★</strong></div>'+
+          '<div class="stat"><span>Terminées</span><strong>'+done+'</strong></div>'+
+          '<div class="stat"><span>Actives</span><strong>'+act+'</strong></div>'+
+          '<div class="stat"><span>Offres</span><strong>'+ofc+'</strong></div>'+
         '</div>'+
-        '<div class="security-box"><div class="security-icon">🔐</div><div>'+
-        '<strong>Non-custodial</strong><p>SENUSDT ne détient jamais vos fonds.</p>'+
-        '</div></div>'+
+        '<div class="stats" style="grid-template-columns:1fr"><div class="stat"><span>Volume</span><strong>'+fmt(vol)+'</strong></div></div>'+
       '</div>'+
       '<div class="panel">'+
-        '<h3 style="margin-bottom:14px">🏦 Coordonnées bancaires</h3>'+
-        '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Ces informations ne sont visibles que par les acheteurs ayant une commande active avec vous.</p>'+
+        '<h3 style="font-size:14px;margin-bottom:10px">⚙️ Préférences</h3>'+
+        '<div class="toggle-row"><div><strong style="font-size:13px">Disponible</strong><div style="color:var(--muted);font-size:11px">Point vert</div></div>'+
+          '<div class="toggle '+(u.is_online?'on':'')+'" id="onT"></div></div>'+
+        '<h3 style="font-size:14px;margin:14px 0 8px">😀 Avatar</h3>'+
+        '<div class="avatar-picker" id="avP">'+AVATARS.map(function(a){return '<div class="avatar-choice '+(a===av?'selected':'')+'" data-a="'+a+'">'+a+'</div>';}).join('')+'</div>'+
+      '</div>'+
+      '<div class="panel" style="grid-column:1/-1">'+
+        '<h3 style="font-size:14px;margin-bottom:12px">🏦 Coordonnées bancaires</h3>'+
+        '<p style="color:var(--muted);font-size:11px;margin-bottom:10px">Visibles uniquement par les acheteurs ayant une commande avec toi.</p>'+
         '<form id="bankForm">'+
           '<div class="form-grid">'+
-            '<div class="form-group"><label for="bankName">Nom de la banque</label>'+
-            '<input id="bankName" class="input" value="'+escapeHTML(b.bank_name||'')+'" placeholder="CBAO, Ecobank, BICIS…"></div>'+
-            '<div class="form-group"><label for="bankAccountName">Titulaire du compte</label>'+
-            '<input id="bankAccountName" class="input" value="'+escapeHTML(b.account_name||'')+'" placeholder="Prénom NOM"></div>'+
+            '<div class="form-group"><label>Banque</label><input id="bkN" class="input" value="'+esc(bn.bank_name||'')+'" placeholder="CBAO…"></div>'+
+            '<div class="form-group"><label>Titulaire</label><input id="bkA" class="input" value="'+esc(bn.account_name||'')+'" placeholder="Prénom NOM"></div>'+
           '</div>'+
-          '<div class="form-group"><label for="bankRib">RIB (Sénégal)</label>'+
-          '<input id="bankRib" class="input" value="'+escapeHTML(b.rib||'')+'" placeholder="SNxxx xxxx xxxx xxxx xxxx xxxx"></div>'+
-          '<div class="form-group"><label for="bankIban">IBAN (international, optionnel)</label>'+
-          '<input id="bankIban" class="input" value="'+escapeHTML(b.iban||'')+'" placeholder="SNxx xxxx xxxx xxxx xxxx xxxx xxxx"></div>'+
-          '<div class="form-group"><label for="bankPhone">Téléphone lié au compte</label>'+
-          '<input id="bankPhone" class="input" value="'+escapeHTML(b.phone||'')+'" placeholder="+221 ..."></div>'+
-          '<button type="submit" class="btn btn-primary" style="width:100%">Enregistrer mes coordonnées</button>'+
+          '<div class="form-group"><label>RIB</label><input id="bkR" class="input" value="'+esc(bn.rib||'')+'" placeholder="SNxx…"></div>'+
+          '<div class="form-group"><label>IBAN</label><input id="bkI" class="input" value="'+esc(bn.iban||'')+'" placeholder="SNxx…"></div>'+
+          '<div class="form-group"><label>Téléphone</label><input id="bkP" class="input" value="'+esc(bn.phone||'')+'" placeholder="+221…"></div>'+
+          '<button type="submit" class="btn btn-primary" style="width:100%">Enregistrer</button>'+
         '</form>'+
+      '</div>'+
+      '<div class="panel" style="grid-column:1/-1">'+
+        '<h3 style="font-size:14px;margin-bottom:12px">⭐ Mes avis</h3>'+
+        '<div class="reviews-list">'+
+        (reviews.length?reviews.map(function(x){return '<div class="review-item"><div class="review-head"><strong>'+esc(x.reviewer&&x.reviewer.username||'Utilisateur')+'</strong>'+stars(x.rating)+'</div>'+(x.comment?'<div class="review-comment">'+esc(x.comment)+'</div>':'')+'<div class="review-date">'+ago(x.created_at)+'</div></div>';}).join(''):'<div class="empty">Aucun avis.</div>')+
+        '</div>'+
       '</div>'+
     '</div>';
 
+  $('#onT').addEventListener('click',async function(){
+    var v=!u.is_online;
+    await sb.from('profiles').update({is_online:v,last_seen:new Date().toISOString()}).eq('id',state.user.id);
+    await loadProfile(state.user.id);this.classList.toggle('on',v);
+    toast(v?'Disponible':'Indisponible');
+  });
+
+  $('#avP').addEventListener('click',async function(e){
+    var t=e.target.closest('.avatar-choice');if(!t)return;
+    var a=t.dataset.a;
+    await sb.from('profiles').update({avatar_emoji:a}).eq('id',state.user.id);
+    await loadProfile(state.user.id);
+    $$('.avatar-choice').forEach(function(x){x.classList.toggle('selected',x.dataset.a===a);});
+    renderAuth();toast('Avatar mis à jour');
+  });
+
   $('#bankForm').addEventListener('submit',async function(e){
     e.preventDefault();
-    var payload={
-      user_id:state.user.id,
-      bank_name:$('#bankName').value.trim(),
-      account_name:$('#bankAccountName').value.trim(),
-      rib:$('#bankRib').value.trim(),
-      iban:$('#bankIban').value.trim(),
-      phone:$('#bankPhone').value.trim(),
-      updated_at:new Date().toISOString()
-    };
-    var r2=await sb.from('bank_accounts').upsert(payload,{onConflict:'user_id'});
-    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
-    toast('Coordonnées enregistrées');
-    await loadProfile(state.user.id);
+    var r2=await sb.from('bank_accounts').upsert({user_id:state.user.id,
+      bank_name:$('#bkN').value.trim(),account_name:$('#bkA').value.trim(),
+      rib:$('#bkR').value.trim(),iban:$('#bkI').value.trim(),phone:$('#bkP').value.trim(),
+      updated_at:new Date().toISOString()},{onConflict:'user_id'});
+    if(r2.error){toast('Erreur','error');return;}
+    toast('Enregistré');await loadProfile(state.user.id);
   });
 }
 
-window.calculateCommission=function(){
-  var q=parseFloat($('#calcUSDT').value)||0;
-  var price=parseFloat($('#calcPrice').value)||0;
-  var split=parseFloat($('#calcSplit').value)||0;
-  var subtotal=q*price;
-  var fee=subtotal*COMMISSION_RATE;
-  var buyerFee=fee*(split/100);
-  var sellerFee=fee-buyerFee;
-  $('#calcResult').innerHTML=
-    '<div class="calc-line"><span>Sous-total</span><strong>'+fmtPrice(subtotal,'XOF')+'</strong></div>'+
-    '<div class="calc-line"><span>Frais SENUSDT (1 %)</span><strong>'+fmtPrice(fee,'XOF')+'</strong></div>'+
-    '<div class="calc-line"><span>Part acheteur</span><strong>'+fmtPrice(buyerFee,'XOF')+'</strong></div>'+
-    '<div class="calc-line"><span>Part vendeur</span><strong>'+fmtPrice(sellerFee,'XOF')+'</strong></div>'+
-    '<div class="calc-total"><span>Acheteur paie</span><span>'+fmtPrice(subtotal+buyerFee,'XOF')+'</span></div>'+
-    '<div class="calc-total" style="margin-top:8px"><span>Vendeur reçoit</span><span>'+fmtPrice(subtotal-sellerFee,'XOF')+'</span></div>'+
-    '<p style="margin-top:14px;font-size:12px;color:var(--muted)">Frais à envoyer par Wave au <strong style="color:var(--green);font-family:var(--mono)">'+WAVE_NUMBER+'</strong>.</p>';
+/* ADMIN */
+async function renderAdmin(){
+  var b=$('#adminContent');if(!b)return;
+  if(!(state.profile&&state.profile.is_admin)){b.innerHTML='<div class="empty">Accès refusé.</div>';return;}
+  b.innerHTML='<div class="loading"><div class="loader"></div></div>';
+
+  var tr=await sb.from('trades').select('fee,total,status,fee_paid,created_at');
+  var all=tr.data||[];
+  var paid=all.filter(function(t){return t.fee_paid;}).reduce(function(s,t){return s+(Number(t.fee)||0);},0);
+  var pend=all.filter(function(t){return !t.fee_paid&&t.status!=='cancelled';}).reduce(function(s,t){return s+(Number(t.fee)||0);},0);
+  var vol=all.reduce(function(s,t){return s+(Number(t.total)||0);},0);
+  var ur=await sb.from('profiles').select('id',{count:'exact',head:true});
+  var or=await sb.from('offers').select('id',{count:'exact',head:true}).eq('is_active',true);
+  var kr=await sb.from('kyc_submissions').select('*, profiles!inner(username,email,avatar_emoji)').eq('status','pending').order('submitted_at',{ascending:false});
+  var kycs=kr.data||[];
+  var rr=await sb.from('reports').select('*, reporter:reporter_id(username), reported:reported_id(username)').eq('status','open').order('created_at',{ascending:false}).limit(20);
+  var reps=rr.data||[];
+
+  b.innerHTML=
+    '<div class="admin-stat">'+
+      '<div class="stat"><span>💰 Frais perçus</span><strong>'+fmtP(paid,'XOF')+'</strong></div>'+
+      '<div class="stat"><span>⏳ En attente</span><strong>'+fmtP(pend,'XOF')+'</strong></div>'+
+      '<div class="stat"><span>👥 Users</span><strong>'+(ur.count||0)+'</strong></div>'+
+    '</div>'+
+    '<div class="admin-stat">'+
+      '<div class="stat"><span>📢 Offres</span><strong>'+(or.count||0)+'</strong></div>'+
+      '<div class="stat"><span>💱 Volume</span><strong>'+fmt(vol)+'</strong></div>'+
+      '<div class="stat"><span>🆔 KYC à valider</span><strong>'+kycs.length+'</strong></div>'+
+    '</div>'+
+    '<div class="panel" style="margin-top:14px">'+
+      '<h3 style="font-size:14px;margin-bottom:10px">🆔 Vérifications en attente</h3>'+
+      (kycs.length?kycs.map(function(k){
+        return '<div class="review-item kyc-review">'+
+          '<div><strong>'+(k.profiles&&k.profiles.avatar_emoji||'👤')+' '+esc(k.profiles&&k.profiles.username||'—')+'</strong><div style="color:var(--muted);font-size:11px">'+esc(k.full_name)+' · '+esc(k.document_type)+' · '+esc(k.document_number||'')+'</div><div style="color:var(--muted);font-size:10px">'+ago(k.submitted_at)+'</div></div>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+            '<button class="btn btn-small" onclick="viewKycDoc(\''+esc(k.document_url)+'\')">👁 Voir</button>'+
+            '<button class="btn btn-small btn-success" onclick="approveKyc(\''+k.id+'\',\''+k.user_id+'\')">✅</button>'+
+            '<button class="btn btn-small btn-danger" onclick="rejectKyc(\''+k.id+'\',\''+k.user_id+'\')">❌</button>'+
+          '</div>'+
+        '</div>';
+      }).join(''):'<div class="empty">Aucun KYC en attente.</div>')+
+    '</div>'+
+    '<div class="panel" style="margin-top:14px">'+
+      '<h3 style="font-size:14px;margin-bottom:10px">🚩 Signalements</h3>'+
+      (reps.length?reps.map(function(r){
+        return '<div class="review-item"><div class="review-head"><strong>'+esc(r.reason)+'</strong><span class="review-date">'+ago(r.created_at)+'</span></div><div class="review-comment">'+esc(r.details||'')+'<br><small>Par : '+(r.reporter&&r.reporter.username||'—')+' · Contre : '+(r.reported&&r.reported.username||'—')+'</small></div></div>';
+      }).join(''):'<div class="empty">Aucun signalement.</div>')+
+    '</div>';
+}
+
+window.viewKycDoc=async function(path){
+  var r=await sb.storage.from('kyc-docs').createSignedUrl(path,3600);
+  if(r.error){toast('Erreur','error');return;}
+  window.open(r.data.signedUrl,'_blank');
+};
+window.approveKyc=async function(id,uid){
+  var r1=await sb.from('kyc_submissions').update({status:'approved',reviewed_at:new Date().toISOString()}).eq('id',id);
+  var r2=await sb.from('profiles').update({kyc_status:'approved',is_verified:true,kyc_verified_at:new Date().toISOString()}).eq('id',uid);
+  if(r1.error||r2.error){toast('Erreur','error');return;}
+  toast('KYC approuvé ✅');renderAdmin();
+};
+window.rejectKyc=async function(id,uid){
+  var reason=prompt('Motif du refus :');
+  if(!reason)return;
+  var r1=await sb.from('kyc_submissions').update({status:'rejected',rejection_reason:reason,reviewed_at:new Date().toISOString()}).eq('id',id);
+  var r2=await sb.from('profiles').update({kyc_status:'rejected',is_verified:false}).eq('id',uid);
+  if(r1.error||r2.error){toast('Erreur','error');return;}
+  toast('KYC refusé');renderAdmin();
 };
 
+/* CALCULATOR */
+window.calculateCommission=function(){
+  var q=parseFloat($('#calcUSDT').value)||0;
+  var p=parseFloat($('#calcPrice').value)||0;
+  var s=parseFloat($('#calcSplit').value)||0;
+  var sub=q*p,fee=sub*RATE,bf=fee*(s/100),sf=fee-bf;
+  $('#calcResult').innerHTML=
+    '<div class="calc-line"><span>Sous-total</span><strong>'+fmtP(sub,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Frais (1 %)</span><strong>'+fmtP(fee,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Part acheteur</span><strong>'+fmtP(bf,'XOF')+'</strong></div>'+
+    '<div class="calc-line"><span>Part vendeur</span><strong>'+fmtP(sf,'XOF')+'</strong></div>'+
+    '<div class="calc-total"><span>Acheteur paie</span><span>'+fmtP(sub+bf,'XOF')+'</span></div>'+
+    '<div class="calc-total" style="margin-top:6px"><span>Vendeur reçoit</span><span>'+fmtP(sub-sf,'XOF')+'</span></div>';
+};
+
+/* INIT */
 async function init(){
   var r=await sb.auth.getSession();
   if(r.data&&r.data.session&&r.data.session.user){
     state.user=r.data.session.user;
-    await loadProfile(state.user.id);
+    await loadProfile(state.user.id);await loadNotifs();
   }
-  renderAuthZone();
-  loadOffers();
-  calculateCommission();
+  renderAuth();loadOffers();calculateCommission();
 }
-
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 
@@ -1135,4 +1423,4 @@ else init();
 </script>
 
 </body>
-  </html>
+            </html>
