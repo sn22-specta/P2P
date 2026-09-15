@@ -142,6 +142,13 @@ textarea.input{padding:13px;min-height:100px;resize:vertical}
 .fee-box .row:last-child{border-bottom:0}
 .fee-box .row strong{color:var(--text)}
 .fee-box .wave-line{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,0,0,.35);font-family:var(--mono);text-align:center;font-size:15px;color:var(--green);font-weight:700;letter-spacing:.5px;user-select:all}
+.bank-box{margin-top:16px;padding:16px;border:1px solid rgba(246,200,95,.3);border-radius:14px;background:linear-gradient(145deg,rgba(246,200,95,.08),rgba(16,29,23,.5))}
+.bank-box h4{font-size:14px;margin-bottom:10px;color:#f6c85f}
+.bank-box .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:var(--muted);border-bottom:1px dashed var(--border)}
+.bank-box .row:last-child{border-bottom:0}
+.bank-box .row strong{color:var(--text);font-family:var(--mono);font-size:12px;text-align:right;margin-left:10px;user-select:all}
+.pay-box{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.pay-box label{display:flex;align-items:center;gap:6px;color:var(--text);font-size:13px;cursor:pointer}
 .toast-container{position:fixed;right:18px;bottom:18px;z-index:1000;display:flex;flex-direction:column;gap:9px}
 .toast{min-width:280px;max-width:380px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);box-shadow:var(--shadow);animation:toastIn .25s ease}
 .toast.success{border-color:rgba(25,199,122,.35)}
@@ -243,9 +250,9 @@ textarea.input{padding:13px;min-height:100px;resize:vertical}
         <div><h2>Comment ça marche</h2><p>4 étapes — aucun dépôt chez SENUSDT</p></div>
       </div>
       <div class="steps">
-        <div class="step"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Acheteur et vendeur se mettent d'accord via la plateforme.</p></div>
+        <div class="step"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Acheteur et vendeur se mettent d'accord.</p></div>
         <div class="step"><span class="step-num">2</span><h4>Commission Wave</h4><p>L'acheteur envoie les 1 % sur Wave <strong>+221 77 567 31 82</strong>.</p></div>
-        <div class="step"><span class="step-num">3</span><h4>Paiement fiat</h4><p>L'acheteur envoie les FCFA au vendeur (Wave, OM…).</p></div>
+        <div class="step"><span class="step-num">3</span><h4>Paiement fiat</h4><p>L'acheteur envoie les FCFA au vendeur (Wave, OM, virement…).</p></div>
         <div class="step"><span class="step-num">4</span><h4>Envoi USDT</h4><p>Le vendeur envoie les USDT depuis son propre wallet.</p></div>
       </div>
 
@@ -339,8 +346,15 @@ textarea.input{padding:13px;min-height:100px;resize:vertical}
             </div>
           </div>
           <div class="form-group">
-            <label for="offerPayments">Moyens de paiement fiat acceptés</label>
-            <input id="offerPayments" class="input" placeholder="Ex : Wave, Orange Money" required>
+            <label>Moyens de paiement fiat acceptés</label>
+            <div class="pay-box">
+              <label><input type="checkbox" class="pay-check" value="Wave" checked> Wave</label>
+              <label><input type="checkbox" class="pay-check" value="Orange Money" checked> Orange Money</label>
+              <label><input type="checkbox" class="pay-check" value="Free Money"> Free Money</label>
+              <label><input type="checkbox" class="pay-check" value="Virement bancaire"> Virement bancaire</label>
+              <label><input type="checkbox" class="pay-check" value="Espèces"> Espèces</label>
+            </div>
+            <input id="offerPaymentsExtra" class="input" placeholder="Autre moyen (optionnel)">
           </div>
           <div class="form-group">
             <label for="offerTerms">Conditions de l'offre</label>
@@ -477,6 +491,16 @@ textarea.input{padding:13px;min-height:100px;resize:vertical}
   </div>
 </div>
 
+<div id="bankModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Coordonnées bancaires</h2>
+      <button class="close" type="button" onclick="closeModal('bankModal')">×</button>
+    </div>
+    <div id="bankContent"></div>
+  </div>
+</div>
+
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
 <script>
@@ -512,7 +536,7 @@ function timeAgo(ts){
   return 'il y a '+Math.floor(h/24)+' j';
 }
 
-var state={user:null,profile:null,offers:[]};
+var state={user:null,profile:null,bank:null,offers:[]};
 
 function toast(msg,type){
   type=type||'success';
@@ -590,6 +614,8 @@ async function loadProfile(userId){
   var r=await sb.from('profiles').select('*').eq('id',userId).maybeSingle();
   if(r.error||!r.data){state.profile=null;return;}
   state.profile=r.data;
+  var rb=await sb.from('bank_accounts').select('*').eq('user_id',userId).maybeSingle();
+  state.bank=(rb.error||!rb.data)?null:rb.data;
 }
 
 $('#registerForm').addEventListener('submit',async function(e){
@@ -627,6 +653,7 @@ sb.auth.onAuthStateChange(async function(event,session){
   }else{
     state.user=null;
     state.profile=null;
+    state.bank=null;
   }
   renderAuthZone();
 });
@@ -699,11 +726,26 @@ $('#offerForm').addEventListener('submit',async function(e){
   var price=parseFloat($('#offerPrice').value);
   var min=parseFloat($('#offerMin').value);
   var max=parseFloat($('#offerMax').value);
-  var payments=$('#offerPayments').value.trim();
   var terms=$('#offerTerms').value.trim();
+
+  var selected=[];
+  $$('.pay-check:checked').forEach(function(c){selected.push(c.value);});
+  var extra=$('#offerPaymentsExtra').value.trim();
+  if(extra)selected.push(extra);
+  var payments=selected.join(', ');
+
   if(!(amount>0)||!(price>0)){toast('Montants invalides','error');return;}
   if(min>max){toast('Min > Max','error');return;}
-  if(!payments){toast('Indiquez un moyen de paiement','error');return;}
+  if(!payments){toast('Choisissez au moins un moyen de paiement','error');return;}
+
+  if(selected.indexOf('Virement bancaire')!==-1){
+    if(!state.bank||(!state.bank.rib&&!state.bank.iban)){
+      toast('Remplissez d\'abord vos coordonnées bancaires dans Profil','error');
+      showPage('profile');
+      return;
+    }
+  }
+
   var r=await sb.from('offers').insert({
     user_id:state.user.id,
     type:type,currency:currency,platform:platform,
@@ -729,6 +771,24 @@ window.openTrade=async function(offerId){
   var minUsdt=offer.min_limit/offer.price;
   if(minUsdt>maxUsdt){toast('Offre indisponible','error');return;}
 
+  var bankHTML='';
+  if(isBuying && (offer.payments||'').toLowerCase().indexOf('virement')!==-1){
+    var rb=await sb.from('bank_accounts').select('*').eq('user_id',offer.user_id).maybeSingle();
+    if(rb.data){
+      bankHTML=
+        '<div class="bank-box">'+
+          '<h4>🏦 Coordonnées bancaires du vendeur</h4>'+
+          (rb.data.bank_name?'<div class="row"><span>Banque</span><strong>'+escapeHTML(rb.data.bank_name)+'</strong></div>':'')+
+          (rb.data.account_name?'<div class="row"><span>Titulaire</span><strong>'+escapeHTML(rb.data.account_name)+'</strong></div>':'')+
+          (rb.data.rib?'<div class="row"><span>RIB</span><strong>'+escapeHTML(rb.data.rib)+'</strong></div>':'')+
+          (rb.data.iban?'<div class="row"><span>IBAN</span><strong>'+escapeHTML(rb.data.iban)+'</strong></div>':'')+
+          (rb.data.phone?'<div class="row"><span>Téléphone</span><strong>'+escapeHTML(rb.data.phone)+'</strong></div>':'')+
+        '</div>';
+    }else{
+      bankHTML='<div class="security-box"><div class="security-icon">⚠️</div><div><strong>Vendeur sans coordonnées</strong><p>Le vendeur a coché « Virement bancaire » mais n\'a pas renseigné ses coordonnées. Contactez-le pour un autre moyen.</p></div></div>';
+    }
+  }
+
   var walletFieldHTML=isBuying
     ? '<div class="form-group" style="margin-top:14px"><label for="tradeWallet">Votre adresse USDT de réception *</label>'+
       '<input id="tradeWallet" class="input" placeholder="TRC20 / ERC20 / BEP20…" required></div>'
@@ -741,6 +801,7 @@ window.openTrade=async function(offerId){
       '<div class="detail-box"><span>Source USDT</span><strong>'+escapeHTML(offer.platform)+'</strong></div>'+
       '<div class="detail-box"><span>Paiement</span><strong>'+escapeHTML(offer.payments)+'</strong></div>'+
     '</div>'+
+    bankHTML+
     '<div class="form-group" style="margin-top:16px"><label for="tradeAmount">Quantité d\'USDT</label>'+
     '<input id="tradeAmount" class="input" type="number" min="0" step="0.000001" placeholder="'+fmtAmount(minUsdt)+' – '+fmtAmount(maxUsdt)+'"></div>'+
     walletFieldHTML+
@@ -802,7 +863,7 @@ async function openFeeModal(tradeId){
   var t=r.data;
 
   $('#feeContent').innerHTML=
-    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Envoyez les frais SENUSDT par <strong>Wave</strong>. Cette somme ne va <strong>pas</strong> au vendeur.</p>'+
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Envoyez les frais SENUSDT par <strong>Wave</strong>.</p>'+
     '<div class="fee-box">'+
       '<h4>Paiement de la commission</h4>'+
       '<div class="row"><span>Référence</span><strong>#'+t.id.slice(0,8)+'</strong></div>'+
@@ -882,6 +943,7 @@ window.loadTrades=async function(){
     var buyerName=(t.buyer&&t.buyer.username)||'—';
     var sellerName=(t.seller&&t.seller.username)||'—';
     var otherName=isBuyer?sellerName:buyerName;
+    var showBank = isBuyer && (t.payments||'').toLowerCase().indexOf('virement')!==-1;
     return '<article class="trade-card">'+
       '<div class="trade-head"><div>'+
         '<div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · face à '+escapeHTML(otherName)+'</div>'+
@@ -896,6 +958,7 @@ window.loadTrades=async function(){
       '</div>'+
       '<div class="trade-actions">'+
         '<button class="btn btn-small" onclick="openTradeDetail(\''+t.id+'\')">Détails</button>'+
+        (showBank?'<button class="btn btn-small btn-warn" onclick="openBankModal(\''+t.seller_id+'\')">🏦 Coordonnées bancaires</button>':'')+
         nextActionButtons(t,isBuyer)+
       '</div>'+
     '</article>';
@@ -950,15 +1013,38 @@ window.openTradeDetail=async function(id){
   openModal('detailModal');
 };
 
+window.openBankModal=async function(sellerId){
+  var r=await sb.from('bank_accounts').select('*').eq('user_id',sellerId).maybeSingle();
+  if(r.error||!r.data){
+    $('#bankContent').innerHTML='<div class="empty">Le vendeur n\'a pas renseigné de coordonnées bancaires.</div>';
+    openModal('bankModal');return;
+  }
+  var b=r.data;
+  $('#bankContent').innerHTML=
+    '<div class="bank-box">'+
+      '<h4>🏦 Coordonnées du vendeur</h4>'+
+      (b.bank_name?'<div class="row"><span>Banque</span><strong>'+escapeHTML(b.bank_name)+'</strong></div>':'')+
+      (b.account_name?'<div class="row"><span>Titulaire</span><strong>'+escapeHTML(b.account_name)+'</strong></div>':'')+
+      (b.rib?'<div class="row"><span>RIB</span><strong>'+escapeHTML(b.rib)+'</strong></div>':'')+
+      (b.iban?'<div class="row"><span>IBAN</span><strong>'+escapeHTML(b.iban)+'</strong></div>':'')+
+      (b.phone?'<div class="row"><span>Téléphone</span><strong>'+escapeHTML(b.phone)+'</strong></div>':'')+
+    '</div>'+
+    '<div class="security-box" style="margin-top:14px"><div class="security-icon">⚠️</div>'+
+    '<div><strong>Vérifiez avant d\'envoyer</strong><p>Assurez-vous que le titulaire correspond au nom du vendeur sur la commande.</p></div></div>';
+  openModal('bankModal');
+};
+
 async function renderProfile(){
   var box=$('#profileContent');if(!box)return;
   if(!state.user){box.innerHTML='<div class="empty">Connectez-vous.</div>';return;}
   await loadProfile(state.user.id);
   var u=state.profile||{};
+  var b=state.bank||{};
   var r=await sb.from('trades').select('total').or('buyer_id.eq.'+state.user.id+',seller_id.eq.'+state.user.id);
   var trades=r.data||[];
   var volume=trades.reduce(function(s,t){return s+(Number(t.total)||0);},0);
   var initials=(u.username||'?').slice(0,2).toUpperCase();
+
   box.innerHTML=
     '<div class="profile-grid">'+
       '<div class="panel">'+
@@ -970,18 +1056,47 @@ async function renderProfile(){
           '<div class="stat"><span>Volume</span><strong>'+fmtAmount(volume)+'</strong></div>'+
           '<div class="stat"><span>Note</span><strong>'+((u.rating)||5)+'★</strong></div>'+
         '</div>'+
-      '</div>'+
-      '<div class="panel">'+
-        '<h3 style="margin-bottom:14px">Informations</h3>'+
-        '<div class="form-group"><label>Compte créé le</label>'+
-        '<input class="input" value="'+(u.created_at?new Date(u.created_at).toLocaleString('fr-FR'):'—')+'" disabled></div>'+
-        '<div class="form-group"><label>Frais de service</label>'+
-        '<input class="input" value="1 % — Wave '+WAVE_NUMBER+'" disabled></div>'+
         '<div class="security-box"><div class="security-icon">🔐</div><div>'+
         '<strong>Non-custodial</strong><p>SENUSDT ne détient jamais vos fonds.</p>'+
         '</div></div>'+
       '</div>'+
+      '<div class="panel">'+
+        '<h3 style="margin-bottom:14px">🏦 Coordonnées bancaires</h3>'+
+        '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Ces informations ne sont visibles que par les acheteurs ayant une commande active avec vous.</p>'+
+        '<form id="bankForm">'+
+          '<div class="form-grid">'+
+            '<div class="form-group"><label for="bankName">Nom de la banque</label>'+
+            '<input id="bankName" class="input" value="'+escapeHTML(b.bank_name||'')+'" placeholder="CBAO, Ecobank, BICIS…"></div>'+
+            '<div class="form-group"><label for="bankAccountName">Titulaire du compte</label>'+
+            '<input id="bankAccountName" class="input" value="'+escapeHTML(b.account_name||'')+'" placeholder="Prénom NOM"></div>'+
+          '</div>'+
+          '<div class="form-group"><label for="bankRib">RIB (Sénégal)</label>'+
+          '<input id="bankRib" class="input" value="'+escapeHTML(b.rib||'')+'" placeholder="SNxxx xxxx xxxx xxxx xxxx xxxx"></div>'+
+          '<div class="form-group"><label for="bankIban">IBAN (international, optionnel)</label>'+
+          '<input id="bankIban" class="input" value="'+escapeHTML(b.iban||'')+'" placeholder="SNxx xxxx xxxx xxxx xxxx xxxx xxxx"></div>'+
+          '<div class="form-group"><label for="bankPhone">Téléphone lié au compte</label>'+
+          '<input id="bankPhone" class="input" value="'+escapeHTML(b.phone||'')+'" placeholder="+221 ..."></div>'+
+          '<button type="submit" class="btn btn-primary" style="width:100%">Enregistrer mes coordonnées</button>'+
+        '</form>'+
+      '</div>'+
     '</div>';
+
+  $('#bankForm').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var payload={
+      user_id:state.user.id,
+      bank_name:$('#bankName').value.trim(),
+      account_name:$('#bankAccountName').value.trim(),
+      rib:$('#bankRib').value.trim(),
+      iban:$('#bankIban').value.trim(),
+      phone:$('#bankPhone').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    var r2=await sb.from('bank_accounts').upsert(payload,{onConflict:'user_id'});
+    if(r2.error){toast('Erreur : '+r2.error.message,'error');return;}
+    toast('Coordonnées enregistrées');
+    await loadProfile(state.user.id);
+  });
 }
 
 window.calculateCommission=function(){
@@ -1020,4 +1135,4 @@ else init();
 </script>
 
 </body>
-    </html>
+  </html>
