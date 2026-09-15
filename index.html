@@ -73,6 +73,11 @@ main{max-width:1250px;margin:0 auto;padding:18px 16px 70px}
 .commission-big{margin-top:6px;font-size:30px;font-weight:900;color:var(--green)}
 .info-card p{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
 .wave-num{display:block;margin-top:6px;font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;word-break:break-all}
+
+/* LIVE PRICE WIDGETS */
+.live-price-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.live-price-wrap .tradingview-widget-container{height:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:6px}
+
 .filters{display:grid;grid-template-columns:1.3fr .8fr .8fr .8fr .8fr auto;gap:8px;margin-bottom:14px}
 .input,.select,textarea.input{width:100%;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;font-size:13px}
 textarea.input{padding:10px;min-height:70px;resize:vertical}
@@ -210,7 +215,7 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
 .chart-card{padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
 .chart-card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .chart-symbol-tag{font-size:10px;font-family:var(--mono);color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px}
-.chart-container{height:340px;border-radius:10px;overflow:hidden;background:var(--surface2)}
+.chart-container{height:420px;border-radius:10px;overflow:hidden;background:var(--surface2)}
 
 @media(max-width:900px){
   .hero,.profile-grid{grid-template-columns:1fr}
@@ -218,7 +223,8 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
   .filters{grid-template-columns:1fr 1fr}
   .trade-info{grid-template-columns:1fr 1fr}
   .charts-grid{grid-template-columns:1fr}
-  .chart-container{height:300px}
+  .chart-container{height:340px}
+  .live-price-wrap{grid-template-columns:1fr}
 }
 @media(max-width:600px){
   .main-nav{padding:10px 12px 0}
@@ -228,6 +234,7 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
   .admin-stat{grid-template-columns:1fr}
   .trade-info{grid-template-columns:1fr 1fr}
   .ticker-tape-wrap{height:40px}
+  .chart-container{height:300px}
 }
 </style>
 </head>
@@ -235,7 +242,7 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
 
 <div class="disclaimer">🔐 <strong>SENUSDT est un service de mise en relation.</strong> Nous ne détenons <strong>ni vos USDT ni vos FCFA</strong>.</div>
 
-<!-- TICKER TAPE — Prix en direct -->
+<!-- TICKER TAPE -->
 <div class="ticker-tape-wrap">
   <div class="tradingview-widget-container">
     <div class="tradingview-widget-container__widget"></div>
@@ -298,6 +305,55 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
         <div class="commission-big">1 %</div>
         <p>Payables par Wave directement à SENUSDT.</p>
         <span class="wave-num">Wave → +221 77 567 31 82</span>
+      </div>
+    </div>
+
+    <!-- LIVE PRICE WIDGETS -->
+    <div class="live-price-wrap">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {
+          "symbol": "BINANCE:BTCUSDT",
+          "width": "100%",
+          "height": "100%",
+          "locale": "fr",
+          "dateRange": "1D",
+          "colorTheme": "dark",
+          "isTransparent": true,
+          "autosize": true
+        }
+        </script>
+      </div>
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {
+          "symbol": "BINANCE:ETHUSDT",
+          "width": "100%",
+          "height": "100%",
+          "locale": "fr",
+          "dateRange": "1D",
+          "colorTheme": "dark",
+          "isTransparent": true,
+          "autosize": true
+        }
+        </script>
+      </div>
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {
+          "symbol": "BINANCE:XAUUSDT.P",
+          "width": "100%",
+          "height": "100%",
+          "locale": "fr",
+          "dateRange": "1D",
+          "colorTheme": "dark",
+          "isTransparent": true,
+          "autosize": true
+        }
+        </script>
       </div>
     </div>
 
@@ -388,38 +444,38 @@ textarea.input{padding:10px;min-height:70px;resize:vertical}
     <div class="section-header">
       <div>
         <h2>📈 Marchés en temps réel</h2>
-        <p>Graphiques TradingView — données live</p>
+        <p>Bougies live — TradingView · données Binance</p>
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="chart-card">
-        <h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT</span></h3>
+        <h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT · 1m</span></h3>
         <div class="chart-container" id="chart-btc"></div>
       </div>
 
       <div class="chart-card">
-        <h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT</span></h3>
+        <h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT · 1m</span></h3>
         <div class="chart-container" id="chart-eth"></div>
       </div>
 
       <div class="chart-card">
-        <h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT</span></h3>
+        <h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT · 1m</span></h3>
         <div class="chart-container" id="chart-sol"></div>
       </div>
 
       <div class="chart-card">
-        <h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT</span></h3>
+        <h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT · 1m</span></h3>
         <div class="chart-container" id="chart-bnb"></div>
       </div>
 
       <div class="chart-card">
-        <h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT</span></h3>
+        <h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT · 5m</span></h3>
         <div class="chart-container" id="chart-xau"></div>
       </div>
 
       <div class="chart-card">
-        <h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD</span></h3>
+        <h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD · 5m</span></h3>
         <div class="chart-container" id="chart-eurusd"></div>
       </div>
     </div>
@@ -554,7 +610,7 @@ function openModal(id){var m=document.getElementById(id);if(m)m.classList.add('o
 document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.open').forEach(function(m){m.classList.remove('open');});});
 $$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
-/* ========== CHARTS TRADINGVIEW ========== */
+/* ========== CHARTS TRADINGVIEW — BOUGIES TEMPS RÉEL ========== */
 function loadTvChart(containerId,symbol,interval){
   if(!window.TradingView)return;
   var container=document.getElementById(containerId);
@@ -564,33 +620,36 @@ function loadTvChart(containerId,symbol,interval){
   new TradingView.widget({
     autosize:true,
     symbol:symbol,
-    interval:interval||'60',
+    interval:interval||'1',        /* 1 minute → bougies animées en direct */
     timezone:'Africa/Dakar',
     theme:'dark',
-    style:'1',
+    style:'1',                     /* 1 = candlestick (bougies) */
     locale:'fr',
     toolbar_bg:'#101d17',
     enable_publishing:false,
-    hide_side_toolbar:true,
+    hide_side_toolbar:false,
+    hide_top_toolbar:false,
+    hide_legend:false,
     allow_symbol_change:true,
     save_image:false,
     container_id:containerId,
     withdateranges:true,
-    details:false,
+    details:true,
     hotlist:false,
     calendar:false,
-    studies:[]
+    studies:["MASimple@tv-basicstudies"],
+    support_host:"https://www.tradingview.com"
   });
   container.dataset.loaded='1';
 }
 
 function loadAllCharts(){
-  loadTvChart('chart-btc','BINANCE:BTCUSDT');
-  loadTvChart('chart-eth','BINANCE:ETHUSDT');
-  loadTvChart('chart-sol','BINANCE:SOLUSDT');
-  loadTvChart('chart-bnb','BINANCE:BNBUSDT');
-  loadTvChart('chart-xau','BINANCE:XAUUSDT.P');
-  loadTvChart('chart-eurusd','OANDA:EURUSD');
+  loadTvChart('chart-btc','BINANCE:BTCUSDT','1');
+  loadTvChart('chart-eth','BINANCE:ETHUSDT','1');
+  loadTvChart('chart-sol','BINANCE:SOLUSDT','1');
+  loadTvChart('chart-bnb','BINANCE:BNBUSDT','1');
+  loadTvChart('chart-xau','BINANCE:XAUUSDT.P','5');
+  loadTvChart('chart-eurusd','OANDA:EURUSD','5');
 }
 
 /* ========== NAVIGATION ========== */
@@ -1423,4 +1482,4 @@ else init();
 </script>
 
 </body>
-            </html>
+  </html>
