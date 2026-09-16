@@ -273,9 +273,9 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .step-num{position:absolute;top:-10px;left:14px;width:26px;height:26px;border-radius:50%;background:var(--green);color:#04150d;display:grid;place-items:center;font-weight:900;font-size:12px}
 .step-card h4{margin:8px 0 5px;font-size:13px}
 .step-card p{color:var(--muted);font-size:11px;line-height:1.55}
-.pin-screen{position:fixed;inset:0;z-index:3000;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px}
+.pin-screen{position:fixed;inset:0;z-index:3000;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px;overflow-y:auto}
 .pin-screen.open{display:flex}
-.pin-logo{width:70px;height:70px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(145deg,var(--green),var(--green2));padding:4px}
+.pin-logo{width:70px;height:70px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(145deg,var(--green),var(--green2));padding:4px;flex-shrink:0}
 .pin-logo svg{width:100%;height:100%}
 .pin-title{font-size:20px;font-weight:900;text-align:center}
 .pin-subtitle{color:var(--muted);font-size:12px;text-align:center;margin-top:4px}
@@ -291,8 +291,8 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .pin-key.empty{background:transparent;border:0;cursor:default}
 .pin-key.backspace{font-size:20px}
 .pin-error{color:var(--red);font-size:12px;min-height:18px;text-align:center}
-.pin-attempts{color:var(--muted);font-size:11px}
-.pin-forgot{color:var(--green);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px}
+.pin-attempts{color:var(--muted);font-size:11px;text-align:center}
+.pin-forgot{color:var(--green);font-size:12px;text-decoration:underline;cursor:pointer;text-align:center}
 @media(max-width:900px){
   .hero,.profile-grid{grid-template-columns:1fr}
   .offers{grid-template-columns:1fr}
@@ -359,7 +359,8 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="pin-key backspace" data-k="del">⌫</div>
   </div>
   <div class="pin-attempts" id="pinAttempts"></div>
-  <div class="pin-forgot" onclick="forgotPin()">Code oublié ?</div>
+  <div class="pin-forgot" id="pinForgot" onclick="forgotPin()">Code oublié ?</div>
+  <div class="pin-forgot" id="pinLogout" style="display:none;color:var(--red)" onclick="pinLogout()">Se déconnecter</div>
 </div>
 
 <!-- ONBOARDING -->
@@ -579,7 +580,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="section-header"><div><h2>❓ Questions fréquentes</h2></div></div>
     <div style="max-width:800px;margin:0 auto">
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment payer les frais SENUSDT ?</div><div class="faq-a">Les frais de 1 % sont à envoyer par <strong>Wave au +221 77 567 31 82</strong> en mettant la référence de votre commande en motif.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment activer le code PIN ?</div><div class="faq-a">À la première connexion, une proposition apparaît. Sinon, allez dans <strong>Profil</strong> → section « 🔐 Code PIN » → cliquez sur « Activer le code PIN ».</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment activer le code PIN ?</div><div class="faq-a">À la première connexion, le code PIN est <strong>obligatoire</strong> (comme Wave ou Exness). Vous choisissez 6 chiffres, il vous sera demandé à chaque ouverture.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">J'ai oublié mon code PIN, que faire ?</div><div class="faq-a">Sur l'écran du PIN, cliquez sur « Code oublié ? ». Vous serez déconnecté et pourrez vous reconnecter par email, puis définir un nouveau code.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devenir Vendeur Vérifié+ (👑 Premium) ?</div><div class="faq-a">Profil → cliquez sur « Devenir Vendeur Vérifié+ ». Il faut déposer une caution de 500 000 FCFA par Wave.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment supprimer mon compte ?</div><div class="faq-a">Profil → « Zone dangereuse » → « Supprimer mon compte ».</div></div>
@@ -597,7 +598,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       <h3>3. Frais</h3>
       <p>SENUSDT prélève 1 % par transaction, payables par Wave au +221 77 567 31 82.</p>
       <h3>4. Sécurité du compte</h3>
-      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN.</p>
+      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN. Le code PIN est obligatoire pour utiliser l'application.</p>
       <h2>Politique de confidentialité</h2>
       <h3>Données collectées</h3>
       <ul><li>Identité : pseudo, email, WhatsApp</li><li>KYC : CNI/passeport, selfie (si vérification)</li><li>Transactions : historique des commandes</li><li>Sécurité : hash SHA-256 de votre code PIN (jamais en clair)</li></ul>
@@ -623,7 +624,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="form-group"><label>Nom d'utilisateur</label><input id="registerUsername" class="input" minlength="3" required></div>
     <div class="form-group"><label>E-mail</label><input id="registerEmail" class="input" type="email" required></div>
     <div class="form-group"><label>Mot de passe (min 8)</label><input id="registerPassword" class="input" type="password" minlength="8" required></div>
-    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU</a>.</p></div></div>
+    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU</a>. Un code PIN vous sera demandé à la première connexion.</p></div></div>
     <button class="btn btn-primary" style="width:100%;min-height:44px;margin-top:8px" type="submit">Créer mon compte</button>
   </form>
 </div></div>
@@ -675,7 +676,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.o
 $$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
 /* =========================================
-   PIN CODE
+   PIN CODE — OBLIGATOIRE COMME WAVE/EXNESS
    ========================================= */
 async function hashPin(pin){
   var enc=new TextEncoder();
@@ -683,10 +684,20 @@ async function hashPin(pin){
   return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
 var pin={buffer:'',attempts:0,maxAttempts:5,isSetup:false};
+
 function showPinScreen(mode){
   pin.buffer='';pin.attempts=0;pin.isSetup=(mode==='setup');
-  $('#pinTitle').textContent=pin.isSetup?'Choisissez un code':'Code de sécurité';
-  $('#pinSubtitle').textContent=pin.isSetup?'6 chiffres que vous retiendrez':'Saisissez votre code à 6 chiffres';
+  if(pin.isSetup){
+    $('#pinTitle').textContent='🔐 Créez votre code';
+    $('#pinSubtitle').textContent='Choisissez 6 chiffres pour sécuriser votre compte';
+    $('#pinForgot').style.display='none';
+    $('#pinLogout').style.display='';
+  }else{
+    $('#pinTitle').textContent='Code de sécurité';
+    $('#pinSubtitle').textContent='Saisissez votre code à 6 chiffres';
+    $('#pinForgot').style.display='';
+    $('#pinLogout').style.display='none';
+  }
   $('#pinError').textContent='';$('#pinAttempts').textContent='';
   updatePinDots();
   $('#pinScreen').classList.add('open');
@@ -714,6 +725,7 @@ async function savePin(pinCode){
     hidePinScreen();
     toast('✅ Code PIN activé');
     sessionStorage.setItem('pin_verified','1');
+    renderAuth();
   }
 }
 async function verifyPin(pinCode){
@@ -742,6 +754,12 @@ window.forgotPin=async function(){
   await sb.auth.signOut();
   toast('Connectez-vous pour définir un nouveau code');
 };
+window.pinLogout=async function(){
+  if(!confirm('Se déconnecter ? Vous devrez vous reconnecter pour créer un code PIN.'))return;
+  hidePinScreen();
+  await sb.auth.signOut();
+};
+
 $('#pinPad').addEventListener('click',function(e){
   var t=e.target.closest('.pin-key');if(!t)return;
   var k=t.dataset.k;if(!k)return;
@@ -753,26 +771,31 @@ document.addEventListener('keydown',function(e){
   if(e.key>='0'&&e.key<='9')processPinDigit(e.key);
   else if(e.key==='Backspace')processPinBackspace();
 });
+// Empêcher la fermeture du PIN setup avec Échap
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&pin.isSetup&&$('#pinScreen').classList.contains('open')){
+    e.stopPropagation();
+  }
+},true);
 
+/* ⭐ PIN OBLIGATOIRE : setup si pas de PIN, verify si PIN existe */
 function checkPinRequired(){
   if(!state.user)return;
   var hasPin=state.profile&&state.profile.pin_hash;
   var verified=sessionStorage.getItem('pin_verified');
-  // Pas de PIN → proposer (une fois)
+  
+  // Pas de PIN → FORCER la configuration (comme Wave)
   if(!hasPin){
-    if(!localStorage.getItem('pin_prompted_'+state.user.id)){
-      localStorage.setItem('pin_prompted_'+state.user.id,'1');
-      setTimeout(function(){
-        if(confirm('🔐 Voulez-vous activer le code PIN pour sécuriser votre compte ?\n\nUn code à 6 chiffres sera demandé à chaque ouverture de l\'app.')){
-          startPinSetup();
-        }
-      },2000);
-    }
+    showPinScreen('setup');
     return;
   }
-  // PIN existe et pas vérifié → afficher l'écran
-  if(!verified){showPinScreen('verify');}
-  else{hidePinScreen();}
+  
+  // PIN existe et pas encore vérifié dans cette session → demander
+  if(!verified){
+    showPinScreen('verify');
+  }else{
+    hidePinScreen();
+  }
 }
 
 window.openPinSetup=function(){
@@ -797,11 +820,9 @@ window.startPinSetup=function(){
 };
 window.changePin=function(){closeModal('pinSetupModal');startPinSetup();};
 window.removePin=async function(){
-  if(!confirm('Désactiver le code PIN ?'))return;
-  var r=await sb.from('profiles').update({pin_hash:null}).eq('id',state.user.id);
-  if(r.error){toast('Erreur','error');return;}
-  await loadProfile(state.user.id);
-  toast('Code PIN désactivé');closeModal('pinSetupModal');
+  if(!confirm('Désactiver le code PIN ?\n\n⚠️ Attention : il sera automatiquement redemandé à la prochaine ouverture.'))return;
+  toast('Le code PIN est obligatoire et ne peut pas être désactivé','error');
+  closeModal('pinSetupModal');
 };
 
 /* THEME */
@@ -1459,7 +1480,7 @@ async function renderProfile(){
         '<div style="text-align:center;margin-top:5px">'+stars(u.rating)+' ('+(u.trades_count||0)+')</div>'+
         '<div style="text-align:center;margin-top:9px">'+kycBadges[kyc]+'</div>'+
         '<button class="btn btn-small" style="width:100%;margin-top:9px" onclick="openKycModal()">'+(kyc==='approved'?'Voir mon KYC':kyc==='pending'?'Voir dossier':'Vérifier mon identité ✅')+'</button>'+
-        '<button class="btn btn-small '+(hasPin?'btn-success':'btn-warn')+'" style="width:100%;margin-top:6px" onclick="openPinSetup()">'+(hasPin?'🔐 Code PIN activé — Modifier':'🔓 Activer le code PIN')+'</button>'+
+        '<button class="btn btn-small '+(hasPin?'btn-success':'btn-warn')+'" style="width:100%;margin-top:6px" onclick="openPinSetup()">'+(hasPin?'🔐 Code PIN actif — Modifier':'🔓 Activer le code PIN')+'</button>'+
         '<div class="stats"><div class="stat"><span>Terminées</span><strong>'+done+'</strong></div><div class="stat"><span>Actives</span><strong>'+act+'</strong></div><div class="stat"><span>Offres</span><strong>'+ofc+'</strong></div></div>'+
         '<div class="stats" style="grid-template-columns:1fr"><div class="stat"><span>Volume</span><strong>'+fmt(vol)+'</strong></div></div>'+
         '<button class="btn btn-whatsapp" style="width:100%;margin-top:9px" onclick="openWhatsApp(\'Bonjour, je suis '+esc(u.username||'')+'\')">💬 Contacter le support</button>'+
@@ -1529,10 +1550,8 @@ async function init(){
   if(r.data&&r.data.session&&r.data.session.user){
     state.user=r.data.session.user;
     await loadProfile(state.user.id);
-    var hasPin=state.profile&&state.profile.pin_hash;
-    var verified=sessionStorage.getItem('pin_verified');
-    if(hasPin&&!verified){showPinScreen('verify');}
     await loadNotifs();
+    checkPinRequired();
   }
   renderAuth();loadOffers();calculateCommission();
   loadPriceHistory();
@@ -1541,9 +1560,7 @@ async function init(){
   setTimeout(checkAlerts,5000);
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden&&state.user){
-      var hasPin=state.profile&&state.profile.pin_hash;
-      var verified=sessionStorage.getItem('pin_verified');
-      if(hasPin&&!verified){showPinScreen('verify');}
+      checkPinRequired();
     }
   });
 }
@@ -1554,4 +1571,4 @@ else init();
 </script>
 
 </body>
-        </html>
+  </html>
