@@ -43,7 +43,7 @@ img{max-width:100%;display:block}
 html[data-theme="light"] .topbar{background:rgba(255,255,255,.88)}
 .brand{display:flex;align-items:center;gap:9px}
 .brand-logo{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(145deg,var(--green),var(--green2));overflow:hidden;padding:2px}
-.brand-logo img{width:100%;height:100%;object-fit:contain;border-radius:9px}
+.brand-logo img,.brand-logo svg{width:100%;height:100%;object-fit:contain;border-radius:9px}
 .brand-text strong{display:block;font-size:13px;letter-spacing:.3px}
 .brand-text span{display:block;color:var(--muted);font-size:10px}
 .top-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -59,6 +59,9 @@ html[data-theme="light"] .topbar{background:rgba(255,255,255,.88)}
 .btn-whatsapp{background:rgba(37,211,102,.15);color:#25d366;border-color:rgba(37,211,102,.3)}
 .btn-small{min-height:28px;padding:0 8px;font-size:11px}
 .badge-verified{display:inline-flex;align-items:center;gap:2px;background:rgba(77,141,255,.15);color:#8cb5ff;padding:2px 6px;border-radius:7px;font-size:9px;font-weight:700;border:1px solid rgba(77,141,255,.3)}
+.badge-premium{display:inline-flex;align-items:center;gap:2px;background:linear-gradient(135deg,#f6c85f,#d4a740);color:#0a1a12;padding:2px 7px;border-radius:7px;font-size:9px;font-weight:800;box-shadow:0 2px 8px rgba(246,200,95,.35)}
+.premium-card{border:2px solid #f6c85f!important;position:relative;background:linear-gradient(145deg,rgba(246,200,95,.08),var(--surface))!important;margin-top:14px}
+.premium-card::before{content:"👑 PREMIUM";position:absolute;top:-10px;left:12px;background:linear-gradient(135deg,#f6c85f,#d4a740);color:#0a1a12;font-size:9px;font-weight:900;padding:3px 8px;border-radius:6px;letter-spacing:.5px}
 .badge-kyc-none{background:rgba(142,166,155,.15);color:var(--muted);border-color:var(--border)}
 .badge-kyc-pending{background:rgba(246,200,95,.15);color:#f6c85f;border-color:rgba(246,200,95,.3)}
 .badge-kyc-approved{background:rgba(25,199,122,.15);color:#48e49b;border-color:rgba(25,199,122,.3)}
@@ -88,6 +91,18 @@ html[data-theme="light"] .hero-card{background:linear-gradient(145deg,rgba(25,19
 .commission-big{margin-top:5px;font-size:28px;font-weight:900;color:var(--green)}
 .info-card p{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
 .wave-num{display:block;margin-top:6px;font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;word-break:break-all}
+.history-chart{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
+.history-chart h3{font-size:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.history-chart canvas{width:100%;height:200px;display:block;border-radius:9px}
+.history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.history-stat{padding:9px;background:var(--surface2);border-radius:8px;text-align:center}
+.history-stat span{color:var(--muted);font-size:9px;display:block}
+.history-stat strong{display:block;margin-top:3px;font-size:14px}
+.alert-item{padding:11px;background:var(--surface2);border-radius:9px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.alert-item .alert-info{flex:1}
+.alert-item strong{font-size:13px}
+.alert-item small{color:var(--muted);font-size:10px;display:block;margin-top:3px}
+.alert-item .alert-actions{display:flex;gap:5px}
 .live-price-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .live-price-wrap .tradingview-widget-container{height:160px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:4px}
 .filters{display:grid;grid-template-columns:1.3fr .8fr .8fr .8fr .8fr auto;gap:6px;margin-bottom:12px}
@@ -137,7 +152,7 @@ textarea.input{padding:9px;min-height:70px;resize:vertical}
 .profile-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:12px}
 .panel{padding:16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
 .profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,var(--green),var(--green2));display:grid;place-items:center;font-size:34px}
-.profile-name{margin-top:9px;font-size:17px;font-weight:900;display:flex;align-items:center;gap:6px;justify-content:center}
+.profile-name{margin-top:9px;font-size:17px;font-weight:900;display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap}
 .profile-email{margin-top:3px;color:var(--muted);font-size:11px;text-align:center}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:11px}
 .stat{padding:9px;background:var(--surface2);border-radius:8px;text-align:center}
@@ -229,7 +244,6 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .chart-card h3{font-size:13px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
 .chart-symbol-tag{font-size:9px;font-family:var(--mono);color:var(--muted);background:var(--surface2);padding:2px 6px;border-radius:5px}
 .chart-container{height:400px;border-radius:9px;overflow:hidden;background:var(--surface2)}
-
 .onboarding{position:fixed;inset:0;z-index:2000;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px}
 .onboarding.open{display:flex}
 .onb-box{max-width:420px;text-align:center}
@@ -240,7 +254,6 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .onb-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
 .onb-dot{width:8px;height:8px;border-radius:50%;background:var(--surface3);transition:.2s}
 .onb-dot.active{background:var(--green);width:20px;border-radius:4px}
-
 .legal-content{max-width:800px;margin:0 auto;font-size:13px;line-height:1.75;color:var(--muted)}
 .legal-content h2{color:var(--text);font-size:17px;margin:22px 0 8px}
 .legal-content h3{color:var(--text);font-size:14px;margin:16px 0 6px}
@@ -258,7 +271,6 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .step-num{position:absolute;top:-10px;left:14px;width:26px;height:26px;border-radius:50%;background:var(--green);color:#04150d;display:grid;place-items:center;font-weight:900;font-size:12px}
 .step-card h4{margin:8px 0 5px;font-size:13px}
 .step-card p{color:var(--muted);font-size:11px;line-height:1.55}
-
 @media(max-width:900px){
   .hero,.profile-grid{grid-template-columns:1fr}
   .offers{grid-template-columns:1fr}
@@ -279,6 +291,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
   .ticker-tape-wrap{height:40px}
   .chart-container{height:280px}
   .steps-grid{grid-template-columns:1fr}
+  .history-stats{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -351,6 +364,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <button class="tab" data-page="trades" onclick="showPage('trades')">Commandes</button>
     <button class="tab" data-page="create" onclick="showPage('create')">Publier</button>
     <button class="tab" data-page="charts" onclick="showPage('charts')">📈 Marchés</button>
+    <button class="tab" data-page="alerts" onclick="showPage('alerts')">🔔 Alertes</button>
     <button class="tab" data-page="calculator" onclick="showPage('calculator')">Calculateur</button>
     <button class="tab" data-page="profile" onclick="showPage('profile')">Profil</button>
     <button class="tab" data-page="about" onclick="showPage('about')">À propos</button>
@@ -377,6 +391,11 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
         <p>Payables par Wave directement à SENUSDT.</p>
         <span class="wave-num">Wave → +221 77 567 31 82</span>
       </div>
+    </div>
+
+    <!-- HISTORIQUE PRIX USDT/FCFA -->
+    <div class="history-chart" id="priceHistoryChart">
+      <div class="loading"><div class="loader"></div></div>
     </div>
 
     <div class="live-price-wrap">
@@ -426,6 +445,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       <select id="verifiedFilter" class="select" onchange="renderOffers()">
         <option value="">Tous</option>
         <option value="verified">✅ Vérifiés</option>
+        <option value="premium">👑 Premium</option>
       </select>
       <select id="sortFilter" class="select" onchange="renderOffers()">
         <option value="recent">Récentes</option>
@@ -488,31 +508,38 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       <div><h2>📈 Marchés en temps réel</h2><p>Bougies live — TradingView · données Binance</p></div>
     </div>
     <div class="charts-grid">
-      <div class="chart-card">
-        <h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT · 1m</span></h3>
-        <div class="chart-container" id="chart-btc"></div>
-      </div>
-      <div class="chart-card">
-        <h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT · 1m</span></h3>
-        <div class="chart-container" id="chart-eth"></div>
-      </div>
-      <div class="chart-card">
-        <h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT · 1m</span></h3>
-        <div class="chart-container" id="chart-sol"></div>
-      </div>
-      <div class="chart-card">
-        <h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT · 1m</span></h3>
-        <div class="chart-container" id="chart-bnb"></div>
-      </div>
-      <div class="chart-card">
-        <h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT · 5m</span></h3>
-        <div class="chart-container" id="chart-xau"></div>
-      </div>
-      <div class="chart-card">
-        <h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD · 5m</span></h3>
-        <div class="chart-container" id="chart-eurusd"></div>
-      </div>
+      <div class="chart-card"><h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT · 1m</span></h3><div class="chart-container" id="chart-btc"></div></div>
+      <div class="chart-card"><h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT · 1m</span></h3><div class="chart-container" id="chart-eth"></div></div>
+      <div class="chart-card"><h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT · 1m</span></h3><div class="chart-container" id="chart-sol"></div></div>
+      <div class="chart-card"><h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT · 1m</span></h3><div class="chart-container" id="chart-bnb"></div></div>
+      <div class="chart-card"><h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT · 5m</span></h3><div class="chart-container" id="chart-xau"></div></div>
+      <div class="chart-card"><h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD · 5m</span></h3><div class="chart-container" id="chart-eurusd"></div></div>
     </div>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="page-alerts" class="page">
+    <div class="section-header">
+      <div><h2>🔔 Alertes de prix</h2><p>Soyez notifié quand l'USDT atteint votre prix cible</p></div>
+    </div>
+    <div class="panel">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="alertPrice">Prix cible (FCFA par USDT)</label>
+          <input id="alertPrice" class="input" type="number" min="1" step="1" placeholder="Ex : 610">
+        </div>
+        <div class="form-group">
+          <label for="alertDirection">Direction</label>
+          <select id="alertDirection" class="select">
+            <option value="below">📉 Quand le prix descend en dessous</option>
+            <option value="above">📈 Quand le prix monte au-dessus</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;min-height:44px" onclick="createAlert()">Créer l'alerte</button>
+    </div>
+    <div class="section-header"><div><h2>Mes alertes</h2></div></div>
+    <div id="alertsList"></div>
   </section>
 
   <!-- CALCULATOR -->
@@ -547,32 +574,19 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="legal-content">
       <h2>Notre mission</h2>
       <p>SENUSDT est une plateforme <strong>sénégalaise</strong> qui met en relation des personnes souhaitant acheter ou vendre de l'USDT (Tether) contre des francs CFA (FCFA), par Wave, Orange Money, Free Money ou virement bancaire.</p>
-
       <h2>Comment ça marche</h2>
       <div class="steps-grid">
-        <div class="step-card"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Parcourez le marché et sélectionnez un vendeur ou acheteur vérifié.</p></div>
+        <div class="step-card"><span class="step-num">1</span><h4>Choisir une offre</h4><p>Parcourez le marché et sélectionnez un vendeur vérifié.</p></div>
         <div class="step-card"><span class="step-num">2</span><h4>Payer les frais</h4><p>Envoyez les 1 % de frais par Wave au +221 77 567 31 82.</p></div>
         <div class="step-card"><span class="step-num">3</span><h4>Payer en FCFA</h4><p>Envoyez les FCFA au vendeur par Wave, OM ou virement.</p></div>
         <div class="step-card"><span class="step-num">4</span><h4>Recevoir les USDT</h4><p>Le vendeur envoie les USDT depuis son wallet vers le vôtre.</p></div>
       </div>
-
       <h2>Modèle non-custodial</h2>
-      <p>SENUSDT <strong>ne détient jamais</strong> vos USDT ni vos FCFA. Les transferts se font directement entre vous et votre partenaire. Nous fournissons uniquement :</p>
-      <ul>
-        <li>Une mise en relation sécurisée</li>
-        <li>Un chat temps réel</li>
-        <li>Une vérification d'identité (KYC)</li>
-        <li>Un système de réputation</li>
-        <li>Une procédure de litige</li>
-      </ul>
-
+      <p>SENUSDT <strong>ne détient jamais</strong> vos USDT ni vos FCFA. Les transferts se font directement entre vous et votre partenaire.</p>
       <h2>Frais de service</h2>
       <p>Nous prélevons <strong>1 % du montant de la transaction</strong> payables par Wave au +221 77 567 31 82. Aucun autre frais caché.</p>
-
       <h2>Contact</h2>
-      <p>📱 WhatsApp : <strong>+221 77 567 31 82</strong><br>
-      📧 Email : <strong>support@senusdt.com</strong></p>
-
+      <p>📱 WhatsApp : <strong>+221 77 567 31 82</strong><br>📧 Email : <strong>support@senusdt.com</strong></p>
       <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="showPage('faq')">❓ FAQ</button>
         <button class="btn" onclick="showPage('legal')">📜 CGU & Confidentialité</button>
@@ -585,13 +599,12 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
   <section id="page-faq" class="page">
     <div class="section-header"><div><h2>❓ Questions fréquentes</h2></div></div>
     <div style="max-width:800px;margin:0 auto">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment payer les frais SENUSDT ?</div><div class="faq-a">Les frais de 1 % sont à envoyer par <strong>Wave au +221 77 567 31 82</strong> en mettant la référence de votre commande (ex : #abc12345) en motif. Sans cette référence, la commande ne pourra pas être activée.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes USDT sont-ils en sécurité sur SENUSDT ?</div><div class="faq-a">SENUSDT <strong>ne détient jamais</strong> vos USDT. Ils restent dans votre wallet personnel (Binance, Bybit, Trust Wallet…) jusqu'à ce que VOUS les envoyiez à l'acheteur.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Que faire si l'autre partie ne répond pas ?</div><div class="faq-a">Utilisez le bouton <strong>🚩 Signaler</strong> sur la commande. Vous pouvez aussi nous contacter par WhatsApp. Toutes les conversations sont conservées et utilisées en cas de litige.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment payer les frais SENUSDT ?</div><div class="faq-a">Les frais de 1 % sont à envoyer par <strong>Wave au +221 77 567 31 82</strong> en mettant la référence de votre commande (ex : #abc12345) en motif.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes USDT sont-ils en sécurité sur SENUSDT ?</div><div class="faq-a">SENUSDT <strong>ne détient jamais</strong> vos USDT. Ils restent dans votre wallet personnel jusqu'à ce que VOUS les envoyiez à l'acheteur.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Que faire si l'autre partie ne répond pas ?</div><div class="faq-a">Utilisez le bouton <strong>🚩 Signaler</strong> sur la commande. Vous pouvez aussi nous contacter par WhatsApp.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devient-on vendeur vérifié ?</div><div class="faq-a">Allez dans votre Profil → cliquez sur <strong>« Vérifier mon identité ✅ »</strong>. Uploadez votre CNI et un selfie. Validation sous 24-48h.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Quels sont les moyens de paiement acceptés ?</div><div class="faq-a">Wave, Orange Money, Free Money, virement bancaire (RIB/IBAN) et espèces en main propre (selon les vendeurs).</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Puis-je annuler une commande ?</div><div class="faq-a">Oui, tant que vous n'avez pas cliqué sur « J'ai payé », vous pouvez annuler sans frais. Une fois le paiement envoyé, contactez le support.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment supprimer mon compte ?</div><div class="faq-a">Allez dans Profil → faites défiler jusqu'à la section <strong>« Zone dangereuse »</strong> → cliquez sur « Supprimer mon compte ». Toutes vos données seront effacées.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devenir Vendeur Vérifié+ (👑 Premium) ?</div><div class="faq-a">Allez dans Profil → cliquez sur <strong>« Devenir Vendeur Vérifié+ »</strong>. Il faut déposer une caution de 500 000 FCFA par Wave. Vous obtenez un badge doré et la priorité sur le marché.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment supprimer mon compte ?</div><div class="faq-a">Allez dans Profil → faites défiler jusqu'à la section <strong>« Zone dangereuse »</strong> → cliquez sur « Supprimer mon compte ».</div></div>
     </div>
   </section>
 
@@ -613,35 +626,23 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       </ul>
       <h3>4. Frais de service</h3>
       <p>SENUSDT prélève 1 % du montant de chaque transaction réussie, payables par Wave au +221 77 567 31 82.</p>
-      <h3>5. Responsabilité</h3>
-      <p>SENUSDT ne peut être tenu responsable des pertes résultant de : erreurs d'adresse wallet, comportement frauduleux d'un tiers, transactions blockchain irréversibles, force majeure.</p>
-      <h3>6. Suspension de compte</h3>
-      <p>SENUSDT se réserve le droit de suspendre tout compte en cas de non-respect des CGU, de fraude ou de signalements répétés.</p>
-
+      <h3>5. Statut Vendeur Vérifié+</h3>
+      <p>Le statut Premium nécessite une caution de 500 000 FCFA. Cette caution sert de garantie en cas de litige avéré.</p>
+      <h3>6. Responsabilité</h3>
+      <p>SENUSDT ne peut être tenu responsable des pertes résultant d'erreurs d'adresse wallet, de comportements frauduleux d'un tiers, ou de transactions blockchain irréversibles.</p>
       <h2>Politique de confidentialité</h2>
       <h3>Données collectées</h3>
       <ul>
-        <li><strong>Identité :</strong> nom d'utilisateur, email</li>
-        <li><strong>KYC :</strong> nom complet, numéro de CNI/passeport, date de naissance, photo (si vérification demandée)</li>
+        <li><strong>Identité :</strong> nom d'utilisateur, email, numéro WhatsApp</li>
+        <li><strong>KYC :</strong> nom complet, CNI/passeport, date de naissance, photo (si vérification)</li>
         <li><strong>Transactions :</strong> historique des commandes, montants, statuts</li>
-        <li><strong>Techniques :</strong> logs de connexion, adresse IP, type d'appareil</li>
       </ul>
-      <h3>Utilisation des données</h3>
-      <ul>
-        <li>Sécuriser la plateforme et prévenir la fraude</li>
-        <li>Permettre la mise en relation entre utilisateurs</li>
-        <li>Résoudre les litiges</li>
-        <li>Respecter nos obligations légales</li>
-      </ul>
-      <h3>Partage des données</h3>
-      <p>Vos données ne sont <strong>jamais vendues</strong>. Elles peuvent être partagées avec les autres utilisateurs dans le cadre d'une commande, ou avec les autorités si la loi l'exige.</p>
       <h3>Sécurité</h3>
-      <p>Vos données sont stockées chez <strong>Supabase</strong> (PostgreSQL, chiffrement AES-256). Les documents KYC sont stockés dans un bucket privé avec accès contrôlé.</p>
+      <p>Vos données sont stockées chez <strong>Supabase</strong> (PostgreSQL, chiffrement AES-256). Les documents KYC sont dans un bucket privé.</p>
       <h3>Vos droits</h3>
       <ul>
-        <li>Droit d'accès : demandez une copie de vos données</li>
-        <li>Droit de rectification : modifiez vos informations dans votre profil</li>
-        <li>Droit à l'effacement : supprimez votre compte depuis votre profil</li>
+        <li>Droit d'accès, de rectification, d'effacement</li>
+        <li>Suppression du compte directement depuis votre profil</li>
       </ul>
       <h3>Contact</h3>
       <p>Pour toute question : <strong>support@senusdt.com</strong> ou WhatsApp <strong>+221 77 567 31 82</strong>.</p>
@@ -666,7 +667,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="form-group"><label>Nom d'utilisateur</label><input id="registerUsername" class="input" minlength="3" required></div>
     <div class="form-group"><label>E-mail</label><input id="registerEmail" class="input" type="email" required></div>
     <div class="form-group"><label>Mot de passe (min 8)</label><input id="registerPassword" class="input" type="password" minlength="8" required></div>
-    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU et notre politique de confidentialité</a>.</p></div></div>
+    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU</a>.</p></div></div>
     <button class="btn btn-primary" style="width:100%;min-height:44px;margin-top:8px" type="submit">Créer mon compte</button>
   </form>
 </div></div>
@@ -793,6 +794,37 @@ window.openWhatsApp=function(msg){
   window.open('https://wa.me/'+WHATSAPP_SUPPORT+'?text='+text,'_blank');
 };
 
+window.notifyWhatsApp=function(phone,message){
+  if(!phone){toast('Numéro WhatsApp non disponible','error');return;}
+  var clean=String(phone).replace(/\D/g,'');
+  if(clean.length<8){toast('Numéro invalide','error');return;}
+  if(clean.length===9)clean='221'+clean;
+  var text=encodeURIComponent(message||'Bonjour, je vous contacte au sujet de notre commande SENUSDT.');
+  window.open('https://wa.me/'+clean+'?text='+text,'_blank');
+};
+
+window.shareTradeViaWhatsApp=async function(tradeId){
+  var r=await sb.from('trades').select('*').eq('id',tradeId).maybeSingle();
+  if(r.error||!r.data)return;
+  var t=r.data;
+  var isBuyer=t.buyer_id===state.user.id;
+  var otherId=isBuyer?t.seller_id:t.buyer_id;
+  var pr=await sb.from('profiles').select('username,whatsapp_number').eq('id',otherId).maybeSingle();
+  var other=pr.data||{};
+  var msg='Bonjour '+other.username+', je suis '+(state.profile&&state.profile.username||'')+' — au sujet de la commande #'+t.id.slice(0,8)+' ('+fmt(t.amount)+' USDT à '+fmtP(t.price,t.currency)+').';
+  notifyWhatsApp(other.whatsapp_number,msg);
+};
+
+window.shareOfferViaWhatsApp=function(offerId){
+  var o=state.offers.filter(function(x){return x.id===offerId;})[0];
+  if(!o)return;
+  var msg='🔥 Offre SENUSDT : '+o.type.toUpperCase()+' '+fmt(o.amount)+' USDT à '+fmtP(o.price,o.currency)+' par USDT\n'+
+    '👤 '+(o.profiles&&o.profiles.username||'—')+'\n'+
+    '💳 '+(o.payments||'—')+'\n'+
+    '👉 https://senusdt.github.io/senusdt/';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+};
+
 /* FAQ */
 window.toggleFaq=function(el){
   var item=el.parentElement;
@@ -836,18 +868,202 @@ function loadAllCharts(){
   loadTvChart('chart-eurusd','OANDA:EURUSD','5');
 }
 
+/* =========================================
+   HISTORIQUE DES PRIX USDT/FCFA
+   ========================================= */
+async function loadPriceHistory(){
+  var container=$('#priceHistoryChart');
+  if(!container)return;
+  var r=await sb.from('price_history').select('price,currency,created_at')
+    .eq('currency','XOF').order('created_at',{ascending:true}).limit(90);
+  if(r.error||!r.data||!r.data.length){
+    container.innerHTML='<div class="empty">Pas encore de données</div>';
+    return;
+  }
+  var data=r.data;
+  var prices=data.map(function(x){return Number(x.price);});
+  var min=Math.min.apply(null,prices);
+  var max=Math.max.apply(null,prices);
+  var avg=prices.reduce(function(a,b){return a+b;},0)/prices.length;
+  var last=prices[prices.length-1];
+  var first=prices[0];
+  var change=first?((last-first)/first*100):0;
+
+  container.innerHTML=
+    '<h3>📊 Prix USDT / FCFA <span style="color:var(--muted);font-size:11px">sur SENUSDT</span></h3>'+
+    '<canvas id="priceCanvas"></canvas>'+
+    '<div class="history-stats">'+
+      '<div class="history-stat"><span>Dernier</span><strong>'+fmtP(last,'XOF')+'</strong></div>'+
+      '<div class="history-stat"><span>Plus bas</span><strong>'+fmtP(min,'XOF')+'</strong></div>'+
+      '<div class="history-stat"><span>Plus haut</span><strong>'+fmtP(max,'XOF')+'</strong></div>'+
+      '<div class="history-stat"><span>Moyenne</span><strong>'+fmtP(avg,'XOF')+'</strong></div>'+
+      '<div class="history-stat"><span>Variation</span><strong style="color:'+(change>=0?'var(--green)':'var(--red)')+'">'+(change>=0?'+':'')+change.toFixed(2)+'%</strong></div>'+
+      '<div class="history-stat"><span>Points</span><strong>'+data.length+'</strong></div>'+
+    '</div>';
+
+  setTimeout(function(){drawPriceChart(prices,min,max);},50);
+}
+
+function drawPriceChart(prices,min,max){
+  var canvas=$('#priceCanvas');if(!canvas)return;
+  var dpr=window.devicePixelRatio||1;
+  var w=canvas.offsetWidth,h=200;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  var ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  var pad=20;
+  var range=max-min||1;
+  var stepX=(w-pad*2)/(prices.length-1||1);
+
+  ctx.strokeStyle='rgba(142,166,155,.15)';
+  ctx.lineWidth=1;
+  for(var i=0;i<=4;i++){
+    var y=pad+(h-pad*2)*i/4;
+    ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();
+  }
+
+  var grad=ctx.createLinearGradient(0,pad,0,h-pad);
+  grad.addColorStop(0,'rgba(25,199,122,.4)');
+  grad.addColorStop(1,'rgba(25,199,122,0)');
+
+  ctx.beginPath();
+  prices.forEach(function(p,i){
+    var x=pad+i*stepX;
+    var y=h-pad-((p-min)/range)*(h-pad*2);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#19c77a';ctx.lineWidth=2.5;ctx.stroke();
+
+  ctx.lineTo(pad+(prices.length-1)*stepX,h-pad);
+  ctx.lineTo(pad,h-pad);
+  ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+
+  prices.forEach(function(p,i){
+    var x=pad+i*stepX;
+    var y=h-pad-((p-min)/range)*(h-pad*2);
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#19c199';ctx.fill();
+  });
+}
+
+/* =========================================
+   ALERTES DE PRIX
+   ========================================= */
+async function loadAlerts(){
+  var box=$('#alertsList');if(!box)return;
+  if(!state.user){box.innerHTML='<div class="empty">Connectez-vous pour créer des alertes.</div>';return;}
+  var r=await sb.from('price_alerts').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false});
+  if(r.error){box.innerHTML='<div class="empty">Erreur</div>';return;}
+  var alerts=r.data||[];
+  if(!alerts.length){box.innerHTML='<div class="empty">Aucune alerte configurée.</div>';return;}
+  box.innerHTML=alerts.map(function(a){
+    return '<div class="alert-item">'+
+      '<div class="alert-info"><strong>'+fmtP(a.target_price,a.currency)+'</strong>'+
+      '<small>'+(a.direction==='above'?'📈 au-dessus':'📉 en dessous')+' · '+(a.is_active?'🟢 Active':'⚪ Désactivée')+'</small></div>'+
+      '<div class="alert-actions">'+
+        '<button class="btn btn-small" onclick="toggleAlert(\''+a.id+'\','+(!a.is_active)+')">'+(a.is_active?'⏸':'▶')+'</button>'+
+        '<button class="btn btn-small btn-danger" onclick="deleteAlert(\''+a.id+'\')">✕</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+window.createAlert=async function(){
+  if(!state.user){openModal('authModal');return;}
+  var price=parseFloat($('#alertPrice').value);
+  var dir=$('#alertDirection').value;
+  if(!(price>0)){toast('Prix invalide','error');return;}
+  var r=await sb.from('price_alerts').insert({
+    user_id:state.user.id,target_price:price,direction:dir,currency:'XOF',is_active:true
+  });
+  if(r.error){toast('Erreur : '+r.error.message,'error');return;}
+  toast('✅ Alerte créée');
+  $('#alertPrice').value='';
+  loadAlerts();
+};
+
+window.toggleAlert=async function(id,active){
+  await sb.from('price_alerts').update({is_active:active}).eq('id',id);
+  loadAlerts();
+};
+
+window.deleteAlert=async function(id){
+  if(!confirm('Supprimer cette alerte ?'))return;
+  await sb.from('price_alerts').delete().eq('id',id);
+  toast('Alerte supprimée');loadAlerts();
+};
+
+async function checkAlerts(){
+  if(!state.user)return;
+  var r=await sb.from('price_alerts').select('*').eq('user_id',state.user.id).eq('is_active',true);
+  if(r.error||!r.data||!r.data.length)return;
+  var ph=await sb.from('price_history').select('price').eq('currency','XOF').order('created_at',{ascending:false}).limit(5);
+  if(ph.error||!ph.data||!ph.data.length)return;
+  var avg=ph.data.reduce(function(s,x){return s+Number(x.price);},0)/ph.data.length;
+  r.data.forEach(function(a){
+    var triggered=(a.direction==='above'&&avg>=Number(a.target_price))||(a.direction==='below'&&avg<=Number(a.target_price));
+    if(triggered){
+      toast('🔔 Alerte : USDT à '+fmtP(avg,'XOF'),'success');
+      sb.from('price_alerts').update({last_triggered_at:new Date().toISOString()}).eq('id',a.id);
+    }
+  });
+}
+
+/* =========================================
+   VENDEUR VÉRIFIÉ+ (PREMIUM)
+   ========================================= */
+window.openPremiumModal=function(){
+  if(!state.user){openModal('authModal');return;}
+  var u=state.profile||{};
+  var isPremium=u.is_premium;
+  var html='';
+  if(isPremium){
+    html='<div class="security-box" style="border-color:rgba(246,200,95,.4);background:linear-gradient(135deg,rgba(246,200,95,.12),rgba(16,29,23,.5))">'+
+      '<div class="security-icon">👑</div><div><strong style="color:#f6c85f">Vendeur Premium actif</strong>'+
+      '<p>Depuis le '+(u.premium_since?fmtDT(u.premium_since):'—')+'</p>'+
+      '<p>Caution déposée : <strong>'+fmtP(u.premium_deposit||0,'XOF')+'</strong></p></div></div>'+
+      '<div class="security-box"><div class="security-icon">ℹ️</div><div><strong>Vos avantages</strong>'+
+      '<p>• Badge doré 👑 visible partout<br>• Vos offres apparaissent en premier<br>• Crédibilité maximale<br>• Accès aux gros montants</p></div></div>'+
+      '<button class="btn btn-danger" style="width:100%;margin-top:12px" onclick="cancelPremium()">Retirer mon statut Premium</button>';
+  }else{
+    html='<div class="security-box" style="border-color:rgba(246,200,95,.4);background:linear-gradient(135deg,rgba(246,200,95,.12),rgba(16,29,23,.5))">'+
+      '<div class="security-icon">👑</div><div><strong style="color:#f6c85f">Devenez Vendeur Vérifié+</strong>'+
+      '<p>Déposez une caution qui garantit vos transactions. En cas de litige avéré, la caution est utilisée pour rembourser la victime.</p></div></div>'+
+      '<div class="security-box"><div class="security-icon">✨</div><div><strong>Avantages Premium</strong>'+
+      '<p>• Badge doré 👑 sur votre profil et vos offres<br>• Vos offres affichées en priorité<br>• Crédibilité maximale auprès des acheteurs<br>• Accès aux transactions de gros montants</p></div></div>'+
+      '<div class="security-box" style="border-color:rgba(246,200,95,.3)"><div class="security-icon">💰</div><div><strong>Caution requise</strong>'+
+      '<p>Montant minimum : <strong>'+fmtP(500000,'XOF')+'</strong>. Payable par Wave au '+WAVE+' avec la référence <strong>PREMIUM-'+esc(u.username||'')+'</strong>.</p></div></div>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="requestPremium()">Demander le statut Premium</button>'+
+      '<button class="btn btn-whatsapp" style="width:100%;margin-top:6px" onclick="openWhatsApp(\'Bonjour, je souhaite devenir Vendeur Vérifié+ sur SENUSDT. Mon pseudo : '+esc(u.username||'')+'\')">💬 Contacter le support</button>';
+  }
+  $('#bankContent').innerHTML=html;
+  openModal('bankModal');
+};
+
+window.requestPremium=function(){
+  var u=state.profile||{};
+  openWhatsApp('Bonjour, je souhaite devenir Vendeur Vérifié+ sur SENUSDT.\nPseudo : '+u.username+'\nEmail : '+u.email+'\nJe vais envoyer la caution de 500 000 FCFA par Wave.');
+};
+
+window.cancelPremium=async function(){
+  if(!confirm('Retirer votre statut Premium ? Votre caution sera remboursée sous 48h.'))return;
+  await sb.from('profiles').update({is_premium:false,premium_since:null}).eq('id',state.user.id);
+  await loadProfile(state.user.id);
+  toast('Statut Premium retiré');closeModal('bankModal');
+};
+
 /* NAV */
 window.showPage=function(p){
-  if(['trades','profile','create','admin'].indexOf(p)>=0&&!state.user){openModal('authModal');return;}
+  if(['trades','profile','create','admin','alerts'].indexOf(p)>=0&&!state.user){openModal('authModal');return;}
   if(p==='admin'&&!(state.profile&&state.profile.is_admin)){toast('Accès refusé','error');return;}
   $$('.page').forEach(function(x){x.classList.remove('active');});
   var t=document.getElementById('page-'+p);if(t)t.classList.add('active');
   $$('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   if(p==='trades')loadTrades();
   if(p==='profile')renderProfile();
-  if(p==='market')loadOffers();
+  if(p==='market'){loadOffers();setTimeout(loadPriceHistory,200);}
   if(p==='admin')renderAdmin();
   if(p==='charts')setTimeout(loadAllCharts,100);
+  if(p==='alerts')loadAlerts();
   window.scrollTo({top:0,behavior:'smooth'});
 };
 window.scrollToOffers=function(){var e=document.getElementById('offersSection');if(e)e.scrollIntoView({behavior:'smooth'});};
@@ -862,10 +1078,11 @@ function renderAuth(){
   if(state.user){
     var p=state.profile||{};var av=p.avatar_emoji||'👤';var nm=p.username||state.user.email;
     var badge=p.is_verified?' <span class="badge-verified">✅</span>':'';
+    var prem=p.is_premium?' <span class="badge-premium">👑</span>':'';
     var nb=state.notifs.length;
     z.innerHTML='<button class="btn btn-small" onclick="toggleTheme()">'+theme+'</button>'+
       '<button class="btn btn-small" onclick="openNotifs()">🔔'+(nb>0?' <span style="background:var(--red);color:#fff;padding:1px 5px;border-radius:7px;font-size:9px">'+nb+'</span>':'')+'</button>'+
-      '<button class="btn btn-small" onclick="showPage(\'profile\')">'+av+' '+esc(nm)+badge+'</button>'+
+      '<button class="btn btn-small" onclick="showPage(\'profile\')">'+av+' '+esc(nm)+badge+prem+'</button>'+
       '<button class="btn btn-small btn-danger" onclick="logout()">Sortir</button>';
   }else{
     z.innerHTML='<button class="btn btn-small" onclick="toggleTheme()">'+theme+'</button>'+
@@ -923,7 +1140,7 @@ sb.auth.onAuthStateChange(async function(ev,s){
 window.loadOffers=async function(){
   var b=$('#offers');if(!b)return;
   b.innerHTML='<div class="loading"><div class="loader"></div></div>';
-  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,country,is_online,trades_count,is_verified)')
+  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,country,is_online,trades_count,is_verified,is_premium)')
     .eq('is_active',true).order('created_at',{ascending:false}).limit(200);
   if(r.error){b.innerHTML='<div class="empty">Erreur : '+esc(r.error.message)+'</div>';return;}
   state.offers=r.data||[];renderOffers();
@@ -941,25 +1158,35 @@ window.renderOffers=function(){
     if(cur&&o.currency!==cur)return false;
     if(pay&&(o.payments||'').toLowerCase().indexOf(pay)===-1)return false;
     if(ver==='verified'&&!(o.profiles&&o.profiles.is_verified))return false;
+    if(ver==='premium'&&!(o.profiles&&o.profiles.is_premium))return false;
     if(q){
       var h=((o.profiles&&o.profiles.username||'')+' '+o.payments+' '+o.platform+' '+(o.terms||'')).toLowerCase();
       if(h.indexOf(q)===-1)return false;
     }
     return true;
   });
-  if(sort==='price_asc')f.sort(function(a,b){return a.price-b.price;});
-  else if(sort==='price_desc')f.sort(function(a,b){return b.price-a.price;});
-  else if(sort==='rating')f.sort(function(a,b){return ((b.profiles&&b.profiles.rating)||0)-((a.profiles&&a.profiles.rating)||0);});
+
+  // Premium first, puis tri sélectionné
+  f.sort(function(a,b){
+    var pa=(a.profiles&&a.profiles.is_premium)?1:0;
+    var pb=(b.profiles&&b.profiles.is_premium)?1:0;
+    if(pa!==pb)return pb-pa;
+    return 0;
+  });
+  if(sort==='price_asc')f.sort(function(a,b){var pa=(a.profiles&&a.profiles.is_premium)?1:0;var pb=(b.profiles&&b.profiles.is_premium)?1:0;if(pa!==pb)return pb-pa;return a.price-b.price;});
+  else if(sort==='price_desc')f.sort(function(a,b){var pa=(a.profiles&&a.profiles.is_premium)?1:0;var pb=(b.profiles&&b.profiles.is_premium)?1:0;if(pa!==pb)return pb-pa;return b.price-a.price;});
+  else if(sort==='rating')f.sort(function(a,b){var pa=(a.profiles&&a.profiles.is_premium)?1:0;var pb=(b.profiles&&b.profiles.is_premium)?1:0;if(pa!==pb)return pb-pa;return ((b.profiles&&b.profiles.rating)||0)-((a.profiles&&a.profiles.rating)||0);});
 
   if(!f.length){b.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div>Aucune offre.</div>';return;}
   b.innerHTML=f.map(function(o){
     var sell=o.type==='sell',lbl=sell?'Achat USDT':'Vente USDT',cls=sell?'buy':'sell';
     var p=o.profiles||{};var av=p.avatar_emoji||'👤';
     var ver=p.is_verified?' <span class="badge-verified">✅</span>':'';
-    return '<article class="offer-card">'+
+    var prem=p.is_premium?' <span class="badge-premium">👑</span>':'';
+    return '<article class="offer-card'+(p.is_premium?' premium-card':'')+'">'+
       '<div class="offer-top"><div class="offer-owner"><div class="offer-avatar">'+av+'</div>'+
       '<div class="offer-owner-name">'+
-      '<div>'+(p.is_online?'<span class="online-dot"></span>':'<span class="offline-dot"></span>')+esc(p.username||'—')+ver+'</div>'+
+      '<div>'+(p.is_online?'<span class="online-dot"></span>':'<span class="offline-dot"></span>')+esc(p.username||'—')+ver+prem+'</div>'+
       '<div>'+stars(p.rating)+' ('+(p.trades_count||0)+')</div></div></div>'+
       '<span class="offer-type '+cls+'">'+lbl+'</span></div>'+
       '<div class="offer-price">'+fmtP(o.price,o.currency)+' <small>/USDT</small></div>'+
@@ -971,7 +1198,8 @@ window.renderOffers=function(){
       '</div>'+
       '<div class="offer-user"><span>⏱ '+ago(o.created_at)+'</span><span>'+esc(o.payments)+'</span></div>'+
       '<div class="offer-actions"><button class="btn btn-small btn-primary" onclick="openTrade(\''+o.id+'\')">'+(sell?'Acheter':'Vendre')+'</button>'+
-      '<button class="btn btn-small" onclick="openProfile(\''+o.user_id+'\')">Profil</button></div>'+
+      '<button class="btn btn-small" onclick="openProfile(\''+o.user_id+'\')">Profil</button>'+
+      '<button class="btn btn-small btn-whatsapp" onclick="shareOfferViaWhatsApp(\''+o.id+'\')" title="Partager">📤</button></div>'+
     '</article>';
   }).join('');
 };
@@ -983,10 +1211,12 @@ window.openProfile=async function(uid){
   var rr=await sb.from('reviews').select('*, reviewer:reviewer_id(username)').eq('reviewed_id',uid).order('created_at',{ascending:false}).limit(15);
   var rev=rr.data||[];
   var ver=u.is_verified?'<span class="badge-verified">✅ Vérifié</span>':'';
+  var prem=u.is_premium?'<span class="badge-premium">👑 PREMIUM</span>':'';
   $('#bankContent').innerHTML=
     '<div style="text-align:center"><div class="profile-avatar" style="margin:0 auto">'+(u.avatar_emoji||'👤')+'</div>'+
-    '<div class="profile-name">'+esc(u.username)+' '+ver+'</div>'+
+    '<div class="profile-name">'+esc(u.username)+' '+ver+' '+prem+'</div>'+
     '<div class="profile-email">'+stars(u.rating)+' · '+(u.trades_count||0)+' échanges</div></div>'+
+    (u.whatsapp_number?'<button class="btn btn-whatsapp" style="width:100%;margin-top:12px" onclick="notifyWhatsApp(\''+esc(u.whatsapp_number)+'\',\'Bonjour '+esc(u.username)+', je vous contacte via SENUSDT.\')">💬 Contacter par WhatsApp</button>':'')+
     '<div class="reviews-list" style="margin-top:12px"><h4 style="font-size:12px;margin-bottom:7px">Avis récents</h4>'+
     (rev.length?rev.map(function(x){return '<div class="review-item"><div class="review-head"><strong>'+esc(x.reviewer&&x.reviewer.username||'Anonyme')+'</strong>'+stars(x.rating)+'</div>'+(x.comment?'<div class="review-comment">'+esc(x.comment)+'</div>':'')+'<div class="review-date">'+ago(x.created_at)+'</div></div>';}).join(''):'<div class="empty">Aucun avis.</div>')+'</div>';
   openModal('bankModal');
@@ -1017,7 +1247,7 @@ $('#offerForm').addEventListener('submit',async function(e){
 /* TRADE CREATE */
 window.openTrade=async function(oid){
   if(!state.user){openModal('authModal');return;}
-  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,trades_count,is_verified)').eq('id',oid).maybeSingle();
+  var r=await sb.from('offers').select('*, profiles(username,avatar_emoji,rating,trades_count,is_verified,is_premium)').eq('id',oid).maybeSingle();
   if(r.error||!r.data){toast('Offre introuvable','error');return;}
   var o=r.data;
   if(o.user_id===state.user.id){toast('Votre propre offre','error');return;}
@@ -1252,7 +1482,7 @@ window.loadTrades=async function(){
   if(!all.length){b.innerHTML='<div class="empty"><div class="empty-icon">📄</div>Aucune commande.</div>';return;}
 
   var uids=[];all.forEach(function(t){if(uids.indexOf(t.buyer_id)<0)uids.push(t.buyer_id);if(uids.indexOf(t.seller_id)<0)uids.push(t.seller_id);});
-  var pr=await sb.from('profiles').select('id,username,avatar_emoji,rating,is_verified').in('id',uids);
+  var pr=await sb.from('profiles').select('id,username,avatar_emoji,rating,is_verified,is_premium').in('id',uids);
   var profs={};(pr.data||[]).forEach(function(p){profs[p.id]=p;});
   var rv=await sb.from('reviews').select('trade_id').eq('reviewer_id',state.user.id);
   var reviewed={};(rv.data||[]).forEach(function(x){reviewed[x.trade_id]=true;});
@@ -1263,9 +1493,11 @@ window.loadTrades=async function(){
     var o=buyer?profs[t.seller_id]:profs[t.buyer_id];
     var oName=o?o.username:'—',oAv=o?(o.avatar_emoji||'👤'):'👤';
     var oVer=o&&o.is_verified?' <span class="badge-verified">✅</span>':'';
+    var oPrem=o&&o.is_premium?' <span class="badge-premium">👑</span>':'';
     var showBank=buyer&&(t.payments||'').toLowerCase().indexOf('virement')!==-1;
     var canReview=t.status==='completed'&&!reviewed[t.id];
-    var msgs='<button class="btn btn-small btn-blue" onclick="openChat(\''+t.id+'\',\''+esc(oName).replace(/'/g,"\\'")+'\')">💬 Chat</button>';
+    var msgs='<button class="btn btn-small btn-blue" onclick="openChat(\''+t.id+'\',\''+esc(oName).replace(/'/g,"\\'")+'\')">💬 Chat</button>'+
+      '<button class="btn btn-small btn-whatsapp" onclick="shareTradeViaWhatsApp(\''+t.id+'\')">📱 WA</button>';
     var actions='';
     if(t.status==='awaiting_fee'&&buyer)actions+='<button class="btn btn-small btn-warn" onclick="openFeeModal(\''+t.id+'\')">Payer frais</button>';
     if(t.status==='open'&&buyer)actions+='<button class="btn btn-small btn-blue" onclick="openPaymentProofModal(\''+t.id+'\')">J\'ai payé</button>';
@@ -1282,7 +1514,7 @@ window.loadTrades=async function(){
     return '<article class="trade-card">'+
       '<div class="trade-head"><div style="display:flex;gap:9px;align-items:center">'+
         '<div class="offer-avatar" style="width:36px;height:36px;font-size:18px">'+oAv+'</div>'+
-        '<div><div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · '+esc(oName)+oVer+'</div>'+
+        '<div><div class="trade-id">#'+t.id.slice(0,8)+' · '+role+' · '+esc(oName)+oVer+oPrem+'</div>'+
           '<div class="trade-amount">'+fmt(t.amount)+' USDT</div>'+
           '<div style="color:var(--muted);font-size:10px">'+fmtP(t.price,t.currency)+' /USDT · '+fmtP(t.total,t.currency)+'</div>'+
         '</div>'+
@@ -1474,6 +1706,7 @@ window.openDeleteModal=function(){
     await sb.from('messages').delete().eq('sender_id',state.user.id);
     await sb.from('kyc_submissions').delete().eq('user_id',state.user.id);
     await sb.from('bank_accounts').delete().eq('user_id',state.user.id);
+    await sb.from('price_alerts').delete().eq('user_id',state.user.id);
     await sb.from('profiles').delete().eq('id',state.user.id);
     await sb.auth.signOut();
     toast('Compte supprimé. Au revoir.');
@@ -1510,7 +1743,8 @@ async function renderProfile(){
     '<div class="profile-grid">'+
       '<div class="panel">'+
         '<div class="profile-avatar" style="margin:0 auto">'+av+'</div>'+
-        '<div class="profile-name">'+esc(u.username||'—')+'</div>'+
+        '<div class="profile-name">'+esc(u.username||'—')+
+          (u.is_premium?' <span class="badge-premium">👑</span>':'')+'</div>'+
         '<div class="profile-email">'+esc(u.email||'')+'</div>'+
         '<div style="text-align:center;margin-top:5px">'+stars(u.rating)+' ('+(u.trades_count||0)+')</div>'+
         '<div style="text-align:center;margin-top:9px">'+kycBadges[kyc]+'</div>'+
@@ -1528,7 +1762,12 @@ async function renderProfile(){
         '<h3 style="font-size:13px;margin-bottom:9px">⚙️ Préférences</h3>'+
         '<div class="toggle-row"><div><strong style="font-size:12px">Disponible</strong><div style="color:var(--muted);font-size:10px">Point vert</div></div>'+
           '<div class="toggle '+(u.is_online?'on':'')+'" id="onT"></div></div>'+
-        '<h3 style="font-size:13px;margin:12px 0 7px">😀 Avatar</h3>'+
+        '<div class="form-group" style="margin-top:10px"><label>📱 Numéro WhatsApp (pour être contacté)</label>'+
+          '<input id="waNum" class="input" value="'+esc(u.whatsapp_number||'')+'" placeholder="+221 77 123 45 67"></div>'+
+        '<button class="btn btn-small btn-primary" style="width:100%" onclick="saveWhatsApp()">💾 Enregistrer mon WhatsApp</button>'+
+        '<button class="btn btn-small '+(u.is_premium?'btn-warn':'btn-primary')+'" style="width:100%;margin-top:8px" onclick="openPremiumModal()">'+
+          (u.is_premium?'👑 Gérer Premium':'👑 Devenir Vendeur Vérifié+')+'</button>'+
+        '<h3 style="font-size:13px;margin:14px 0 7px">😀 Avatar</h3>'+
         '<div class="avatar-picker" id="avP">'+AVATARS.map(function(a){return '<div class="avatar-choice '+(a===av?'selected':'')+'" data-a="'+a+'">'+a+'</div>';}).join('')+'</div>'+
       '</div>'+
       '<div class="panel" style="grid-column:1/-1">'+
@@ -1557,6 +1796,13 @@ async function renderProfile(){
         '<button class="btn btn-danger" style="width:100%" onclick="openDeleteModal()">Supprimer mon compte</button>'+
       '</div>'+
     '</div>';
+
+  window.saveWhatsApp=async function(){
+    var num=$('#waNum').value.trim();
+    await sb.from('profiles').update({whatsapp_number:num}).eq('id',state.user.id);
+    await loadProfile(state.user.id);
+    toast('WhatsApp enregistré ✅');
+  };
 
   $('#onT').addEventListener('click',async function(){
     var v=!u.is_online;
@@ -1675,7 +1921,10 @@ async function init(){
     await loadProfile(state.user.id);await loadNotifs();
   }
   renderAuth();loadOffers();calculateCommission();
+  loadPriceHistory();
   checkOnb();registerSW();checkPwaInstall();
+  setInterval(checkAlerts,60000);
+  setTimeout(checkAlerts,5000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
@@ -1684,4 +1933,4 @@ else init();
 </script>
 
 </body>
-          </html>
+                                                         </html>
