@@ -242,7 +242,10 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .chart-card{padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
 .chart-card h3{font-size:13px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
 .chart-symbol-tag{font-size:9px;font-family:var(--mono);color:var(--muted);background:var(--surface2);padding:2px 6px;border-radius:5px}
-.chart-container{height:400px;border-radius:9px;overflow:hidden;background:var(--surface2)}
+.chart-container{height:400px;min-height:400px;border-radius:9px;overflow:hidden;background:var(--surface2);position:relative;width:100%}
+.chart-container>div{width:100%!important;height:100%!important}
+.chart-container iframe{width:100%!important;height:100%!important;border:0}
+.chart-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--surface2);z-index:1;color:var(--muted);font-size:12px}
 .onboarding{position:fixed;inset:0;z-index:2000;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px}
 .onboarding.open{display:flex}
 .onb-box{max-width:420px;text-align:center}
@@ -270,14 +273,12 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .step-num{position:absolute;top:-10px;left:14px;width:26px;height:26px;border-radius:50%;background:var(--green);color:#04150d;display:grid;place-items:center;font-weight:900;font-size:12px}
 .step-card h4{margin:8px 0 5px;font-size:13px}
 .step-card p{color:var(--muted);font-size:11px;line-height:1.55}
-
-/* PIN LOCK SCREEN */
-.pin-screen{position:fixed;inset:0;z-index:3000;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:24px}
+.pin-screen{position:fixed;inset:0;z-index:3000;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px}
 .pin-screen.open{display:flex}
 .pin-logo{width:70px;height:70px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(145deg,var(--green),var(--green2));padding:4px}
 .pin-logo svg{width:100%;height:100%}
 .pin-title{font-size:20px;font-weight:900;text-align:center}
-.pin-subtitle{color:var(--muted);font-size:12px;text-align:center}
+.pin-subtitle{color:var(--muted);font-size:12px;text-align:center;margin-top:4px}
 .pin-dots{display:flex;gap:12px;margin:14px 0}
 .pin-dot{width:14px;height:14px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);transition:.2s}
 .pin-dot.filled{background:var(--green);border-color:var(--green);transform:scale(1.15)}
@@ -292,6 +293,16 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .pin-error{color:var(--red);font-size:12px;min-height:18px;text-align:center}
 .pin-attempts{color:var(--muted);font-size:11px}
 .pin-forgot{color:var(--green);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px}
+@media(max-width:900px){
+  .hero,.profile-grid{grid-template-columns:1fr}
+  .offers{grid-template-columns:1fr}
+  .filters{grid-template-columns:1fr 1fr}
+  .trade-info{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .chart-container{height:320px;min-height:320px}
+  .live-price-wrap{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:1fr 1fr}
+}
 @media(max-width:600px){
   .main-nav{padding:8px 10px 0}
   main{padding:12px 10px 60px}
@@ -300,13 +311,9 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
   .admin-stat{grid-template-columns:1fr}
   .trade-info{grid-template-columns:1fr 1fr}
   .ticker-tape-wrap{height:40px}
-  .chart-container{height:280px}
+  .chart-container{height:280px;min-height:280px}
   .steps-grid{grid-template-columns:1fr}
   .history-stats{grid-template-columns:1fr 1fr}
-  .hero,.profile-grid{grid-template-columns:1fr}
-  .offers{grid-template-columns:1fr}
-  .charts-grid{grid-template-columns:1fr}
-  .live-price-wrap{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -500,12 +507,12 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
   <section id="page-charts" class="page">
     <div class="section-header"><div><h2>📈 Marchés en temps réel</h2><p>Bougies live — TradingView · données Binance</p></div></div>
     <div class="charts-grid">
-      <div class="chart-card"><h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT · 1m</span></h3><div class="chart-container" id="chart-btc"></div></div>
-      <div class="chart-card"><h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT · 1m</span></h3><div class="chart-container" id="chart-eth"></div></div>
-      <div class="chart-card"><h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT · 1m</span></h3><div class="chart-container" id="chart-sol"></div></div>
-      <div class="chart-card"><h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT · 1m</span></h3><div class="chart-container" id="chart-bnb"></div></div>
-      <div class="chart-card"><h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT · 5m</span></h3><div class="chart-container" id="chart-xau"></div></div>
-      <div class="chart-card"><h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD · 5m</span></h3><div class="chart-container" id="chart-eurusd"></div></div>
+      <div class="chart-card"><h3>₿ Bitcoin <span class="chart-symbol-tag">BTC/USDT · 1m</span></h3><div class="chart-container" id="chart-btc"><div class="chart-loader">Chargement…</div></div></div>
+      <div class="chart-card"><h3>Ξ Ethereum <span class="chart-symbol-tag">ETH/USDT · 1m</span></h3><div class="chart-container" id="chart-eth"><div class="chart-loader">Chargement…</div></div></div>
+      <div class="chart-card"><h3>◎ Solana <span class="chart-symbol-tag">SOL/USDT · 1m</span></h3><div class="chart-container" id="chart-sol"><div class="chart-loader">Chargement…</div></div></div>
+      <div class="chart-card"><h3>⬢ BNB <span class="chart-symbol-tag">BNB/USDT · 1m</span></h3><div class="chart-container" id="chart-bnb"><div class="chart-loader">Chargement…</div></div></div>
+      <div class="chart-card"><h3>🥇 Or / USDT <span class="chart-symbol-tag">XAU/USDT · 5m</span></h3><div class="chart-container" id="chart-xau"><div class="chart-loader">Chargement…</div></div></div>
+      <div class="chart-card"><h3>💱 EUR / USD <span class="chart-symbol-tag">EUR/USD · 5m</span></h3><div class="chart-container" id="chart-eurusd"><div class="chart-loader">Chargement…</div></div></div>
     </div>
   </section>
 
@@ -558,8 +565,6 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       </div>
       <h2>Modèle non-custodial</h2>
       <p>SENUSDT <strong>ne détient jamais</strong> vos USDT ni vos FCFA.</p>
-      <h2>Frais</h2>
-      <p>Nous prélevons <strong>1 %</strong> payables par Wave au +221 77 567 31 82.</p>
       <h2>Contact</h2>
       <p>📱 WhatsApp : <strong>+221 77 567 31 82</strong><br>📧 Email : <strong>support@senusdt.com</strong></p>
       <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">
@@ -574,11 +579,9 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="section-header"><div><h2>❓ Questions fréquentes</h2></div></div>
     <div style="max-width:800px;margin:0 auto">
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment payer les frais SENUSDT ?</div><div class="faq-a">Les frais de 1 % sont à envoyer par <strong>Wave au +221 77 567 31 82</strong> en mettant la référence de votre commande en motif.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes USDT sont-ils en sécurité sur SENUSDT ?</div><div class="faq-a">SENUSDT <strong>ne détient jamais</strong> vos USDT. Ils restent dans votre wallet personnel.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Que faire si l'autre partie ne répond pas ?</div><div class="faq-a">Utilisez le bouton 🚩 Signaler sur la commande.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devient-on vendeur vérifié ?</div><div class="faq-a">Profil → « Vérifier mon identité ✅ » → Uploadez CNI + selfie. Validation 24-48h.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment activer le code PIN ?</div><div class="faq-a">Profil → section « 🔐 Code PIN » → cliquez sur « Définir un code PIN ». Il vous sera demandé à chaque ouverture de l'app.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">J'ai oublié mon code PIN, que faire ?</div><div class="faq-a">Sur l'écran du PIN, cliquez sur « Code oublié ? ». Vous serez déconnecté et pourrez vous reconnecter par email. Le PIN sera alors désactivé — vous pourrez en définir un nouveau depuis votre profil.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment activer le code PIN ?</div><div class="faq-a">À la première connexion, une proposition apparaît. Sinon, allez dans <strong>Profil</strong> → section « 🔐 Code PIN » → cliquez sur « Activer le code PIN ».</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">J'ai oublié mon code PIN, que faire ?</div><div class="faq-a">Sur l'écran du PIN, cliquez sur « Code oublié ? ». Vous serez déconnecté et pourrez vous reconnecter par email, puis définir un nouveau code.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devenir Vendeur Vérifié+ (👑 Premium) ?</div><div class="faq-a">Profil → cliquez sur « Devenir Vendeur Vérifié+ ». Il faut déposer une caution de 500 000 FCFA par Wave.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment supprimer mon compte ?</div><div class="faq-a">Profil → « Zone dangereuse » → « Supprimer mon compte ».</div></div>
     </div>
   </section>
@@ -591,19 +594,15 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       <p>SENUSDT est une plateforme de mise en relation. SENUSDT n'est ni un exchange, ni un établissement de paiement.</p>
       <h3>2. Non-custodialité</h3>
       <p>SENUSDT ne détient à aucun moment les fonds des utilisateurs.</p>
-      <h3>3. Obligations de l'utilisateur</h3>
-      <ul><li>Fournir des informations exactes</li><li>Ne pas utiliser la plateforme à des fins illégales</li><li>Signaler tout comportement suspect</li></ul>
-      <h3>4. Frais</h3>
+      <h3>3. Frais</h3>
       <p>SENUSDT prélève 1 % par transaction, payables par Wave au +221 77 567 31 82.</p>
-      <h3>5. Sécurité du compte</h3>
-      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN. SENUSDT ne peut être tenu responsable de tout accès non autorisé résultant d'une négligence de votre part.</p>
+      <h3>4. Sécurité du compte</h3>
+      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN.</p>
       <h2>Politique de confidentialité</h2>
       <h3>Données collectées</h3>
-      <ul><li>Identité : pseudo, email, WhatsApp</li><li>KYC : CNI/passeport, selfie (si vérification)</li><li>Transactions : historique des commandes</li><li>Sécurité : hash de votre code PIN (jamais en clair)</li></ul>
+      <ul><li>Identité : pseudo, email, WhatsApp</li><li>KYC : CNI/passeport, selfie (si vérification)</li><li>Transactions : historique des commandes</li><li>Sécurité : hash SHA-256 de votre code PIN (jamais en clair)</li></ul>
       <h3>Sécurité</h3>
-      <p>Données stockées chez <strong>Supabase</strong> (chiffrement AES-256). Votre code PIN est stocké sous forme de hash SHA-256, jamais en clair.</p>
-      <h3>Vos droits</h3>
-      <ul><li>Accès, rectification, effacement</li><li>Suppression du compte depuis votre profil</li></ul>
+      <p>Données stockées chez <strong>Supabase</strong> (chiffrement AES-256).</p>
       <h3>Contact</h3>
       <p>support@senusdt.com — WhatsApp +221 77 567 31 82</p>
       <p style="margin-top:24px;font-size:11px;text-align:center">Dernière mise à jour : Novembre 2025</p>
@@ -676,134 +675,94 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.o
 $$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
 /* =========================================
-   PIN CODE — HASH SHA-256
+   PIN CODE
    ========================================= */
 async function hashPin(pin){
   var enc=new TextEncoder();
   var buf=await crypto.subtle.digest('SHA-256',enc.encode('senusdt-'+pin));
   return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
-
 var pin={buffer:'',attempts:0,maxAttempts:5,isSetup:false};
-
 function showPinScreen(mode){
-  pin.buffer='';
-  pin.attempts=0;
-  pin.isSetup=(mode==='setup');
+  pin.buffer='';pin.attempts=0;pin.isSetup=(mode==='setup');
   $('#pinTitle').textContent=pin.isSetup?'Choisissez un code':'Code de sécurité';
   $('#pinSubtitle').textContent=pin.isSetup?'6 chiffres que vous retiendrez':'Saisissez votre code à 6 chiffres';
-  $('#pinError').textContent='';
-  $('#pinAttempts').textContent='';
-  updatePinDots();
-  $('#pinScreen').classList.add('open');
+  $('#pinError').textContent='';$('#pinAttempts').textContent='';
+  updatePinDots();$('#pinScreen').classList.add('open');
 }
-
-function hidePinScreen(){
-  $('#pinScreen').classList.remove('open');
-  pin.buffer='';
-}
-
-function updatePinDots(){
-  $$('.pin-dot').forEach(function(d,i){
-    d.classList.toggle('filled',i<pin.buffer.length);
-    d.classList.remove('error');
-  });
-}
-
-function shakePinDots(){
-  $$('.pin-dot').forEach(function(d){d.classList.add('error');});
-  setTimeout(function(){updatePinDots();},500);
-}
-
+function hidePinScreen(){$('#pinScreen').classList.remove('open');pin.buffer='';}
+function updatePinDots(){$$('.pin-dot').forEach(function(d,i){d.classList.toggle('filled',i<pin.buffer.length);d.classList.remove('error');});}
+function shakePinDots(){$$('.pin-dot').forEach(function(d){d.classList.add('error');});setTimeout(function(){updatePinDots();},500);}
 async function processPinDigit(k){
   if(pin.buffer.length>=6)return;
-  pin.buffer+=k;
-  updatePinDots();
+  pin.buffer+=k;updatePinDots();
   if(pin.buffer.length===6){
     setTimeout(async function(){
-      if(pin.isSetup){
-        // Setup mode : on enregistre
-        await savePin(pin.buffer);
-      }else{
-        // Verify mode : on compare
-        await verifyPin(pin.buffer);
-      }
+      if(pin.isSetup){await savePin(pin.buffer);}
+      else{await verifyPin(pin.buffer);}
     },150);
   }
 }
-
-function processPinBackspace(){
-  if(pin.buffer.length>0){
-    pin.buffer=pin.buffer.slice(0,-1);
-    updatePinDots();
-  }
-}
-
+function processPinBackspace(){if(pin.buffer.length>0){pin.buffer=pin.buffer.slice(0,-1);updatePinDots();}}
 async function savePin(pinCode){
   var h=await hashPin(pinCode);
   var r=await sb.from('profiles').update({pin_hash:h}).eq('id',state.user.id);
   if(r.error){toast('Erreur','error');hidePinScreen();return;}
   await loadProfile(state.user.id);
-  if(pin.isSetup){
-    hidePinScreen();
-    toast('✅ Code PIN activé');
-    sessionStorage.setItem('pin_verified','1');
-  }
+  if(pin.isSetup){hidePinScreen();toast('✅ Code PIN activé');sessionStorage.setItem('pin_verified','1');}
 }
-
 async function verifyPin(pinCode){
   var h=await hashPin(pinCode);
   var stored=state.profile&&state.profile.pin_hash;
   if(h===stored){
     sessionStorage.setItem('pin_verified','1');
-    hidePinScreen();
-    toast('Bienvenue 👋');
+    hidePinScreen();toast('Bienvenue 👋');
   }else{
-    pin.attempts++;
-    pin.buffer='';
-    updatePinDots();
-    shakePinDots();
+    pin.attempts++;pin.buffer='';updatePinDots();shakePinDots();
     var left=pin.maxAttempts-pin.attempts;
     if(left<=0){
       $('#pinError').textContent='Trop de tentatives';
       $('#pinAttempts').textContent='Déconnexion dans 3 secondes…';
-      setTimeout(function(){
-        hidePinScreen();
-        sb.auth.signOut();
-      },3000);
+      setTimeout(function(){hidePinScreen();sb.auth.signOut();},3000);
     }else{
       $('#pinError').textContent='❌ Code incorrect';
       $('#pinAttempts').textContent=left+' tentative'+(left>1?'s':'')+' restante'+(left>1?'s':'');
     }
   }
 }
-
 window.forgotPin=async function(){
   if(!confirm('Vous allez être déconnecté pour réinitialiser votre code PIN. Continuer ?'))return;
   hidePinScreen();
   await sb.auth.signOut();
   toast('Connectez-vous pour définir un nouveau code');
 };
-
 $('#pinPad').addEventListener('click',function(e){
   var t=e.target.closest('.pin-key');if(!t)return;
   var k=t.dataset.k;if(!k)return;
   if(k==='del')processPinBackspace();
   else if(k>='0'&&k<='9')processPinDigit(k);
 });
-
-// Support clavier physique
 document.addEventListener('keydown',function(e){
   if(!$('#pinScreen').classList.contains('open'))return;
   if(e.key>='0'&&e.key<='9')processPinDigit(e.key);
   else if(e.key==='Backspace')processPinBackspace();
-  else if(e.key==='Escape')closeModal('pinScreen');
 });
 
 function checkPinRequired(){
   if(!state.user){hidePinScreen();return;}
   var hasPin=state.profile&&state.profile.pin_hash;
   var verified=sessionStorage.getItem('pin_verified');
+  // Si pas encore de PIN → proposer de l'activer
+  if(!hasPin&&!localStorage.getItem('pin_prompted_'+state.user.id)){
+    localStorage.setItem('pin_prompted_'+state.user.id,'1');
+    setTimeout(function(){
+      if(confirm('🔐 Voulez-vous activer le code PIN pour sécuriser votre compte ?')){
+        startPinSetup();
+      }
+    },1500);
+    return;
+  }
+  // Si PIN existe et pas vérifié → afficher l'écran
   if(hasPin&&!verified){
     showPinScreen('verify');
   }else{
@@ -816,31 +775,24 @@ window.openPinSetup=function(){
   var u=state.profile||{};
   var hasPin=!!u.pin_hash;
   $('#pinSetupContent').innerHTML=
-    '<div class="security-box"><div class="security-icon">🔐</div><div><strong>Code PIN à 6 chiffres</strong>'+
-    '<p>Un code PIN protège votre compte à chaque ouverture de l\'application.</p></div></div>'+
+    '<div class="security-box"><div class="security-icon">🔐</div><div><strong>Code PIN à 6 chiffres</strong><p>Un code PIN protège votre compte à chaque ouverture de l\'application.</p></div></div>'+
     (hasPin
-      ?'<div style="margin-top:12px;color:var(--muted);font-size:11px">✅ Vous avez déjà un code PIN actif. Vous pouvez le modifier ou le désactiver.</div>'+
+      ?'<div style="margin-top:12px;color:var(--muted);font-size:11px">✅ Vous avez déjà un code PIN actif.</div>'+
         '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="changePin()">Modifier mon code PIN</button>'+
         '<button class="btn btn-danger" style="width:100%;margin-top:6px" onclick="removePin()">Désactiver le code PIN</button>'
-      :'<div style="margin-top:12px;color:var(--muted);font-size:11px">Vous n\'avez pas encore de code PIN. Activez-en un pour sécuriser votre compte.</div>'+
+      :'<div style="margin-top:12px;color:var(--muted);font-size:11px">Activez un code PIN pour sécuriser votre compte.</div>'+
         '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="startPinSetup()">Définir un code PIN</button>');
   openModal('pinSetupModal');
 };
-
 window.startPinSetup=function(){
   closeModal('pinSetupModal');
   if(!state.user){openModal('authModal');return;}
   sessionStorage.removeItem('pin_verified');
   showPinScreen('setup');
 };
-
-window.changePin=function(){
-  closeModal('pinSetupModal');
-  startPinSetup();
-};
-
+window.changePin=function(){closeModal('pinSetupModal');startPinSetup();};
 window.removePin=async function(){
-  if(!confirm('Désactiver le code PIN ? Vous n\'aurez plus à le saisir.'))return;
+  if(!confirm('Désactiver le code PIN ?'))return;
   var r=await sb.from('profiles').update({pin_hash:null}).eq('id',state.user.id);
   if(r.error){toast('Erreur','error');return;}
   await loadProfile(state.user.id);
@@ -906,9 +858,64 @@ window.toggleFaq=function(el){var item=el.parentElement;var open=item.classList.
 function registerSW(){if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(e){});}}
 function checkPwaInstall(){window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.deferredPrompt=e;setTimeout(function(){if(confirm('📱 Installer SENUSDT sur votre écran d\'accueil ?')){e.prompt();}},3000);});}
 
-/* CHARTS */
-function loadTvChart(cid,sym,intv){if(!window.TradingView)return;var c=document.getElementById(cid);if(!c)return;if(c.dataset.loaded==='1')return;c.innerHTML='';var theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';new TradingView.widget({autosize:true,symbol:sym,interval:intv||'1',timezone:'Africa/Dakar',theme:theme,style:'1',locale:'fr',toolbar_bg:theme==='light'?'#fff':'#101d17',enable_publishing:false,hide_side_toolbar:false,hide_top_toolbar:false,hide_legend:false,allow_symbol_change:true,save_image:false,container_id:cid,withdateranges:true,details:true,studies:["MASimple@tv-basicstudies"]});c.dataset.loaded='1';}
-function loadAllCharts(){loadTvChart('chart-btc','BINANCE:BTCUSDT','1');loadTvChart('chart-eth','BINANCE:ETHUSDT','1');loadTvChart('chart-sol','BINANCE:SOLUSDT','1');loadTvChart('chart-bnb','BINANCE:BNBUSDT','1');loadTvChart('chart-xau','BINANCE:XAUUSDT.P','5');loadTvChart('chart-eurusd','OANDA:EURUSD','5');}
+/* =========================================
+   CHARTS TRADINGVIEW — CORRIGÉ
+   ========================================= */
+function loadTvChart(cid,sym,intv){
+  // Attendre que TradingView soit chargé
+  if(!window.TradingView){
+    setTimeout(function(){loadTvChart(cid,sym,intv);},500);
+    return;
+  }
+  var c=document.getElementById(cid);
+  if(!c)return;
+  if(c.dataset.loaded==='1')return;
+  // Le container doit être visible avec une taille
+  if(c.offsetWidth===0||c.offsetHeight===0){
+    setTimeout(function(){loadTvChart(cid,sym,intv);},500);
+    return;
+  }
+  // Nettoyer et préparer
+  c.innerHTML='<div id="tv_'+cid+'" style="width:100%;height:100%"></div>';
+  var theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
+  try{
+    new TradingView.widget({
+      autosize:true,
+      symbol:sym,
+      interval:intv||'1',
+      timezone:'Africa/Dakar',
+      theme:theme,
+      style:'1',
+      locale:'fr',
+      toolbar_bg:theme==='light'?'#fff':'#101d17',
+      enable_publishing:false,
+      hide_side_toolbar:false,
+      hide_top_toolbar:false,
+      hide_legend:false,
+      allow_symbol_change:true,
+      save_image:false,
+      container_id:'tv_'+cid,
+      withdateranges:true,
+      studies:["MASimple@tv-basicstudies"]
+    });
+    c.dataset.loaded='1';
+  }catch(e){
+    console.log('Chart error',cid,e);
+    setTimeout(function(){loadTvChart(cid,sym,intv);},1000);
+  }
+}
+function loadAllCharts(){
+  if(!window.TradingView){
+    setTimeout(loadAllCharts,500);
+    return;
+  }
+  loadTvChart('chart-btc','BINANCE:BTCUSDT','1');
+  setTimeout(function(){loadTvChart('chart-eth','BINANCE:ETHUSDT','1');},200);
+  setTimeout(function(){loadTvChart('chart-sol','BINANCE:SOLUSDT','1');},400);
+  setTimeout(function(){loadTvChart('chart-bnb','BINANCE:BNBUSDT','1');},600);
+  setTimeout(function(){loadTvChart('chart-xau','BINANCE:XAUUSDT.P','5');},800);
+  setTimeout(function(){loadTvChart('chart-eurusd','OANDA:EURUSD','5');},1000);
+}
 
 /* HISTORIQUE PRIX */
 async function loadPriceHistory(){
@@ -1010,7 +1017,7 @@ window.showPage=function(p){
   if(p==='profile')renderProfile();
   if(p==='market'){loadOffers();setTimeout(loadPriceHistory,200);}
   if(p==='admin')renderAdmin();
-  if(p==='charts')setTimeout(loadAllCharts,100);
+  if(p==='charts')setTimeout(loadAllCharts,300);
   if(p==='alerts')loadAlerts();
   window.scrollTo({top:0,behavior:'smooth'});
 };
@@ -1078,8 +1085,7 @@ sb.auth.onAuthStateChange(async function(ev,s){
     state.user=s.user;
     await loadProfile(s.user.id);
     await loadNotifs();
-    // Vérifie si un PIN est requis
-    setTimeout(checkPinRequired,300);
+    checkPinRequired();
   }else{
     state.user=null;state.profile=null;state.bank=null;state.notifs=[];
     sessionStorage.removeItem('pin_verified');
@@ -1545,18 +1551,20 @@ async function init(){
     state.user=r.data.session.user;
     await loadProfile(state.user.id);
     await loadNotifs();
-    // Vérifie si PIN requis
-    setTimeout(checkPinRequired,300);
+    // Vérifie si PIN requis — APRES le chargement du profil
+    checkPinRequired();
   }
   renderAuth();loadOffers();calculateCommission();
   loadPriceHistory();
   checkOnb();registerSW();checkPwaInstall();
   setInterval(checkAlerts,60000);
   setTimeout(checkAlerts,5000);
-  // Re-vérifier quand l'app revient au premier plan
+  // Re-vérifier au retour au premier plan
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden&&state.user){
-      checkPinRequired();
+      var hasPin=state.profile&&state.profile.pin_hash;
+      var verified=sessionStorage.getItem('pin_verified');
+      if(hasPin&&!verified){showPinScreen('verify');}
     }
   });
 }
@@ -1567,4 +1575,4 @@ else init();
 </script>
 
 </body>
-      </html>
+    </html>
