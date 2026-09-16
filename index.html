@@ -293,6 +293,8 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 .pin-error{color:var(--red);font-size:12px;min-height:18px;text-align:center}
 .pin-attempts{color:var(--muted);font-size:11px;text-align:center}
 .pin-forgot{color:var(--green);font-size:12px;text-decoration:underline;cursor:pointer;text-align:center}
+.lock-badge{position:fixed;bottom:14px;right:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:5px 10px;border-radius:20px;z-index:90;display:none}
+.lock-badge.show{display:block}
 @media(max-width:900px){
   .hero,.profile-grid{grid-template-columns:1fr}
   .offers{grid-template-columns:1fr}
@@ -362,6 +364,9 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
   <div class="pin-forgot" id="pinForgot" onclick="forgotPin()">Code oublié ?</div>
   <div class="pin-forgot" id="pinLogout" style="display:none;color:var(--red)" onclick="pinLogout()">Se déconnecter</div>
 </div>
+
+<!-- BADGE CADENAS AUTO -->
+<div class="lock-badge" id="lockBadge">🔒 Verrouillage dans <span id="lockCountdown">2:00</span></div>
 
 <!-- ONBOARDING -->
 <div id="onboarding" class="onboarding">
@@ -580,10 +585,9 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="section-header"><div><h2>❓ Questions fréquentes</h2></div></div>
     <div style="max-width:800px;margin:0 auto">
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment payer les frais SENUSDT ?</div><div class="faq-a">Les frais de 1 % sont à envoyer par <strong>Wave au +221 77 567 31 82</strong> en mettant la référence de votre commande en motif.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment activer le code PIN ?</div><div class="faq-a">À la première connexion, le code PIN est <strong>obligatoire</strong> (comme Wave ou Exness). Vous choisissez 6 chiffres, il vous sera demandé à chaque ouverture.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">J'ai oublié mon code PIN, que faire ?</div><div class="faq-a">Sur l'écran du PIN, cliquez sur « Code oublié ? ». Vous serez déconnecté et pourrez vous reconnecter par email, puis définir un nouveau code.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment fonctionne le code PIN ?</div><div class="faq-a">Comme Wave ou Exness : votre code PIN à 6 chiffres protège votre compte à chaque ouverture. Personne d'autre ne peut y accéder même avec votre téléphone. Après 2 minutes d'inactivité, l'application se reverrouille automatiquement.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">J'ai oublié mon code PIN, que faire ?</div><div class="faq-a">Sur l'écran du PIN, cliquez sur « Code oublié ? ». Vous serez déconnecté et pourrez vous reconnecter par email.</div></div>
       <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment devenir Vendeur Vérifié+ (👑 Premium) ?</div><div class="faq-a">Profil → cliquez sur « Devenir Vendeur Vérifié+ ». Il faut déposer une caution de 500 000 FCFA par Wave.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment supprimer mon compte ?</div><div class="faq-a">Profil → « Zone dangereuse » → « Supprimer mon compte ».</div></div>
     </div>
   </section>
 
@@ -598,7 +602,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
       <h3>3. Frais</h3>
       <p>SENUSDT prélève 1 % par transaction, payables par Wave au +221 77 567 31 82.</p>
       <h3>4. Sécurité du compte</h3>
-      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN. Le code PIN est obligatoire pour utiliser l'application.</p>
+      <p>Vous êtes responsable de la confidentialité de votre mot de passe et de votre code PIN. Le code PIN est obligatoire et se reverrouille automatiquement après 2 minutes d'inactivité.</p>
       <h2>Politique de confidentialité</h2>
       <h3>Données collectées</h3>
       <ul><li>Identité : pseudo, email, WhatsApp</li><li>KYC : CNI/passeport, selfie (si vérification)</li><li>Transactions : historique des commandes</li><li>Sécurité : hash SHA-256 de votre code PIN (jamais en clair)</li></ul>
@@ -624,7 +628,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
     <div class="form-group"><label>Nom d'utilisateur</label><input id="registerUsername" class="input" minlength="3" required></div>
     <div class="form-group"><label>E-mail</label><input id="registerEmail" class="input" type="email" required></div>
     <div class="form-group"><label>Mot de passe (min 8)</label><input id="registerPassword" class="input" type="password" minlength="8" required></div>
-    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU</a>. Un code PIN vous sera demandé à la première connexion.</p></div></div>
+    <div class="security-box"><div class="security-icon">📜</div><div><strong>En vous inscrivant</strong><p>Vous acceptez nos <a href="#" onclick="event.preventDefault();closeModal('authModal');showPage('legal')" style="color:var(--green);text-decoration:underline">CGU</a>. Un code PIN vous sera demandé juste après.</p></div></div>
     <button class="btn btn-primary" style="width:100%;min-height:44px;margin-top:8px" type="submit">Créer mon compte</button>
   </form>
 </div></div>
@@ -639,7 +643,6 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 <div id="chatModal" class="modal"><div class="modal-box"><div class="modal-head"><h2 id="chatTitle">Chat</h2><button class="close" onclick="closeChat()">×</button></div><div id="chatContent"></div></div></div>
 <div id="paymentProofModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>Preuve de paiement</h2><button class="close" onclick="closeModal('paymentProofModal')">×</button></div><div id="paymentProofContent"></div></div></div>
 <div id="kycModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>Vérification d'identité</h2><button class="close" onclick="closeModal('kycModal')">×</button></div><div id="kycContent"></div></div></div>
-<div id="pinSetupModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>🔐 Code PIN</h2><button class="close" onclick="closeModal('pinSetupModal')">×</button></div><div id="pinSetupContent"></div></div></div>
 <div id="deleteModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>⚠️ Supprimer mon compte</h2><button class="close" onclick="closeModal('deleteModal')">×</button></div><div id="deleteContent"></div></div></div>
 
 <div id="toastContainer" class="toast-container"></div>
@@ -655,6 +658,7 @@ var RATE=0.01;
 var WAVE='+221 77 567 31 82';
 var WHATSAPP_SUPPORT='221775673182';
 var AVATARS=['👤','🧑','👨','👩','🧔','👨‍💼','👩‍💼','🦁','🐘','🦅','🌟','💎','🚀','💰','🎯','🌍'];
+var AUTO_LOCK_DELAY = 2 * 60 * 1000; // 2 minutes d'inactivité
 var LOGO_IMG='<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'46\' fill=\'none\' stroke=\'%230e8f56\' stroke-width=\'8\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'38\' fill=\'%2319c77a\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'32\' fill=\'%2315b56e\'/%3E%3Crect x=\'30\' y=\'36\' width=\'40\' height=\'8\' rx=\'2\' fill=\'%23fff\'/%3E%3Crect x=\'46\' y=\'36\' width=\'8\' height=\'42\' rx=\'2\' fill=\'%23fff\'/%3E%3Cellipse cx=\'50\' cy=\'52\' rx=\'19\' ry=\'5\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'3\'/%3E%3C/svg%3E" alt="SENUSDT">';
 
 function $(s,r){return (r||document).querySelector(s);}
@@ -676,7 +680,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.o
 $$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
 /* =========================================
-   PIN CODE — OBLIGATOIRE COMME WAVE/EXNESS
+   PIN CODE — OBLIGATOIRE + AUTO-LOCK
    ========================================= */
 async function hashPin(pin){
   var enc=new TextEncoder();
@@ -684,6 +688,8 @@ async function hashPin(pin){
   return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
 var pin={buffer:'',attempts:0,maxAttempts:5,isSetup:false};
+var lockTimer=null;
+var countdownInterval=null;
 
 function showPinScreen(mode){
   pin.buffer='';pin.attempts=0;pin.isSetup=(mode==='setup');
@@ -701,6 +707,8 @@ function showPinScreen(mode){
   $('#pinError').textContent='';$('#pinAttempts').textContent='';
   updatePinDots();
   $('#pinScreen').classList.add('open');
+  // Arrêter le cadenas quand on est sur l'écran PIN
+  stopAutoLock();
 }
 function hidePinScreen(){$('#pinScreen').classList.remove('open');pin.buffer='';}
 function updatePinDots(){$$('.pin-dot').forEach(function(d,i){d.classList.toggle('filled',i<pin.buffer.length);d.classList.remove('error');});}
@@ -726,6 +734,7 @@ async function savePin(pinCode){
     toast('✅ Code PIN activé');
     sessionStorage.setItem('pin_verified','1');
     renderAuth();
+    startAutoLock(); // Démarrer le cadenas auto
   }
 }
 async function verifyPin(pinCode){
@@ -735,6 +744,7 @@ async function verifyPin(pinCode){
     sessionStorage.setItem('pin_verified','1');
     hidePinScreen();
     toast('Bienvenue 👋');
+    startAutoLock(); // Démarrer le cadenas auto
   }else{
     pin.attempts++;pin.buffer='';updatePinDots();shakePinDots();
     var left=pin.maxAttempts-pin.attempts;
@@ -771,61 +781,81 @@ document.addEventListener('keydown',function(e){
   if(e.key>='0'&&e.key<='9')processPinDigit(e.key);
   else if(e.key==='Backspace')processPinBackspace();
 });
-// Empêcher la fermeture du PIN setup avec Échap
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'&&pin.isSetup&&$('#pinScreen').classList.contains('open')){
-    e.stopPropagation();
-  }
+  if(e.key==='Escape'&&pin.isSetup&&$('#pinScreen').classList.contains('open')){e.stopPropagation();}
 },true);
 
-/* ⭐ PIN OBLIGATOIRE : setup si pas de PIN, verify si PIN existe */
+/* ⭐ VÉRIFIE SI LE PIN EST REQUIS */
 function checkPinRequired(){
   if(!state.user)return;
   var hasPin=state.profile&&state.profile.pin_hash;
   var verified=sessionStorage.getItem('pin_verified');
-  
-  // Pas de PIN → FORCER la configuration (comme Wave)
-  if(!hasPin){
-    showPinScreen('setup');
-    return;
-  }
-  
-  // PIN existe et pas encore vérifié dans cette session → demander
-  if(!verified){
+  if(!hasPin){showPinScreen('setup');return;}
+  if(!verified){showPinScreen('verify');}
+  else{hidePinScreen();startAutoLock();}
+}
+
+/* ⭐ AUTO-LOCK : verrouille après 2 min d'inactivité */
+function startAutoLock(){
+  stopAutoLock();
+  if(!state.user)return;
+  var hasPin=state.profile&&state.profile.pin_hash;
+  if(!hasPin)return;
+
+  lockTimer=setTimeout(function(){
+    // Verrouille : remet pin_verified à zéro
+    sessionStorage.removeItem('pin_verified');
     showPinScreen('verify');
-  }else{
-    hidePinScreen();
+    toast('🔒 App verrouillée','error');
+  }, AUTO_LOCK_DELAY);
+
+  // Badge visible
+  $('#lockBadge').classList.add('show');
+  updateCountdown();
+  if(countdownInterval)clearInterval(countdownInterval);
+  countdownInterval=setInterval(updateCountdown,1000);
+}
+
+function stopAutoLock(){
+  if(lockTimer){clearTimeout(lockTimer);lockTimer=null;}
+  if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;}
+  $('#lockBadge').classList.remove('show');
+}
+
+function updateCountdown(){
+  var badge=$('#lockCountdown');
+  if(!badge)return;
+  var remaining=AUTO_LOCK_DELAY;
+  if(lockTimer){
+    // Approximation : on rafraîchit chaque seconde depuis le dernier start
+    // On garde une variable globale pour le temps écoulé
+    remaining=AUTO_LOCK_DELAY-(Date.now()-(lastActivity||Date.now()));
+  }
+  if(remaining<0)remaining=0;
+  var m=Math.floor(remaining/60000);
+  var s=Math.floor((remaining%60000)/1000);
+  badge.textContent=m+':'+(s<10?'0':'')+s;
+}
+
+var lastActivity=Date.now();
+function onActivity(){
+  if(!state.user)return;
+  var hasPin=state.profile&&state.profile.pin_hash;
+  var verified=sessionStorage.getItem('pin_verified');
+  if(hasPin&&verified){
+    lastActivity=Date.now();
+    startAutoLock();
   }
 }
 
-window.openPinSetup=function(){
-  if(!state.user){openModal('authModal');return;}
-  var u=state.profile||{};
-  var hasPin=!!u.pin_hash;
-  $('#pinSetupContent').innerHTML=
-    '<div class="security-box"><div class="security-icon">🔐</div><div><strong>Code PIN à 6 chiffres</strong><p>Un code PIN protège votre compte à chaque ouverture de l\'application.</p></div></div>'+
-    (hasPin
-      ?'<div style="margin-top:12px;color:var(--muted);font-size:11px">✅ Vous avez déjà un code PIN actif.</div>'+
-        '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="changePin()">Modifier mon code PIN</button>'+
-        '<button class="btn btn-danger" style="width:100%;margin-top:6px" onclick="removePin()">Désactiver le code PIN</button>'
-      :'<div style="margin-top:12px;color:var(--muted);font-size:11px">Activez un code PIN pour sécuriser votre compte.</div>'+
-        '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="startPinSetup()">Définir un code PIN</button>');
-  openModal('pinSetupModal');
-};
-window.startPinSetup=function(){
-  closeModal('pinSetupModal');
-  if(!state.user){openModal('authModal');return;}
-  sessionStorage.removeItem('pin_verified');
-  showPinScreen('setup');
-};
-window.changePin=function(){closeModal('pinSetupModal');startPinSetup();};
-window.removePin=async function(){
-  if(!confirm('Désactiver le code PIN ?\n\n⚠️ Attention : il sera automatiquement redemandé à la prochaine ouverture.'))return;
-  toast('Le code PIN est obligatoire et ne peut pas être désactivé','error');
-  closeModal('pinSetupModal');
-};
+// Écouter les interactions
+['click','keydown','touchstart','mousemove','scroll'].forEach(function(evt){
+  document.addEventListener(evt,onActivity,{passive:true});
+});
 
-/* THEME */
+/* =========================================
+   THEME
+   ========================================= */
 window.toggleTheme=function(){
   var cur=document.documentElement.getAttribute('data-theme')||'dark';
   var nxt=cur==='dark'?'light':'dark';
@@ -838,8 +868,8 @@ window.toggleTheme=function(){
 var onbStep=0;
 var onbData=[
   {icon:LOGO_IMG,title:'Bienvenue sur SENUSDT',text:'La plateforme sénégalaise pour échanger de l\'USDT en P2P, en toute sécurité.'},
-  {icon:'🛡️',title:'100 % non-custodial',text:'Nous ne détenons jamais vos USDT ni vos FCFA. Les transferts se font directement entre vous.'},
-  {icon:'💬',title:'Prêt à commencer ?',text:'Créez un compte gratuit, publiez votre première offre et commencez à trader en quelques minutes.'}
+  {icon:'🔐',title:'Votre code PIN vous protège',text:'Créez un code à 6 chiffres. Il sera demandé à chaque ouverture, comme sur Wave ou Exness.'},
+  {icon:'💬',title:'Prêt à commencer ?',text:'Créez un compte, publiez une offre et commencez à trader en quelques minutes.'}
 ];
 window.nextOnb=function(){onbStep++;if(onbStep>=onbData.length){skipOnb();return;}renderOnb();};
 window.skipOnb=function(){$('#onboarding').classList.remove('open');localStorage.setItem('onb_done','1');};
@@ -1024,6 +1054,7 @@ window.switchAuth=function(m){var l=m==='login';$('#loginTab').classList.toggle(
 window.openAuth=function(m){switchAuth(m);openModal('authModal');};
 window.logout=function(){
   sessionStorage.removeItem('pin_verified');
+  stopAutoLock();
   sb.auth.signOut().then(function(){toast('Déconnecté');showPage('market');});
 };
 
@@ -1089,6 +1120,7 @@ sb.auth.onAuthStateChange(async function(ev,s){
   }else{
     state.user=null;state.profile=null;state.bank=null;state.notifs=[];
     sessionStorage.removeItem('pin_verified');
+    stopAutoLock();
     hidePinScreen();
   }
   renderAuth();
@@ -1444,6 +1476,7 @@ window.openDeleteModal=function(){
     await sb.from('price_alerts').delete().eq('user_id',state.user.id);
     await sb.from('profiles').delete().eq('id',state.user.id);
     sessionStorage.removeItem('pin_verified');
+    stopAutoLock();
     await sb.auth.signOut();
     toast('Compte supprimé. Au revoir.');
     closeModal('deleteModal');showPage('market');
@@ -1480,7 +1513,7 @@ async function renderProfile(){
         '<div style="text-align:center;margin-top:5px">'+stars(u.rating)+' ('+(u.trades_count||0)+')</div>'+
         '<div style="text-align:center;margin-top:9px">'+kycBadges[kyc]+'</div>'+
         '<button class="btn btn-small" style="width:100%;margin-top:9px" onclick="openKycModal()">'+(kyc==='approved'?'Voir mon KYC':kyc==='pending'?'Voir dossier':'Vérifier mon identité ✅')+'</button>'+
-        '<button class="btn btn-small '+(hasPin?'btn-success':'btn-warn')+'" style="width:100%;margin-top:6px" onclick="openPinSetup()">'+(hasPin?'🔐 Code PIN actif — Modifier':'🔓 Activer le code PIN')+'</button>'+
+        '<button class="btn btn-small '+(hasPin?'btn-success':'btn-warn')+'" style="width:100%;margin-top:6px" onclick="changePin()">🔐 '+(hasPin?'Modifier mon code PIN':'Créer mon code PIN')+'</button>'+
         '<div class="stats"><div class="stat"><span>Terminées</span><strong>'+done+'</strong></div><div class="stat"><span>Actives</span><strong>'+act+'</strong></div><div class="stat"><span>Offres</span><strong>'+ofc+'</strong></div></div>'+
         '<div class="stats" style="grid-template-columns:1fr"><div class="stat"><span>Volume</span><strong>'+fmt(vol)+'</strong></div></div>'+
         '<button class="btn btn-whatsapp" style="width:100%;margin-top:9px" onclick="openWhatsApp(\'Bonjour, je suis '+esc(u.username||'')+'\')">💬 Contacter le support</button>'+
@@ -1508,6 +1541,13 @@ async function renderProfile(){
   $('#avP').addEventListener('click',async function(e){var t=e.target.closest('.avatar-choice');if(!t)return;var a=t.dataset.a;await sb.from('profiles').update({avatar_emoji:a}).eq('id',state.user.id);await loadProfile(state.user.id);$$('.avatar-choice').forEach(function(x){x.classList.toggle('selected',x.dataset.a===a);});renderAuth();toast('Avatar mis à jour');});
   $('#bankForm').addEventListener('submit',async function(e){e.preventDefault();var r2=await sb.from('bank_accounts').upsert({user_id:state.user.id,bank_name:$('#bkN').value.trim(),account_name:$('#bkA').value.trim(),rib:$('#bkR').value.trim(),iban:$('#bkI').value.trim(),phone:$('#bkP').value.trim(),updated_at:new Date().toISOString()},{onConflict:'user_id'});if(r2.error){toast('Erreur','error');return;}toast('Enregistré');await loadProfile(state.user.id);});
 }
+
+window.changePin=function(){
+  if(!state.user){openModal('authModal');return;}
+  if(!confirm('Voulez-vous modifier votre code PIN ?\n\nVous devrez créer un nouveau code à 6 chiffres.'))return;
+  sessionStorage.removeItem('pin_verified');
+  showPinScreen('setup');
+};
 
 /* ADMIN */
 async function renderAdmin(){
@@ -1560,7 +1600,9 @@ async function init(){
   setTimeout(checkAlerts,5000);
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden&&state.user){
-      checkPinRequired();
+      var hasPin=state.profile&&state.profile.pin_hash;
+      var verified=sessionStorage.getItem('pin_verified');
+      if(hasPin&&!verified){showPinScreen('verify');}
     }
   });
 }
@@ -1571,4 +1613,4 @@ else init();
 </script>
 
 </body>
-  </html>
+    </html>
