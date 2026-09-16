@@ -30,6 +30,8 @@ html[data-theme="light"]{
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{min-height:100vh;background:radial-gradient(circle at 20% 0%,rgba(25,199,122,.09),transparent 30%),radial-gradient(circle at 100% 20%,rgba(77,141,255,.06),transparent 25%),var(--bg);color:var(--text);font-family:var(--font);transition:background .3s,color .3s}
+/* ⭐ CLÉ : cache TOUT sauf le PIN screen et les toasts quand PIN en attente */
+body.pin-pending > *:not(#pinScreen):not(#toastContainer){visibility:hidden!important}
 button,input,select,textarea{font:inherit}
 button{border:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
@@ -317,7 +319,7 @@ html[data-theme="light"] .wave-line{background:var(--surface3);color:var(--green
 }
 </style>
 </head>
-<body>
+<body class="pin-pending">
 
 <!-- PIN LOCK SCREEN -->
 <div id="pinScreen" class="pin-screen">
@@ -674,6 +676,11 @@ function openModal(id){var m=document.getElementById(id);if(m)m.classList.add('o
 document.addEventListener('keydown',function(e){if(e.key==='Escape')$$('.modal.open').forEach(function(m){m.classList.remove('open');});});
 $$('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='chatModal')m.classList.remove('open');});});
 
+/* ⭐ FONCTION UTILITAIRE : retirer le blocage PIN */
+function unlockApp(){
+  document.body.classList.remove('pin-pending');
+}
+
 /* =========================================
    PIN CODE
    ========================================= */
@@ -688,7 +695,9 @@ function showPinScreen(mode){
   $('#pinTitle').textContent=pin.isSetup?'Choisissez un code':'Code de sécurité';
   $('#pinSubtitle').textContent=pin.isSetup?'6 chiffres que vous retiendrez':'Saisissez votre code à 6 chiffres';
   $('#pinError').textContent='';$('#pinAttempts').textContent='';
-  updatePinDots();$('#pinScreen').classList.add('open');
+  updatePinDots();
+  $('#pinScreen').classList.add('open');
+  document.body.classList.add('pin-pending');
 }
 function hidePinScreen(){$('#pinScreen').classList.remove('open');pin.buffer='';}
 function updatePinDots(){$$('.pin-dot').forEach(function(d,i){d.classList.toggle('filled',i<pin.buffer.length);d.classList.remove('error');});}
@@ -707,23 +716,30 @@ function processPinBackspace(){if(pin.buffer.length>0){pin.buffer=pin.buffer.sli
 async function savePin(pinCode){
   var h=await hashPin(pinCode);
   var r=await sb.from('profiles').update({pin_hash:h}).eq('id',state.user.id);
-  if(r.error){toast('Erreur','error');hidePinScreen();return;}
+  if(r.error){toast('Erreur','error');hidePinScreen();unlockApp();return;}
   await loadProfile(state.user.id);
-  if(pin.isSetup){hidePinScreen();toast('✅ Code PIN activé');sessionStorage.setItem('pin_verified','1');}
+  if(pin.isSetup){
+    hidePinScreen();
+    unlockApp();
+    toast('✅ Code PIN activé');
+    sessionStorage.setItem('pin_verified','1');
+  }
 }
 async function verifyPin(pinCode){
   var h=await hashPin(pinCode);
   var stored=state.profile&&state.profile.pin_hash;
   if(h===stored){
     sessionStorage.setItem('pin_verified','1');
-    hidePinScreen();toast('Bienvenue 👋');
+    hidePinScreen();
+    unlockApp();
+    toast('Bienvenue 👋');
   }else{
     pin.attempts++;pin.buffer='';updatePinDots();shakePinDots();
     var left=pin.maxAttempts-pin.attempts;
     if(left<=0){
       $('#pinError').textContent='Trop de tentatives';
       $('#pinAttempts').textContent='Déconnexion dans 3 secondes…';
-      setTimeout(function(){hidePinScreen();sb.auth.signOut();},3000);
+      setTimeout(function(){hidePinScreen();unlockApp();sb.auth.signOut();},3000);
     }else{
       $('#pinError').textContent='❌ Code incorrect';
       $('#pinAttempts').textContent=left+' tentative'+(left>1?'s':'')+' restante'+(left>1?'s':'');
@@ -732,7 +748,7 @@ async function verifyPin(pinCode){
 }
 window.forgotPin=async function(){
   if(!confirm('Vous allez être déconnecté pour réinitialiser votre code PIN. Continuer ?'))return;
-  hidePinScreen();
+  hidePinScreen();unlockApp();
   await sb.auth.signOut();
   toast('Connectez-vous pour définir un nouveau code');
 };
@@ -748,25 +764,29 @@ document.addEventListener('keydown',function(e){
   else if(e.key==='Backspace')processPinBackspace();
 });
 
+/* ⭐ Vérifie et affiche le PIN si nécessaire */
 function checkPinRequired(){
-  if(!state.user){hidePinScreen();return;}
+  if(!state.user){hidePinScreen();unlockApp();return;}
   var hasPin=state.profile&&state.profile.pin_hash;
   var verified=sessionStorage.getItem('pin_verified');
-  // Si pas encore de PIN → proposer de l'activer
-  if(!hasPin&&!localStorage.getItem('pin_prompted_'+state.user.id)){
-    localStorage.setItem('pin_prompted_'+state.user.id,'1');
-    setTimeout(function(){
-      if(confirm('🔐 Voulez-vous activer le code PIN pour sécuriser votre compte ?')){
-        startPinSetup();
-      }
-    },1500);
+  // Pas de PIN → proposer d'en activer un (une seule fois par utilisateur)
+  if(!hasPin){
+    unlockApp();
+    if(!localStorage.getItem('pin_prompted_'+state.user.id)){
+      localStorage.setItem('pin_prompted_'+state.user.id,'1');
+      setTimeout(function(){
+        if(confirm('🔐 Voulez-vous activer le code PIN pour sécuriser votre compte ?\n\nUn code à 6 chiffres sera demandé à chaque ouverture de l\'app.')){
+          startPinSetup();
+        }
+      },2000);
+    }
     return;
   }
-  // Si PIN existe et pas vérifié → afficher l'écran
-  if(hasPin&&!verified){
+  // PIN existe et pas encore vérifié → BLOQUER
+  if(!verified){
     showPinScreen('verify');
   }else{
-    hidePinScreen();
+    hidePinScreen();unlockApp();
   }
 }
 
@@ -858,57 +878,28 @@ window.toggleFaq=function(el){var item=el.parentElement;var open=item.classList.
 function registerSW(){if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(e){});}}
 function checkPwaInstall(){window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.deferredPrompt=e;setTimeout(function(){if(confirm('📱 Installer SENUSDT sur votre écran d\'accueil ?')){e.prompt();}},3000);});}
 
-/* =========================================
-   CHARTS TRADINGVIEW — CORRIGÉ
-   ========================================= */
+/* CHARTS */
 function loadTvChart(cid,sym,intv){
-  // Attendre que TradingView soit chargé
-  if(!window.TradingView){
-    setTimeout(function(){loadTvChart(cid,sym,intv);},500);
-    return;
-  }
-  var c=document.getElementById(cid);
-  if(!c)return;
+  if(!window.TradingView){setTimeout(function(){loadTvChart(cid,sym,intv);},500);return;}
+  var c=document.getElementById(cid);if(!c)return;
   if(c.dataset.loaded==='1')return;
-  // Le container doit être visible avec une taille
-  if(c.offsetWidth===0||c.offsetHeight===0){
-    setTimeout(function(){loadTvChart(cid,sym,intv);},500);
-    return;
-  }
-  // Nettoyer et préparer
+  if(c.offsetWidth===0||c.offsetHeight===0){setTimeout(function(){loadTvChart(cid,sym,intv);},500);return;}
   c.innerHTML='<div id="tv_'+cid+'" style="width:100%;height:100%"></div>';
   var theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
   try{
     new TradingView.widget({
-      autosize:true,
-      symbol:sym,
-      interval:intv||'1',
-      timezone:'Africa/Dakar',
-      theme:theme,
-      style:'1',
-      locale:'fr',
-      toolbar_bg:theme==='light'?'#fff':'#101d17',
-      enable_publishing:false,
-      hide_side_toolbar:false,
-      hide_top_toolbar:false,
-      hide_legend:false,
-      allow_symbol_change:true,
-      save_image:false,
-      container_id:'tv_'+cid,
-      withdateranges:true,
+      autosize:true,symbol:sym,interval:intv||'1',timezone:'Africa/Dakar',
+      theme:theme,style:'1',locale:'fr',toolbar_bg:theme==='light'?'#fff':'#101d17',
+      enable_publishing:false,hide_side_toolbar:false,hide_top_toolbar:false,
+      hide_legend:false,allow_symbol_change:true,save_image:false,
+      container_id:'tv_'+cid,withdateranges:true,
       studies:["MASimple@tv-basicstudies"]
     });
     c.dataset.loaded='1';
-  }catch(e){
-    console.log('Chart error',cid,e);
-    setTimeout(function(){loadTvChart(cid,sym,intv);},1000);
-  }
+  }catch(e){setTimeout(function(){loadTvChart(cid,sym,intv);},1000);}
 }
 function loadAllCharts(){
-  if(!window.TradingView){
-    setTimeout(loadAllCharts,500);
-    return;
-  }
+  if(!window.TradingView){setTimeout(loadAllCharts,500);return;}
   loadTvChart('chart-btc','BINANCE:BTCUSDT','1');
   setTimeout(function(){loadTvChart('chart-eth','BINANCE:ETHUSDT','1');},200);
   setTimeout(function(){loadTvChart('chart-sol','BINANCE:SOLUSDT','1');},400);
@@ -1025,7 +1016,11 @@ window.scrollToOffers=function(){var e=document.getElementById('offersSection');
 window.requireAuth=function(cb){if(!state.user){openModal('authModal');return;}if(typeof cb==='function')cb();};
 window.switchAuth=function(m){var l=m==='login';$('#loginTab').classList.toggle('active',l);$('#registerTab').classList.toggle('active',!l);$('#loginForm').style.display=l?'':'none';$('#registerForm').style.display=l?'none':'';};
 window.openAuth=function(m){switchAuth(m);openModal('authModal');};
-window.logout=function(){sessionStorage.removeItem('pin_verified');sb.auth.signOut().then(function(){toast('Déconnecté');showPage('market');});};
+window.logout=function(){
+  sessionStorage.removeItem('pin_verified');
+  unlockApp();
+  sb.auth.signOut().then(function(){toast('Déconnecté');showPage('market');});
+};
 
 function renderAuth(){
   var z=$('#authZone');if(!z)return;
@@ -1089,7 +1084,7 @@ sb.auth.onAuthStateChange(async function(ev,s){
   }else{
     state.user=null;state.profile=null;state.bank=null;state.notifs=[];
     sessionStorage.removeItem('pin_verified');
-    hidePinScreen();
+    hidePinScreen();unlockApp();
   }
   renderAuth();
 });
@@ -1444,6 +1439,7 @@ window.openDeleteModal=function(){
     await sb.from('price_alerts').delete().eq('user_id',state.user.id);
     await sb.from('profiles').delete().eq('id',state.user.id);
     sessionStorage.removeItem('pin_verified');
+    unlockApp();
     await sb.auth.signOut();
     toast('Compte supprimé. Au revoir.');
     closeModal('deleteModal');showPage('market');
@@ -1546,19 +1542,41 @@ window.calculateCommission=function(){
 async function init(){
   var savedTheme=localStorage.getItem('theme');
   if(savedTheme)document.documentElement.setAttribute('data-theme',savedTheme);
+  
+  // ⭐ Au démarrage : bloquer TOUT tant qu'on n'a pas vérifié le PIN
+  document.body.classList.add('pin-pending');
+  
   var r=await sb.auth.getSession();
   if(r.data&&r.data.session&&r.data.session.user){
     state.user=r.data.session.user;
     await loadProfile(state.user.id);
+    
+    // Vérifie le PIN AVANT de rendre quoi que ce soit
+    var hasPin=state.profile&&state.profile.pin_hash;
+    var verified=sessionStorage.getItem('pin_verified');
+    
+    if(hasPin&&!verified){
+      // Bloquer : afficher le PIN
+      showPinScreen('verify');
+      // Ne pas charger le reste tant que le PIN n'est pas validé
+      // (mais on continue le reste pour l'affichage en arrière-plan)
+    } else {
+      // Pas de PIN requis → débloquer
+      unlockApp();
+    }
+    
     await loadNotifs();
-    // Vérifie si PIN requis — APRES le chargement du profil
-    checkPinRequired();
+  } else {
+    // Pas connecté → pas de PIN à demander
+    unlockApp();
   }
+  
   renderAuth();loadOffers();calculateCommission();
   loadPriceHistory();
   checkOnb();registerSW();checkPwaInstall();
   setInterval(checkAlerts,60000);
   setTimeout(checkAlerts,5000);
+  
   // Re-vérifier au retour au premier plan
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden&&state.user){
@@ -1575,4 +1593,4 @@ else init();
 </script>
 
 </body>
-    </html>
+                                                         </html>
